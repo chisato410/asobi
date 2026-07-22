@@ -1,0 +1,14 @@
+node_modules/
+.env
+.env.*
+!.env.example
+.DS_Store
+dist/
+build/
+*.log
+.vercel/
+.claude/.cc-writes/
+.claude/settings.local.json
+.claude/
+.vercel
+.env*
