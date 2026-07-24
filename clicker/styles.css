@@ -1,0 +1,644 @@
+:root {
+  --ink: #2a2118;
+  --muted-ink: #8a7a68;
+  --room: #fff1e0;
+  --pop: #ff5d3a;
+  --pop-dark: #d6431f;
+  --paper: #fffdf8;
+  --gold: #f2b90f;
+  --white: #ffffff;
+  --display: "Arial Black", "Hiragino Kaku Gothic StdN", "Yu Gothic", sans-serif;
+  --body: "Hiragino Sans", "Yu Gothic", "Meiryo", sans-serif;
+  --mono: ui-monospace, "SFMono-Regular", "Cascadia Mono", monospace;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  color: var(--ink);
+  background: var(--room);
+  font-family: var(--body);
+  scroll-behavior: smooth;
+}
+
+body {
+  min-width: 320px;
+  min-height: 100vh;
+  margin: 0;
+  background: var(--room);
+}
+
+button,
+a {
+  -webkit-tap-highlight-color: transparent;
+}
+
+button {
+  font: inherit;
+}
+
+.page-shell {
+  width: min(1080px, calc(100% - 48px));
+  margin: 0 auto;
+}
+
+.site-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 88px;
+  border-bottom: 2px solid var(--ink);
+}
+
+.brand {
+  display: inline-flex;
+  gap: 10px;
+  align-items: center;
+  color: inherit;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-decoration: none;
+}
+
+.brand-mark {
+  display: grid;
+  width: 32px;
+  height: 32px;
+  place-items: center;
+  border: 2px solid currentColor;
+  border-radius: 50%;
+  font-size: 14px;
+}
+
+.lifetime {
+  margin: 0;
+  font-family: var(--mono);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.hero {
+  padding: 64px 4vw 12px;
+  text-align: center;
+}
+
+.hero .intro {
+  max-width: 640px;
+  margin: 0 auto;
+}
+
+/* PCでは「モグラを叩くゲーム」と「カップ麺タイマー」を横に並べる。
+   グリッド(display: grid)は、要素を格子状に並べるためのCSSの仕組み。
+   grid-template-columns で列の幅を指定すると、その数だけ横に並ぶ。 */
+.game-columns {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: clamp(28px, 4vw, 56px);
+  align-items: start;
+  width: min(1080px, 100%);
+  margin: 0 auto;
+  padding: 28px 4vw 84px;
+}
+
+.eyebrow {
+  display: inline-block;
+  margin: 0 0 22px;
+  padding: 7px 11px 6px;
+  border: 2px solid var(--ink);
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+}
+
+h1 {
+  margin: 0;
+  font-family: var(--display);
+  font-size: clamp(42px, 5vw, 68px);
+  font-weight: 900;
+  letter-spacing: -0.06em;
+  line-height: 1.05;
+}
+
+h1 .accent {
+  color: var(--pop);
+}
+
+.lead {
+  margin: 32px 0 0;
+  color: var(--muted-ink);
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.9;
+}
+
+.clicker-machine {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: min(100%, 400px);
+  margin: 0 auto;
+  padding: 30px 30px 34px;
+  border: 3px solid var(--ink);
+  border-radius: 32px;
+  background: var(--paper);
+  box-shadow: 12px 14px 0 var(--ink);
+}
+
+.score-window {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  padding: 18px 0 14px;
+  border: 3px solid var(--ink);
+  border-radius: 14px;
+  background: var(--ink);
+  color: var(--gold);
+}
+
+.score-caption {
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.24em;
+  opacity: 0.7;
+}
+
+#scoreValue {
+  font-family: var(--mono);
+  font-size: clamp(40px, 8vw, 56px);
+  font-weight: 800;
+  line-height: 1.2;
+  font-variant-numeric: tabular-nums;
+}
+
+.rank-badge {
+  margin: 16px 0 0;
+  padding: 5px 14px;
+  border: 2px solid var(--ink);
+  border-radius: 999px;
+  background: var(--gold);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  transition: transform 200ms ease;
+}
+
+.rank-badge.is-changed {
+  animation: rank-pop 420ms ease;
+}
+
+.mole-field {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+  width: 100%;
+  margin-top: 24px;
+}
+
+.mole-hole {
+  position: relative;
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
+  border: 3px solid var(--ink);
+  border-radius: 50%;
+  background: radial-gradient(circle at 50% 38%, #6b4a2f, #3a2717 72%);
+  box-shadow: inset 0 6px 10px rgba(0, 0, 0, 0.35);
+  cursor: pointer;
+  padding: 0;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.mole-hole .mole {
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  transform: translate(-50%, 105%);
+  font-size: clamp(28px, 6.5vw, 38px);
+  line-height: 1;
+  transition: transform 130ms cubic-bezier(0.2, 0.9, 0.3, 1);
+  /* pointer-events: none にすると、この要素自体はクリックを受け取らなくなり、
+     クリックは必ず親の.mole-hole(穴そのもの)に渡る。
+     「小さいネズミ本体を正確に狙う」のではなく「穴のどこを押してもOK」にするための指定。 */
+  pointer-events: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+.mole-hole.is-up .mole {
+  transform: translate(-50%, -4%);
+}
+
+.mole-hole.is-hit .mole {
+  transform: translate(-50%, 45%) scale(0.7) rotate(14deg);
+  opacity: 0.3;
+  transition: transform 170ms ease, opacity 170ms ease;
+}
+
+.mole-hole:focus-visible {
+  outline: 4px solid var(--ink);
+  outline-offset: 4px;
+}
+
+.feedback-line {
+  min-height: 20px;
+  margin: 18px 0 0;
+  color: var(--muted-ink);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.stat-row {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: center;
+  width: 100%;
+  margin-top: 6px;
+  font-family: var(--mono);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.reset-button {
+  padding: 6px 12px;
+  border: 2px solid var(--ink);
+  border-radius: 999px;
+  background: var(--white);
+  color: var(--ink);
+  font-family: var(--body);
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 140ms ease, color 140ms ease;
+}
+
+.reset-button:hover {
+  background: var(--ink);
+  color: var(--white);
+}
+
+.cup-timer {
+  width: min(100%, 480px);
+  margin: 0 auto;
+  text-align: center;
+}
+
+.cup-timer-head h2 {
+  margin: 0;
+  font-family: var(--display);
+  /* 横に並んだ状態でも1行に収まるよう、前より小さめの上限にしてある。 */
+  font-size: clamp(15px, 2.4vw, 26px);
+  font-weight: 900;
+  letter-spacing: -0.03em;
+  /* white-space: nowrap は「途中で折り返さず、常に1行で表示する」指定。 */
+  white-space: nowrap;
+}
+
+.cup-timer-head .lead {
+  margin: 14px 0 0;
+  font-size: 14px;
+}
+
+.duration-picker {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  margin-top: 26px;
+}
+
+.duration-button {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  width: 140px;
+  padding: 18px 10px;
+  border: 3px solid var(--ink);
+  border-radius: 16px;
+  background: var(--white);
+  cursor: pointer;
+  transition: transform 120ms ease, background 120ms ease, color 120ms ease;
+}
+
+.duration-button:hover {
+  background: var(--ink);
+  color: var(--white);
+}
+
+.duration-button:active {
+  transform: translateY(2px);
+}
+
+.duration-button strong {
+  font-family: var(--display);
+  font-size: 26px;
+}
+
+.duration-button span {
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.countdown-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  margin-top: 26px;
+}
+
+.countdown-caption {
+  margin: 0;
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  color: var(--muted-ink);
+}
+
+.countdown-value {
+  margin: 0;
+  font-family: var(--mono);
+  font-size: clamp(44px, 9vw, 64px);
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+
+.finish-button {
+  padding: 12px 22px;
+  border: 3px solid var(--ink);
+  border-radius: 999px;
+  background: var(--gold);
+  font-family: var(--display);
+  font-size: 16px;
+  font-weight: 900;
+  cursor: pointer;
+  transition: transform 120ms ease;
+}
+
+.finish-button:hover {
+  transform: translateY(-2px);
+}
+
+.finish-button[hidden] {
+  display: none;
+}
+
+.cup-result {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  margin-top: 30px;
+  padding: 30px 26px;
+  border: 3px solid var(--ink);
+  background: var(--paper);
+  box-shadow: 8px 8px 0 var(--ink);
+  text-align: left;
+}
+
+.cup-result[hidden] {
+  display: none;
+}
+
+.result-kicker {
+  margin: 0 0 4px;
+  color: var(--pop);
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+}
+
+.cup-result h3 {
+  margin: 0;
+  font-family: var(--display);
+  font-size: clamp(26px, 4vw, 36px);
+  letter-spacing: -0.04em;
+}
+
+.cup-result p#resultDetail {
+  margin: 8px 0 0;
+  color: var(--muted-ink);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.cup-result-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+}
+
+.cup-result-actions .share-button {
+  display: inline-flex;
+  gap: 10px;
+  align-items: center;
+  min-height: 50px;
+  padding: 0 20px;
+  border: 2px solid var(--ink);
+  border-radius: 999px;
+  background: var(--ink);
+  color: var(--white);
+  font-size: 13px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: background 150ms ease, color 150ms ease, transform 150ms ease;
+}
+
+.cup-result-actions .share-button:hover {
+  background: var(--white);
+  color: var(--ink);
+  transform: translateY(-2px);
+}
+
+.cup-result-actions .share-button span {
+  font-size: 18px;
+}
+
+.modal-overlay {
+  position: fixed;
+  z-index: 200;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: rgba(42, 33, 24, 0.55);
+}
+
+.modal-overlay[hidden] {
+  display: none;
+}
+
+.modal-box {
+  width: min(100%, 380px);
+  padding: 30px 28px 26px;
+  border: 3px solid var(--ink);
+  border-radius: 20px;
+  background: var(--paper);
+  box-shadow: 10px 10px 0 var(--ink);
+  text-align: center;
+}
+
+.modal-kicker {
+  margin: 0 0 6px;
+  color: var(--pop);
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: 0.1em;
+}
+
+.modal-box h2 {
+  margin: 0;
+  font-family: var(--display);
+  /* モーダルの横幅(最大380px)に収まるよう、上限を下げて1行キープする。 */
+  font-size: clamp(14px, 4.5vw, 22px);
+  letter-spacing: -0.02em;
+  white-space: nowrap;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  margin-top: 24px;
+}
+
+.modal-button {
+  flex: 1;
+  padding: 13px 10px;
+  border: 3px solid var(--ink);
+  border-radius: 12px;
+  font-family: var(--display);
+  font-size: 15px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: transform 120ms ease;
+}
+
+.modal-button:hover {
+  transform: translateY(-2px);
+}
+
+.modal-button.secondary {
+  background: var(--white);
+  color: var(--ink);
+}
+
+.modal-button.primary {
+  background: var(--pop);
+  color: var(--white);
+}
+
+footer {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 24px 0 34px;
+  border-top: 2px solid var(--ink);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+footer p {
+  margin: 0;
+}
+
+.fine-print {
+  color: var(--muted-ink);
+  font-weight: 500;
+}
+
+.flash {
+  position: fixed;
+  z-index: 99;
+  inset: 0;
+  background: var(--gold);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.flash.is-active {
+  animation: flash 180ms ease-out;
+}
+
+@keyframes rank-pop {
+  0% { transform: scale(1); }
+  40% { transform: scale(1.18); }
+  100% { transform: scale(1); }
+}
+
+@keyframes flash {
+  0% { opacity: 0; }
+  40% { opacity: 0.55; }
+  100% { opacity: 0; }
+}
+
+@media (max-width: 860px) {
+  .page-shell {
+    width: min(100% - 30px, 560px);
+  }
+
+  .hero {
+    padding: 40px 0 4px;
+  }
+
+  .game-columns {
+    grid-template-columns: 1fr;
+    gap: 46px;
+    padding: 24px 0 84px;
+  }
+
+  h1 {
+    font-size: clamp(44px, 12vw, 66px);
+  }
+}
+
+@media (max-width: 520px) {
+  .page-shell {
+    width: min(100% - 24px, 400px);
+  }
+
+  .site-header {
+    min-height: 70px;
+  }
+
+  .mole-field {
+    gap: 9px;
+  }
+
+  #scoreValue {
+    font-size: clamp(34px, 12vw, 44px);
+  }
+
+  .duration-picker {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .duration-button {
+    width: 100%;
+    max-width: 220px;
+  }
+
+  .cup-result-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
