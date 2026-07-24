@@ -136,11 +136,15 @@ function shareOnX() {
   const saved = getSavedClockOut();
   const clockedOutAt = saved?.timestamp ? new Date(saved.timestamp) : new Date();
   const time = formatTime(clockedOutAt);
-  const text = `${time}、本日の業務を終了しました。\n今日も一日おつかれさまでした。\n\n#退勤ボタン`;
   const isWebPage = window.location.protocol.startsWith("http");
-  const params = new URLSearchParams({ text });
 
-  if (isWebPage) params.set("url", window.location.href);
+  // 別パラメータ(url=...)ではなく、投稿本文(text)自体にリンクを埋め込む。
+  // こうすることで、リンクが確実に投稿内容の一部として表示される。
+  let text = `${time}、本日の業務を終了しました。\n今日も一日おつかれさまでした。`;
+  if (isWebPage) text += `\n\n${window.location.href}`;
+  text += `\n\n#退勤ボタン`;
+
+  const params = new URLSearchParams({ text });
 
   window.open(
     `https://twitter.com/intent/tweet?${params.toString()}`,

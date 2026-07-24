@@ -470,13 +470,14 @@ function retryCupTimer() {
   elements.durationPicker.hidden = false;
 }
 
-// URLSearchParams: URLのクエリ文字列(?text=...&url=...の部分)を
-// 組み立てたり読み取ったりするためのブラウザ標準の仕組み。
+// URLSearchParams: URLのクエリ文字列(?text=...の部分)を組み立てる標準機能。
 // カップ麺タイマーの結果シェアと、常時使えるスコアシェアの両方から呼び出す共通処理。
-function openXShareWindow(text) {
+function openXShareWindow(baseText) {
   const isWebPage = window.location.protocol.startsWith("http");
+  // 別パラメータ(url=...)ではなく、投稿本文(text)自体にリンクを埋め込む。
+  // こうすることで、リンクが確実に投稿内容の一部として表示される。
+  const text = isWebPage ? `${baseText}\n\n${window.location.href}` : baseText;
   const params = new URLSearchParams({ text });
-  if (isWebPage) params.set("url", window.location.href);
 
   window.open(
     `https://twitter.com/intent/tweet?${params.toString()}`,

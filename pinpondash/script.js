@@ -289,16 +289,19 @@ function retryGame() {
   startGame();
 }
 
-// URLSearchParams: URLのクエリ文字列(?text=...&url=...の部分)を組み立てる標準機能。
+// URLSearchParams: URLのクエリ文字列(?text=...の部分)を組み立てる標準機能。
 function shareResult() {
-  const text =
-    `ピンポンダッシュで${currentStreak}回連続成功しました。\n` +
-    `(自己ベスト: ${bestStreak}回)\n\n` +
-    `#ピンポンダッシュ`;
-
   const isWebPage = window.location.protocol.startsWith("http");
+
+  // 別パラメータ(url=...)ではなく、投稿本文(text)自体にリンクを埋め込む。
+  // こうすることで、リンクが確実に投稿内容の一部として表示される。
+  let text =
+    `ピンポンダッシュで${currentStreak}回連続成功しました。\n` +
+    `(自己ベスト: ${bestStreak}回)`;
+  if (isWebPage) text += `\n\n${window.location.href}`;
+  text += `\n\n#ピンポンダッシュ`;
+
   const params = new URLSearchParams({ text });
-  if (isWebPage) params.set("url", window.location.href);
 
   window.open(
     `https://twitter.com/intent/tweet?${params.toString()}`,
