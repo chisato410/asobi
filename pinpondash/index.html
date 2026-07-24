@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="ちょうどいいタイミングでピンポンを押して、逃げ切れ。1回外したら御用、というだけの反射神経ゲーム。"
+    />
+    <meta name="theme-color" content="#eaf3ea" />
+    <title>ピンポンダッシュ｜ちょうどいいタイミングで押すだけ</title>
+    <link rel="stylesheet" href="./styles.css?v=1" />
+  </head>
+  <body>
+    <div class="page-shell">
+      <header class="site-header" aria-label="サイト情報">
+        <a class="brand" href="./" aria-label="ピンポンダッシュ トップ">
+          <span class="brand-mark" aria-hidden="true">ピ</span>
+          <span>ピンポンダッシュ</span>
+        </a>
+        <p class="best-label" id="bestLabel">自己ベスト --回</p>
+      </header>
+
+      <main>
+        <section class="hero" aria-labelledby="pageTitle">
+          <div class="intro">
+            <p class="eyebrow">TIMING ESCAPE GAME</p>
+            <h1 id="pageTitle">
+              <span class="headline-line">ちょうどいい瞬間で、</span>
+              <span class="headline-line accent">鳴らして逃げろ。</span>
+            </h1>
+            <p class="lead">
+              ゲージが緑のゾーンに入った瞬間だけ押してください。<br />1回でも外したら、その場で御用です。
+            </p>
+          </div>
+        </section>
+
+        <div class="game-panel" id="gamePanel">
+          <div class="streak-window" aria-label="現在の連続成功回数">
+            <span class="streak-caption">STREAK</span>
+            <span id="streakValue">0</span>
+          </div>
+
+          <p class="title-badge" id="titleBadge">新米ダッシュ屋</p>
+
+          <div class="timing-track" id="timingTrack" aria-hidden="true">
+            <div class="safe-zone" id="safeZone"></div>
+            <div class="marker" id="marker"></div>
+          </div>
+
+          <p class="feedback-line" id="feedbackLine">&nbsp;</p>
+
+          <div class="idle-panel" id="idlePanel">
+            <button class="main-button" id="startButton" type="button">
+              はじめる
+            </button>
+            <p class="hint-text">クリックか、スペースキーでもピンポンを押せます</p>
+          </div>
+
+          <div class="running-panel" id="runningPanel" hidden>
+            <button class="main-button pop" id="pingButton" type="button">
+              ピンポン!
+            </button>
+          </div>
+
+          <section class="result-panel" id="resultPanel" aria-live="polite" hidden>
+            <div>
+              <p class="result-kicker" id="resultKicker">バレました</p>
+              <h2><span id="resultStreak">0</span>回、連続成功。</h2>
+              <p id="resultDetail">今回はここまででした。</p>
+            </div>
+            <div class="result-actions">
+              <button class="share-button" id="resultShareButton" type="button">
+                <span aria-hidden="true">𝕏</span>
+                Xで結果をシェアする
+              </button>
+              <button class="reset-button" id="retryButton" type="button">
+                もう一度挑戦する
+              </button>
+            </div>
+          </section>
+        </div>
+      </main>
+
+      <footer>
+        <p>タイミングが良くなるほど、ゲージは速く・ゾーンは狭くなります。</p>
+        <p class="fine-print">自己ベストはこの端末に保存されます。実際のピンポンダッシュは絶対にしないでください。</p>
+      </footer>
+    </div>
+
+    <script src="./script.js?v=1"></script>
+  </body>
+</html>
