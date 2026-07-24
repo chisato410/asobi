@@ -42,6 +42,7 @@ const elements = {
   feedbackLine: document.querySelector("#feedbackLine"),
   cpsValue: document.querySelector("#cpsValue"),
   resetButton: document.querySelector("#resetButton"),
+  scoreShareButton: document.querySelector("#scoreShareButton"),
   lifetimeLabel: document.querySelector("#lifetimeLabel"),
   flash: document.querySelector("#flash"),
   durationPicker: document.querySelector("#durationPicker"),
@@ -471,16 +472,8 @@ function retryCupTimer() {
 
 // URLSearchParams: URLのクエリ文字列(?text=...&url=...の部分)を
 // 組み立てたり読み取ったりするためのブラウザ標準の仕組み。
-function shareCupResult() {
-  if (!cupLastResult) return;
-
-  const sizeLabel = cupLastResult.durationSeconds === 300 ? "ビッグサイズ" : "ふつうサイズ";
-  const waitLabel = formatWaitLabel(cupLastResult.elapsedSeconds);
-  const text =
-    `カップ麺(${sizeLabel})、${waitLabel}待って完成。\n` +
-    `待っている間に${cupLastResult.clicks}回叩きました。おいしく食べます!\n\n` +
-    `#無意味クリッカー #カップ麺タイマー`;
-
+// カップ麺タイマーの結果シェアと、常時使えるスコアシェアの両方から呼び出す共通処理。
+function openXShareWindow(text) {
   const isWebPage = window.location.protocol.startsWith("http");
   const params = new URLSearchParams({ text });
   if (isWebPage) params.set("url", window.location.href);
@@ -492,6 +485,29 @@ function shareCupResult() {
   );
 }
 
+function shareCupResult() {
+  if (!cupLastResult) return;
+
+  const sizeLabel = cupLastResult.durationSeconds === 300 ? "ビッグサイズ" : "ふつうサイズ";
+  const waitLabel = formatWaitLabel(cupLastResult.elapsedSeconds);
+  const text =
+    `カップ麺(${sizeLabel})、${waitLabel}待って完成。\n` +
+    `待っている間に${cupLastResult.clicks}回叩きました。おいしく食べます!\n\n` +
+    `#無意味クリッカー #カップ麺タイマー`;
+
+  openXShareWindow(text);
+}
+
+// タイマーの完了を待たず、今この瞬間のスコア・称号をいつでもシェアできるボタン用。
+function shareCurrentScore() {
+  const rank = currentRank(sessionScore);
+  const text =
+    `無意味クリッカーで「${rank.label}」(スコア${sessionScore.toLocaleString("ja-JP")})になりました。\n\n` +
+    `#無意味クリッカー`;
+
+  openXShareWindow(text);
+}
+
 function initialise() {
   updateScoreDisplay();
 
@@ -500,6 +516,7 @@ function initialise() {
     hole.addEventListener("click", () => handleHoleClick(hole));
   });
   elements.resetButton.addEventListener("click", handleReset);
+  elements.scoreShareButton.addEventListener("click", shareCurrentScore);
 
   window.setInterval(tickCps, 250);
 

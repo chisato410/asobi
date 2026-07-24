@@ -432,10 +432,13 @@ h1 .accent {
   align-items: center;
 }
 
-.cup-result-actions .share-button {
+/* .share-buttonは「カップ麺の結果画面」と「スコアの常時シェアボタン」の
+   両方で使い回すため、特定の親要素に限定しない書き方にしてある。 */
+.share-button {
   display: inline-flex;
   gap: 10px;
   align-items: center;
+  justify-content: center;
   min-height: 50px;
   padding: 0 20px;
   border: 2px solid var(--ink);
@@ -448,14 +451,18 @@ h1 .accent {
   transition: background 150ms ease, color 150ms ease, transform 150ms ease;
 }
 
-.cup-result-actions .share-button:hover {
+.share-button:hover {
   background: var(--white);
   color: var(--ink);
   transform: translateY(-2px);
 }
 
-.cup-result-actions .share-button span {
+.share-button span {
   font-size: 18px;
+}
+
+.score-share-button {
+  width: 100%;
 }
 
 .modal-overlay {
