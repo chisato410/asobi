@@ -29,7 +29,28 @@ const FEEDBACK_LINES = [
   "これは修行かもしれない。",
   "叩いた。それだけ。",
   "そろそろ休憩してもいいのに。",
+  "今のは、いい叩き。",
+  "肉球の跡が増えた。",
+  "一瞬だけ世界を救った。",
+  "反射神経、まだ現役。",
+  "そこにいた。たぶん。",
+  "カップ麺はまだです。",
+  "静かにスコアだけ増えていく。",
+  "その一打に意味はない。",
+  "見逃さなかった。",
+  "無心まで、あと少し。",
 ];
+
+const TARGET_IMAGES = [
+  "./assets/target-mole.png",
+  "./assets/target-hamster.png",
+  "./assets/target-mouse.png",
+];
+
+const SHARE_ILLUSTRATIONS = Array.from(
+  { length: 7 },
+  (_, index) => `./assets/share/share-${String(index + 1).padStart(2, "0")}.png`
+);
 
 // querySelector: CSSセレクタと同じ書き方でDOM要素を1つ取得するメソッド。
 // querySelectorAll は条件に合う要素を「全部」取得し、NodeListというリストで返す。
@@ -38,11 +59,13 @@ const FEEDBACK_LINES = [
 const elements = {
   scoreValue: document.querySelector("#scoreValue"),
   rankBadge: document.querySelector("#rankBadge"),
+  moleField: document.querySelector("#moleField"),
   moleHoles: Array.from(document.querySelectorAll(".mole-hole")),
   feedbackLine: document.querySelector("#feedbackLine"),
   cpsValue: document.querySelector("#cpsValue"),
   resetButton: document.querySelector("#resetButton"),
   scoreShareButton: document.querySelector("#scoreShareButton"),
+  scoreShareHelp: document.querySelector("#scoreShareHelp"),
   lifetimeLabel: document.querySelector("#lifetimeLabel"),
   flash: document.querySelector("#flash"),
   durationPicker: document.querySelector("#durationPicker"),
@@ -59,6 +82,7 @@ const elements = {
   resultWaitTime: document.querySelector("#resultWaitTime"),
   resultDetail: document.querySelector("#resultDetail"),
   cupShareButton: document.querySelector("#cupShareButton"),
+  cupShareHelp: document.querySelector("#cupShareHelp"),
   cupRetryButton: document.querySelector("#cupRetryButton"),
 };
 
@@ -87,6 +111,11 @@ let activeMoleHole = null;
 // 時間切れで消えた直後の穴。「消えた瞬間ギリギリのクリック」も
 // ヒット扱いにしてあげるための猶予(グレースピリオド)として使う。
 let graceMoleHole = null;
+
+let lastTargetImage = null;
+
+let shareIllustrationElements = [];
+let lastShareIllustration = null;
 
 // 消えてからこの時間(ミリ秒)以内のクリックなら、まだヒットとして認める。
 const MOLE_HIT_GRACE_MS = 220;
@@ -219,7 +248,6 @@ function playTimerAlarmSound() {
 }
 
 // 叩けた瞬間に呼ばれる。スコア加算・保存・演出をまとめて行う。
-// (どの穴を叩いたかは問わないので、穴自体の見た目の演出はhandleHoleClick側で行う)
 function registerHit() {
   const now = Date.now();
 
@@ -238,6 +266,32 @@ function registerHit() {
     elements.flash.classList.add("is-active");
     window.setTimeout(() => elements.flash.classList.remove("is-active"), 200);
   }
+}
+
+// 押した位置へ、スタンプインクのような肉球跡を残す。
+// キーボード操作の場合は座標がないため、選んだ穴の中央へ表示する。
+function addPawPrint(event, hole) {
+  const fieldRect = elements.moleField.getBoundingClientRect();
+  const holeRect = hole.getBoundingClientRect();
+  const hasPointerPosition = event.detail > 0;
+  const x = hasPointerPosition
+    ? event.clientX - fieldRect.left
+    : holeRect.left + holeRect.width / 2 - fieldRect.left;
+  const y = hasPointerPosition
+    ? event.clientY - fieldRect.top
+    : holeRect.top + holeRect.height / 2 - fieldRect.top;
+
+  const pawPrint = document.createElement("span");
+  pawPrint.className = "paw-print";
+  pawPrint.setAttribute("aria-hidden", "true");
+  pawPrint.style.left = `${x}px`;
+  pawPrint.style.top = `${y}px`;
+  pawPrint.style.setProperty("--paw-rotation", `${Math.random() * 24 - 12}deg`);
+  elements.moleField.append(pawPrint);
+
+  // 跡は残しつつ、増えすぎて動作が重くならないよう新しい24個だけにする。
+  const pawPrints = elements.moleField.querySelectorAll(".paw-print");
+  if (pawPrints.length > 24) pawPrints[0].remove();
 }
 
 function getElapsedGameSeconds() {
@@ -271,6 +325,12 @@ function scheduleNextMole() {
 
 function spawnMole() {
   const hole = pickRandomHole(activeMoleHole);
+  const availableImages = TARGET_IMAGES.filter((source) => source !== lastTargetImage);
+  const targetImage = availableImages[Math.floor(Math.random() * availableImages.length)];
+  const image = hole.querySelector(".mole");
+
+  image.src = targetImage;
+  lastTargetImage = targetImage;
   activeMoleHole = hole;
   hole.classList.add("is-up");
 
@@ -336,6 +396,9 @@ function restartMoleLoop() {
 function handleReset() {
   // 累計(lifetimeTotal)は消さず、今回のセッションのスコアだけ0に戻す。
   sessionScore = 0;
+  elements.moleField
+    .querySelectorAll(".paw-print")
+    .forEach((pawPrint) => pawPrint.remove());
   elements.feedbackLine.textContent = " "; // 見た目の高さを保つための空白(&nbsp;)
   updateScoreDisplay();
 
@@ -470,23 +533,215 @@ function retryCupTimer() {
   elements.durationPicker.hidden = false;
 }
 
-// URLSearchParams: URLのクエリ文字列(?text=...の部分)を組み立てる標準機能。
-// カップ麺タイマーの結果シェアと、常時使えるスコアシェアの両方から呼び出す共通処理。
-function openXShareWindow(baseText) {
-  const isWebPage = window.location.protocol.startsWith("http");
-  // 別パラメータ(url=...)ではなく、投稿本文(text)自体にリンクを埋め込む。
-  // こうすることで、リンクが確実に投稿内容の一部として表示される。
-  const text = isWebPage ? `${baseText}\n\n${window.location.href}` : baseText;
-  const params = new URLSearchParams({ text });
-
-  window.open(
-    `https://twitter.com/intent/tweet?${params.toString()}`,
-    "x-share",
-    "width=640,height=520,noopener,noreferrer"
-  );
+function drawRoundedRect(context, x, y, width, height, radius) {
+  const safeRadius = Math.min(radius, width / 2, height / 2);
+  context.beginPath();
+  context.moveTo(x + safeRadius, y);
+  context.arcTo(x + width, y, x + width, y + height, safeRadius);
+  context.arcTo(x + width, y + height, x, y + height, safeRadius);
+  context.arcTo(x, y + height, x, y, safeRadius);
+  context.arcTo(x, y, x + width, y, safeRadius);
+  context.closePath();
 }
 
-function shareCupResult() {
+function dataUrlToFile(dataUrl, filename) {
+  const [metadata, encoded] = dataUrl.split(",");
+  const mimeType = metadata.match(/data:(.*?);base64/)?.[1] || "image/png";
+  const bytes = Uint8Array.from(window.atob(encoded), (character) => character.charCodeAt(0));
+  return new File([bytes], filename, { type: mimeType });
+}
+
+function pickRandomShareIllustration() {
+  const loaded = shareIllustrationElements.filter(
+    (image) => image.complete && image.naturalWidth > 0
+  );
+  if (loaded.length === 0) return null;
+
+  const candidates = loaded.length > 1
+    ? loaded.filter((image) => image.src !== lastShareIllustration)
+    : loaded;
+  const selected = candidates[Math.floor(Math.random() * candidates.length)];
+  lastShareIllustration = selected.src;
+  return selected;
+}
+
+function prepareShareIllustrations() {
+  let settledCount = 0;
+  let isShareReady = false;
+
+  const updateReadyState = () => {
+    settledCount += 1;
+    const hasLoadedImage = shareIllustrationElements.some(
+      (image) => image.complete && image.naturalWidth > 0
+    );
+
+    if (!isShareReady && hasLoadedImage) {
+      isShareReady = true;
+      elements.scoreShareButton.disabled = false;
+      elements.cupShareButton.disabled = false;
+      const supportsDirectShare = supportsNativeFileShare();
+      const helpText = supportsDirectShare
+        ? ""
+        : "Xが開いたら⌘V / Ctrl+Vで画像を貼り付けてください。";
+      elements.scoreShareHelp.textContent = helpText;
+      elements.cupShareHelp.textContent = helpText;
+      elements.scoreShareHelp.hidden = supportsDirectShare;
+      elements.cupShareHelp.hidden = supportsDirectShare;
+      return;
+    }
+
+    if (!isShareReady && settledCount === SHARE_ILLUSTRATIONS.length) {
+      elements.scoreShareHelp.textContent = "共有画像を読み込めませんでした。再読み込みしてください。";
+      elements.cupShareHelp.textContent = elements.scoreShareHelp.textContent;
+    }
+  };
+
+  shareIllustrationElements = SHARE_ILLUSTRATIONS.map((source) => {
+    const image = new Image();
+    image.addEventListener("load", updateReadyState, { once: true });
+    image.addEventListener("error", updateReadyState, { once: true });
+    image.src = source;
+    return image;
+  });
+}
+
+function supportsNativeFileShare() {
+  const isMobileDevice = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent)
+    || (/Macintosh/i.test(navigator.userAgent) && navigator.maxTouchPoints > 1);
+  if (!isMobileDevice || !navigator.share || !navigator.canShare || typeof File === "undefined") {
+    return false;
+  }
+  try {
+    const testFile = new File([new Uint8Array([0])], "share-check.png", { type: "image/png" });
+    return navigator.canShare({ files: [testFile] });
+  } catch {
+    return false;
+  }
+}
+
+function createClickerShareCard({ heading, mainValue, subValue, detail }, useJpeg = false) {
+  if (typeof File === "undefined") return null;
+  const illustration = pickRandomShareIllustration();
+  if (!illustration) return null;
+
+  const canvas = document.createElement("canvas");
+  canvas.width = 1200;
+  canvas.height = 630;
+  const context = canvas.getContext("2d");
+  if (!context) return null;
+
+  context.fillStyle = "#d7cdbb";
+  context.fillRect(0, 0, canvas.width, canvas.height);
+  context.fillStyle = "rgba(255, 248, 232, 0.22)";
+  for (let row = 0; row < 8; row += 1) {
+    for (let column = 0; column < 15; column += 1) {
+      if ((row + column) % 2 === 0) context.fillRect(column * 80, row * 80, 80, 80);
+    }
+  }
+
+  context.save();
+  context.shadowColor = "rgba(81, 72, 63, 0.14)";
+  context.shadowBlur = 28;
+  context.shadowOffsetY = 14;
+  drawRoundedRect(context, 70, 58, 1060, 514, 48);
+  context.fillStyle = "#fff8e8";
+  context.fill();
+  context.restore();
+
+  context.fillStyle = "#51483f";
+  context.font = '800 27px "Hiragino Sans", "Yu Gothic", sans-serif';
+  context.fillText("無意味クリッカー", 135, 137);
+  context.fillStyle = "#ce8d78";
+  context.font = '800 24px "Hiragino Sans", "Yu Gothic", sans-serif';
+  context.fillText(heading, 135, 195);
+  context.fillStyle = "#51483f";
+  context.font = '900 86px "Hiragino Sans", "Yu Gothic", sans-serif';
+  context.fillText(mainValue, 130, 310, 500);
+  context.font = '800 31px "Hiragino Sans", "Yu Gothic", sans-serif';
+  context.fillText(subValue, 135, 379, 500);
+  context.fillStyle = "#8b7d70";
+  context.font = '700 24px "Hiragino Sans", "Yu Gothic", sans-serif';
+  context.fillText(detail, 135, 440, 510);
+  context.font = '600 19px "Hiragino Sans", "Yu Gothic", sans-serif';
+  context.fillText("意味はない。でも記録は残る。", 135, 514);
+
+  context.drawImage(illustration, 650, 92, 430, 430);
+  const mimeType = useJpeg ? "image/jpeg" : "image/png";
+  const filename = useJpeg ? "muimi-clicker-result.jpg" : "muimi-clicker-result.png";
+  return dataUrlToFile(canvas.toDataURL(mimeType, 0.86), filename);
+}
+
+function showShareToast(message) {
+  document.querySelector(".share-toast")?.remove();
+  const toast = document.createElement("p");
+  toast.className = "share-toast";
+  toast.setAttribute("role", "status");
+  toast.textContent = message;
+  document.body.append(toast);
+  window.setTimeout(() => toast.remove(), 3200);
+}
+
+function setShareButtonsBusy(isBusy) {
+  elements.scoreShareButton.disabled = isBusy;
+  elements.cupShareButton.disabled = isBusy;
+}
+
+async function copyImageToClipboard(file) {
+  if (!file || !navigator.clipboard?.write || typeof ClipboardItem === "undefined") return false;
+  try {
+    await navigator.clipboard.write([new ClipboardItem({ "image/png": file })]);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+function openXShareWindow(text) {
+  const params = new URLSearchParams({ text });
+  window.location.assign(`https://twitter.com/intent/tweet?${params.toString()}`);
+}
+
+async function shareWithRandomImage(baseText, cardData) {
+  setShareButtonsBusy(true);
+  const isWebPage = window.location.protocol.startsWith("http");
+  const text = isWebPage ? `${baseText}\n\n${window.location.href}` : baseText;
+  const supportsDirectShare = supportsNativeFileShare();
+  const cardFile = createClickerShareCard(cardData, supportsDirectShare);
+  if (!cardFile) {
+    showShareToast("共有画像を準備中です。少し待ってもう一度押してください。");
+    setShareButtonsBusy(false);
+    return;
+  }
+
+  const shareData = { title: "無意味クリッカー", text, files: [cardFile] };
+  if (navigator.share && navigator.canShare?.(shareData)) {
+    try {
+      await navigator.share(shareData);
+      setShareButtonsBusy(false);
+      return;
+    } catch (error) {
+      if (error?.name === "AbortError") {
+        setShareButtonsBusy(false);
+        return;
+      }
+    }
+  }
+
+  if (await copyImageToClipboard(cardFile)) {
+    showShareToast("画像をコピーしました。Xを開いています。投稿欄で⌘V / Ctrl+Vしてください。");
+    window.setTimeout(() => {
+      const params = new URLSearchParams({ text });
+      window.location.assign(`https://twitter.com/intent/tweet?${params.toString()}`);
+    }, 850);
+    return;
+  }
+
+  showShareToast("画像共有に未対応のため、文章だけでXを開きます。");
+  setShareButtonsBusy(false);
+  openXShareWindow(text);
+}
+
+async function shareCupResult() {
   if (!cupLastResult) return;
 
   const sizeLabel = cupLastResult.durationSeconds === 300 ? "ビッグサイズ" : "ふつうサイズ";
@@ -496,25 +751,45 @@ function shareCupResult() {
     `待っている間に${cupLastResult.clicks}回叩きました。おいしく食べます!\n\n` +
     `#無意味クリッカー #カップ麺タイマー`;
 
-  openXShareWindow(text);
+  await shareWithRandomImage(text, {
+    heading: "カップ麺、完成。",
+    mainValue: waitLabel,
+    subValue: `${cupLastResult.clicks.toLocaleString("ja-JP")}回 叩いた`,
+    detail: sizeLabel,
+  });
 }
 
 // タイマーの完了を待たず、今この瞬間のスコア・称号をいつでもシェアできるボタン用。
-function shareCurrentScore() {
+async function shareCurrentScore() {
   const rank = currentRank(sessionScore);
   const text =
     `無意味クリッカーで「${rank.label}」(スコア${sessionScore.toLocaleString("ja-JP")})になりました。\n\n` +
     `#無意味クリッカー`;
 
-  openXShareWindow(text);
+  await shareWithRandomImage(text, {
+    heading: "本日の無意味",
+    mainValue: `${sessionScore.toLocaleString("ja-JP")}回`,
+    subValue: rank.label,
+    detail: `累計 ${lifetimeTotal.toLocaleString("ja-JP")}回`,
+  });
 }
 
 function initialise() {
   updateScoreDisplay();
 
+  TARGET_IMAGES.forEach((source) => {
+    const image = new Image();
+    image.src = source;
+  });
+
+  prepareShareIllustrations();
+
   // 9つの穴それぞれに「押されたら自分自身をhandleHoleClickに渡す」リスナーをつける。
   elements.moleHoles.forEach((hole) => {
-    hole.addEventListener("click", () => handleHoleClick(hole));
+    hole.addEventListener("click", (event) => {
+      addPawPrint(event, hole);
+      handleHoleClick(hole);
+    });
   });
   elements.resetButton.addEventListener("click", handleReset);
   elements.scoreShareButton.addEventListener("click", shareCurrentScore);

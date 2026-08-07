@@ -1,0 +1,554 @@
+/*
+ * ASOBI WORKS — soft cat home-screen theme
+ * This file is shared by each standalone game so the visual language stays aligned.
+ */
+
+:root {
+  --ink: #51483f;
+  --muted-ink: #84796e;
+  --room: #d7cdbb;
+  --room-shadow: #c5baa8;
+  --paper: #fff8e8;
+  --white: #fffdf8;
+  --gold: #e6c88f;
+  --stamp: #ce8d78;
+  --pop: #ce8d78;
+  --pop-dark: #ad725f;
+  --safe: #91aaa0;
+  --safe-dark: #708d82;
+  --danger: #c87d6b;
+  --danger-dark: #a75e50;
+  --machine: #c9dcde;
+  --machine-dark: #a9c4c7;
+  --display: "Hiragino Maru Gothic ProN", "Hiragino Sans", "Yu Gothic", sans-serif;
+  --body: "Hiragino Sans", "Yu Gothic", "Meiryo", sans-serif;
+  --mono: "Avenir Next", "Hiragino Sans", "Yu Gothic", sans-serif;
+  --soft-line: rgba(81, 72, 63, 0.14);
+  --soft-shadow: 0 18px 48px rgba(81, 72, 63, 0.12);
+}
+
+html {
+  max-width: 100%;
+  overflow-x: hidden;
+  background: var(--room);
+}
+
+body.asobi-site {
+  max-width: 100%;
+  overflow-x: hidden;
+  overflow-x: clip;
+  color: var(--ink);
+  background-color: var(--room);
+  background-image:
+    linear-gradient(rgba(255, 253, 248, 0.19) 50%, transparent 50%),
+    linear-gradient(90deg, rgba(255, 253, 248, 0.19) 50%, transparent 50%);
+  background-position: 0 0, 0 0;
+  background-size: 52px 52px;
+}
+
+body.asobi-site::before {
+  position: fixed;
+  z-index: -1;
+  inset: 0;
+  background: rgba(215, 205, 187, 0.28);
+  content: "";
+  pointer-events: none;
+}
+
+.page-shell {
+  width: min(1120px, calc(100% - 48px));
+}
+
+.site-header {
+  min-height: 94px;
+  border-bottom: 1px solid rgba(81, 72, 63, 0.2);
+}
+
+.brand {
+  gap: 12px;
+  letter-spacing: 0;
+}
+
+.brand-mark {
+  width: 48px;
+  height: 48px;
+  border: 0;
+  border-radius: 15px;
+  background: var(--paper);
+  box-shadow: inset 0 0 0 1px var(--soft-line), 0 5px 14px rgba(81, 72, 63, 0.08);
+  color: var(--ink);
+  font-family: var(--display);
+  font-size: 17px;
+}
+
+.brand-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  align-items: flex-start;
+}
+
+.brand-copy small {
+  color: var(--muted-ink);
+  font-family: var(--mono);
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: 0.13em;
+}
+
+.brand-copy strong {
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.today,
+.lifetime,
+.best-label {
+  padding: 9px 13px;
+  border-radius: 14px;
+  background: rgba(255, 248, 232, 0.62);
+  color: var(--ink);
+  font-size: 11px;
+  letter-spacing: 0.04em;
+}
+
+.hero {
+  gap: clamp(34px, 6vw, 80px);
+  padding-top: 58px;
+}
+
+.eyebrow {
+  margin-bottom: 18px;
+  padding: 7px 12px;
+  border: 0;
+  border-radius: 999px;
+  background: rgba(255, 248, 232, 0.72);
+  color: var(--muted-ink);
+  font-size: 9px;
+  letter-spacing: 0.13em;
+}
+
+h1 {
+  color: var(--ink);
+  font-family: var(--display);
+  font-weight: 700;
+  letter-spacing: -0.055em;
+  line-height: 1.08;
+}
+
+h1 .headline-line {
+  display: block;
+}
+
+.theme-taikin h1 .accent,
+.theme-clicker h1 .accent,
+.theme-pinpon h1 .accent {
+  color: var(--ink);
+  text-decoration: underline;
+  text-decoration-color: rgba(206, 141, 120, 0.6);
+  text-decoration-thickness: 0.22em;
+  text-underline-offset: -0.08em;
+  text-decoration-skip-ink: none;
+}
+
+.lead {
+  margin-top: 24px;
+  color: var(--muted-ink);
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.9;
+}
+
+.time-recorder,
+.clicker-machine,
+.game-panel,
+.cup-timer,
+.result,
+.result-panel,
+.cup-result,
+.modal-box {
+  border: 1px solid var(--soft-line);
+  border-radius: 36px;
+  background: rgba(255, 248, 232, 0.9);
+  box-shadow: var(--soft-shadow);
+}
+
+.time-recorder {
+  padding: 28px 34px 38px;
+  background: var(--machine);
+  box-shadow: var(--soft-shadow);
+}
+
+.time-recorder::before,
+.time-recorder::after {
+  border: 0;
+  background: var(--machine-dark);
+}
+
+.clock-window,
+.score-window,
+.streak-window {
+  border: 0;
+  border-radius: 22px;
+  background: rgba(81, 72, 63, 0.88);
+  box-shadow: inset 0 2px 8px rgba(43, 37, 32, 0.2);
+  color: #fff1c9;
+}
+
+.clock-window {
+  box-shadow: inset 0 2px 8px rgba(43, 37, 32, 0.2);
+  text-shadow: none;
+}
+
+.card-slot,
+.time-card {
+  border-color: rgba(81, 72, 63, 0.32);
+}
+
+.rank-badge,
+.title-badge {
+  border: 0;
+  background: #ead9b8;
+  color: var(--ink);
+}
+
+.clicker-machine,
+.game-panel {
+  position: relative;
+  overflow: visible;
+  box-shadow: var(--soft-shadow);
+  isolation: isolate;
+}
+
+.cat-character,
+.cat-paw {
+  position: absolute;
+  z-index: 3;
+  display: block;
+  max-width: none;
+  filter: drop-shadow(0 12px 14px rgba(81, 72, 63, 0.13));
+  pointer-events: none;
+  user-select: none;
+}
+
+.taikin-cat {
+  top: 320px;
+  left: -280px;
+  width: 200px;
+  transform: rotate(-4deg);
+  transform-origin: 70% 80%;
+}
+
+.time-recorder.is-stamping .taikin-cat {
+  animation: cat-clock-out 460ms cubic-bezier(0.22, 0.8, 0.3, 1);
+}
+
+.clicker-cat {
+  top: 174px;
+  right: -142px;
+  z-index: 1;
+  width: 178px;
+  transform: rotate(4deg);
+  transition: transform 180ms ease;
+}
+
+.clicker-cat.is-cheering {
+  transform: translateY(-10px) rotate(-3deg) scale(1.04);
+}
+
+.cat-paw {
+  top: 300px;
+  right: -5px;
+  z-index: 5;
+  width: 250px;
+  opacity: 0;
+  transform: translateX(82%) rotate(-5deg);
+  transform-origin: right center;
+}
+
+.cat-paw.is-tapping {
+  animation: cat-tap 460ms cubic-bezier(0.2, 0.9, 0.3, 1);
+}
+
+.dash-cat {
+  top: 150px;
+  left: -170px;
+  width: 220px;
+  transform: rotate(-4deg);
+  transform-origin: center bottom;
+}
+
+.dash-cat.is-running {
+  animation: cat-running 520ms ease-in-out infinite alternate;
+}
+
+.dash-cat.is-celebrating {
+  animation: cat-celebrate 280ms ease-out;
+}
+
+.dash-cat.is-caught {
+  filter: grayscale(0.45) drop-shadow(0 12px 14px rgba(81, 72, 63, 0.13));
+  transform: translateY(12px) rotate(8deg);
+}
+
+.theme-clicker .game-columns {
+  gap: clamp(24px, 4vw, 46px);
+  padding-top: 16px;
+}
+
+.cup-timer {
+  padding: 30px 26px;
+}
+
+.mole-hole {
+  border: 0;
+  border-radius: 24px;
+  background: radial-gradient(circle at 50% 38%, #9a7c67, #655247 72%);
+  box-shadow: inset 0 7px 14px rgba(61, 47, 39, 0.25);
+}
+
+.timing-track {
+  border: 0;
+  background: rgba(145, 170, 160, 0.18);
+  box-shadow: inset 0 0 0 1px var(--soft-line);
+}
+
+.marker {
+  background: var(--ink);
+  box-shadow: 0 0 0 3px rgba(255, 248, 232, 0.9);
+}
+
+.clock-out-button,
+.main-button,
+.duration-button,
+.finish-button,
+.modal-button,
+.share-button,
+.reset-button {
+  border: 0;
+  border-radius: 20px;
+  font-family: var(--body);
+  font-weight: 700;
+}
+
+.clock-out-button {
+  border: 8px solid rgba(255, 248, 232, 0.4);
+  background: var(--stamp);
+  box-shadow: 0 10px 0 var(--pop-dark), 0 16px 28px rgba(81, 72, 63, 0.18);
+}
+
+.clock-out-button:active:not(:disabled),
+.clock-out-button.is-pressing {
+  box-shadow: 0 3px 0 var(--pop-dark), 0 8px 14px rgba(81, 72, 63, 0.14);
+}
+
+.clock-out-button:disabled {
+  border-color: rgba(255, 248, 232, 0.32);
+  background: #a9aaa3;
+  box-shadow: 0 7px 0 #85867e;
+}
+
+.main-button {
+  background: #e7c88e;
+  box-shadow: 0 7px 0 #c3a56f;
+}
+
+.main-button.pop {
+  background: var(--safe);
+  box-shadow: 0 7px 0 var(--safe-dark);
+}
+
+.main-button:active,
+.main-button.is-pressing,
+.main-button.pop:active,
+.main-button.pop.is-pressing {
+  box-shadow: 0 2px 0 rgba(81, 72, 63, 0.28);
+}
+
+.duration-button {
+  background: #e7d6bd;
+  box-shadow: inset 0 0 0 1px var(--soft-line);
+}
+
+.duration-button:hover,
+.reset-button:hover,
+.share-button:hover {
+  background: var(--ink);
+  color: var(--white);
+}
+
+.share-button {
+  background: var(--ink);
+  color: var(--white);
+}
+
+.share-button-secondary {
+  background: rgba(255, 253, 248, 0.72);
+  color: var(--ink);
+  box-shadow: inset 0 0 0 1px var(--soft-line);
+}
+
+.share-button-secondary:hover {
+  background: var(--pop-soft);
+  color: var(--ink);
+}
+
+.result .share-hint {
+  margin: -1px 0 0;
+  color: var(--muted-ink);
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1.5;
+  text-align: center;
+}
+
+.reset-button {
+  background: rgba(255, 253, 248, 0.7);
+  box-shadow: inset 0 0 0 1px var(--soft-line);
+}
+
+.result,
+.result-panel,
+.cup-result {
+  box-shadow: 0 12px 34px rgba(81, 72, 63, 0.1);
+}
+
+footer {
+  gap: 5px;
+  margin: 0 0 30px;
+  padding: 22px 26px;
+  border: 0;
+  border-radius: 28px;
+  background: rgba(116, 106, 94, 0.18);
+  color: var(--ink);
+}
+
+button:focus-visible,
+a:focus-visible {
+  outline: 3px solid rgba(81, 72, 63, 0.72) !important;
+  outline-offset: 4px !important;
+}
+
+@keyframes cat-clock-out {
+  0%, 100% { transform: rotate(-4deg); }
+  35% { transform: translateY(-12px) rotate(3deg); }
+  62% { transform: translateY(4px) rotate(-7deg); }
+}
+
+@keyframes cat-tap {
+  0%, 100% { opacity: 0; transform: translateX(82%) rotate(-5deg); }
+  18% { opacity: 1; }
+  48%, 68% { opacity: 1; transform: translateX(-30%) rotate(-8deg); }
+}
+
+@keyframes cat-running {
+  from { transform: translate(-5px, 2px) rotate(-5deg); }
+  to { transform: translate(10px, -5px) rotate(2deg); }
+}
+
+@keyframes cat-celebrate {
+  0%, 100% { transform: translateY(0) rotate(-4deg); }
+  45% { transform: translateY(-18px) rotate(5deg) scale(1.04); }
+}
+
+@media (min-width: 861px) and (max-width: 1200px) {
+  .taikin-cat {
+    top: 315px;
+    left: -155px;
+    width: 155px;
+  }
+}
+
+@media (max-width: 860px) {
+  .page-shell {
+    width: min(100% - 28px, 620px);
+  }
+
+  .hero {
+    padding-top: 42px;
+  }
+
+  .taikin-cat {
+    top: 150px;
+    left: -38px;
+    width: 132px;
+  }
+
+}
+
+@media (max-width: 520px) {
+  body.asobi-site {
+    background-size: 38px 38px;
+  }
+
+  .page-shell {
+    width: min(100% - 20px, 430px);
+  }
+
+  .site-header {
+    min-height: 76px;
+  }
+
+  .brand-mark {
+    width: 40px;
+    height: 40px;
+    border-radius: 13px;
+  }
+
+  .brand-copy small {
+    font-size: 7px;
+  }
+
+  .today,
+  .lifetime,
+  .best-label {
+    padding: 7px 9px;
+    font-size: 9px;
+  }
+
+  h1 .headline-line {
+    white-space: normal;
+  }
+
+  .taikin-cat {
+    top: 300px;
+    right: -26px;
+    left: auto;
+    width: 150px;
+  }
+
+  .clicker-cat {
+    top: 188px;
+    right: -5px;
+    width: 105px;
+  }
+
+  .cat-paw {
+    top: 294px;
+    right: -5px;
+    width: 205px;
+  }
+
+  .dash-cat {
+    top: -76px;
+    right: 4px;
+    left: auto;
+    width: 126px;
+  }
+
+  .time-recorder,
+  .clicker-machine,
+  .game-panel,
+  .cup-timer,
+  .result,
+  .result-panel,
+  .cup-result,
+  .modal-box {
+    border-radius: 28px;
+  }
+
+  footer {
+    margin-bottom: 14px;
+    border-radius: 24px;
+  }
+}

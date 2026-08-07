@@ -211,10 +211,50 @@ h1 .accent {
 
 .feedback-line {
   min-height: 20px;
-  margin: 16px 0 0;
+  margin: 8px 0 0;
   color: var(--muted-ink);
   font-size: 13px;
   font-weight: 700;
+}
+
+.turns-left {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 116px;
+  margin: 12px 0 0;
+  padding: 6px 13px;
+  border: 1px solid rgba(81, 72, 63, 0.16);
+  border-radius: 999px;
+  background: rgba(255, 248, 232, 0.66);
+  color: var(--muted-ink);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  transition: color 160ms ease, border-color 160ms ease, background 160ms ease;
+}
+
+.turns-left.is-danger {
+  border-color: rgba(179, 70, 62, 0.32);
+  background: rgba(215, 111, 96, 0.1);
+  color: #b3463e;
+}
+
+.share-toast {
+  position: fixed;
+  z-index: 30;
+  right: 18px;
+  bottom: 18px;
+  max-width: min(360px, calc(100vw - 36px));
+  margin: 0;
+  padding: 13px 17px;
+  border-radius: 16px;
+  background: var(--ink);
+  color: var(--white);
+  box-shadow: 0 12px 30px rgba(35, 30, 26, 0.18);
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.55;
 }
 
 .idle-panel,
@@ -343,8 +383,30 @@ h1 .accent {
   transform: translateY(-2px);
 }
 
+.share-button:disabled {
+  opacity: 0.48;
+  cursor: wait;
+  transform: none;
+}
+
 .share-button span {
   font-size: 18px;
+}
+
+.share-action-group {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  max-width: 300px;
+}
+
+.share-help {
+  margin: 0;
+  color: var(--muted-ink);
+  font-size: 10px;
+  font-weight: 600;
+  line-height: 1.6;
+  text-align: center;
 }
 
 .reset-button {

@@ -7,16 +7,20 @@
       name="description"
       content="ちょうどいいタイミングでピンポンを押して、逃げ切れ。1回外したら御用、というだけの反射神経ゲーム。"
     />
-    <meta name="theme-color" content="#eaf3ea" />
+    <meta name="theme-color" content="#dcecf5" />
     <title>ピンポンダッシュ｜ちょうどいいタイミングで押すだけ</title>
-    <link rel="stylesheet" href="./styles.css?v=1" />
+    <link rel="stylesheet" href="./styles.css?v=6" />
+    <link rel="stylesheet" href="./theme.css?v=2" />
   </head>
-  <body>
+  <body class="asobi-site theme-pinpon">
     <div class="page-shell">
       <header class="site-header" aria-label="サイト情報">
         <a class="brand" href="./" aria-label="ピンポンダッシュ トップ">
           <span class="brand-mark" aria-hidden="true">ピ</span>
-          <span>ピンポンダッシュ</span>
+          <span class="brand-copy">
+            <small>ASOBI WORKS / 03</small>
+            <strong>ピンポンダッシュ</strong>
+          </span>
         </a>
         <p class="best-label" id="bestLabel">自己ベスト --回</p>
       </header>
@@ -36,6 +40,13 @@
         </section>
 
         <div class="game-panel" id="gamePanel">
+          <img
+            class="cat-character dash-cat"
+            id="dashCat"
+            src="./assets/cat-character.png"
+            alt=""
+            aria-hidden="true"
+          />
           <div class="streak-window" aria-label="現在の連続成功回数">
             <span class="streak-caption">STREAK</span>
             <span id="streakValue">0</span>
@@ -48,6 +59,7 @@
             <div class="marker" id="marker"></div>
           </div>
 
+          <p class="turns-left" id="turnsLeft">のこり 5 往復</p>
           <p class="feedback-line" id="feedbackLine">&nbsp;</p>
 
           <div class="idle-panel" id="idlePanel">
@@ -70,10 +82,15 @@
               <p id="resultDetail">今回はここまででした。</p>
             </div>
             <div class="result-actions">
-              <button class="share-button" id="resultShareButton" type="button">
-                <span aria-hidden="true">𝕏</span>
-                Xで結果をシェアする
-              </button>
+              <div class="share-action-group">
+                <button class="share-button" id="resultShareButton" type="button" disabled>
+                  <span aria-hidden="true">𝕏</span>
+                  ランダム画像つきでXへ共有
+                </button>
+                <p class="share-help" id="resultShareHelp">
+                  共有画像を準備しています…
+                </p>
+              </div>
               <button class="reset-button" id="retryButton" type="button">
                 もう一度挑戦する
               </button>
@@ -88,6 +105,6 @@
       </footer>
     </div>
 
-    <script src="./script.js?v=1"></script>
+    <script src="./script.js?v=10"></script>
   </body>
 </html>

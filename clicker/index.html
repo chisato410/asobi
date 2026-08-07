@@ -7,16 +7,20 @@
       name="description"
       content="出てきた瞬間だけ叩ける、無意味なモグラ叩き。時間が経つほどどんどん忙しくなります。"
     />
-    <meta name="theme-color" content="#fff1e0" />
+    <meta name="theme-color" content="#dcecf5" />
     <title>無意味クリッカー｜出てきたら叩くだけ</title>
-    <link rel="stylesheet" href="./styles.css?v=1" />
+    <link rel="stylesheet" href="./styles.css?v=4" />
+    <link rel="stylesheet" href="./theme.css?v=6" />
   </head>
-  <body>
+  <body class="asobi-site theme-clicker">
     <div class="page-shell">
       <header class="site-header" aria-label="サイト情報">
         <a class="brand" href="./" aria-label="無意味クリッカー トップ">
           <span class="brand-mark" aria-hidden="true">無</span>
-          <span>無意味クリッカー</span>
+          <span class="brand-copy">
+            <small>ASOBI WORKS / 02</small>
+            <strong>無意味クリッカー</strong>
+          </span>
         </a>
         <p class="lifetime" id="lifetimeLabel">累計 --回</p>
       </header>
@@ -51,31 +55,31 @@
               aria-label="出てきたら叩く盤面"
             >
               <button class="mole-hole" type="button" data-hole="0">
-                <span class="mole" aria-hidden="true">🐹</span>
+                <img class="mole" src="./assets/target-mole.png" alt="" aria-hidden="true" />
               </button>
               <button class="mole-hole" type="button" data-hole="1">
-                <span class="mole" aria-hidden="true">🐹</span>
+                <img class="mole" src="./assets/target-mole.png" alt="" aria-hidden="true" />
               </button>
               <button class="mole-hole" type="button" data-hole="2">
-                <span class="mole" aria-hidden="true">🐹</span>
+                <img class="mole" src="./assets/target-mole.png" alt="" aria-hidden="true" />
               </button>
               <button class="mole-hole" type="button" data-hole="3">
-                <span class="mole" aria-hidden="true">🐹</span>
+                <img class="mole" src="./assets/target-mole.png" alt="" aria-hidden="true" />
               </button>
               <button class="mole-hole" type="button" data-hole="4">
-                <span class="mole" aria-hidden="true">🐹</span>
+                <img class="mole" src="./assets/target-mole.png" alt="" aria-hidden="true" />
               </button>
               <button class="mole-hole" type="button" data-hole="5">
-                <span class="mole" aria-hidden="true">🐹</span>
+                <img class="mole" src="./assets/target-mole.png" alt="" aria-hidden="true" />
               </button>
               <button class="mole-hole" type="button" data-hole="6">
-                <span class="mole" aria-hidden="true">🐹</span>
+                <img class="mole" src="./assets/target-mole.png" alt="" aria-hidden="true" />
               </button>
               <button class="mole-hole" type="button" data-hole="7">
-                <span class="mole" aria-hidden="true">🐹</span>
+                <img class="mole" src="./assets/target-mole.png" alt="" aria-hidden="true" />
               </button>
               <button class="mole-hole" type="button" data-hole="8">
-                <span class="mole" aria-hidden="true">🐹</span>
+                <img class="mole" src="./assets/target-mole.png" alt="" aria-hidden="true" />
               </button>
             </div>
 
@@ -87,10 +91,14 @@
                 class="share-button score-share-button"
                 id="scoreShareButton"
                 type="button"
+                disabled
               >
                 <span aria-hidden="true">𝕏</span>
-                今のスコアをXでシェアする
+                ランダム画像つきでXへ共有
               </button>
+              <p class="share-help" id="scoreShareHelp">
+                共有画像を準備しています…
+              </p>
               <button class="reset-button" id="resetButton" type="button">
                 今回の記録をリセット
               </button>
@@ -158,10 +166,15 @@
                 </p>
               </div>
               <div class="cup-result-actions">
-                <button class="share-button" id="cupShareButton" type="button">
-                  <span aria-hidden="true">𝕏</span>
-                  Xで完成報告する
-                </button>
+                <div class="share-action-group">
+                  <button class="share-button" id="cupShareButton" type="button" disabled>
+                    <span aria-hidden="true">𝕏</span>
+                    ランダム画像つきで完成報告
+                  </button>
+                  <p class="share-help" id="cupShareHelp">
+                    共有画像を準備しています…
+                  </p>
+                </div>
                 <button class="reset-button" id="cupRetryButton" type="button">
                   もう一度挑戦する
                 </button>
@@ -203,6 +216,6 @@
     </div>
 
     <div class="flash" id="flash" aria-hidden="true"></div>
-    <script src="./script.js?v=1"></script>
+    <script src="./script.js?v=12"></script>
   </body>
 </html>

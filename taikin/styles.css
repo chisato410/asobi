@@ -301,19 +301,63 @@ h1 .accent {
   position: absolute;
   top: 28px;
   right: -12px;
-  display: grid;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  align-items: center;
+  justify-content: center;
   width: 43px;
   height: 43px;
-  place-items: center;
   border: 3px double var(--stamp);
   border-radius: 50%;
   color: var(--stamp);
-  font-size: 9px;
   font-weight: 900;
-  line-height: 1.1;
+  line-height: 1;
   text-align: center;
   opacity: 0;
   transform: scale(1.8) rotate(-12deg);
+}
+
+.stamp-paw {
+  position: relative;
+  display: block;
+  width: 18px;
+  height: 14px;
+  color: currentColor;
+}
+
+.stamp-paw::before,
+.stamp-paw::after {
+  position: absolute;
+  display: block;
+  background: currentColor;
+  content: "";
+}
+
+.stamp-paw::before {
+  bottom: 0;
+  left: 5px;
+  width: 10px;
+  height: 8px;
+  border-radius: 55% 55% 48% 48%;
+}
+
+.stamp-paw::after {
+  top: 5px;
+  left: 1px;
+  width: 4px;
+  height: 5px;
+  border-radius: 50%;
+  box-shadow:
+    5px -5px 0 currentColor,
+    11px -5px 0 currentColor,
+    16px 0 0 currentColor;
+}
+
+.stamp-copy {
+  font-size: 7px;
+  letter-spacing: -0.05em;
+  white-space: nowrap;
 }
 
 .control-panel {
@@ -480,6 +524,28 @@ h1 .accent {
   transition: background 150ms ease, color 150ms ease, transform 150ms ease;
 }
 
+.share-control {
+  display: flex;
+  flex: 0 0 auto;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 8px;
+  max-width: 290px;
+}
+
+.result .share-status {
+  margin: 0;
+  color: var(--muted-ink);
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1.55;
+  text-align: center;
+}
+
+.share-status[hidden] {
+  display: none;
+}
+
 .share-button:hover {
   background: var(--white);
   color: var(--ink);
@@ -568,6 +634,11 @@ footer p {
 
   .share-button {
     justify-content: center;
+  }
+
+  .share-control {
+    width: 100%;
+    max-width: none;
   }
 }
 

@@ -7,16 +7,53 @@
       name="description"
       content="1日1回だけ押せる、気持ちよく退勤するためだけのボタン。"
     />
-    <meta name="theme-color" content="#d9e9e8" />
+    <link rel="canonical" href="https://asobi-seven.vercel.app/" />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://asobi-seven.vercel.app/" />
+    <meta property="og:site_name" content="asobi" />
+    <meta property="og:title" content="退勤ボタン｜本日の業務を終了します" />
+    <meta
+      property="og:description"
+      content="1日1回だけ押せる、気持ちよく退勤するためだけのボタン。"
+    />
+    <meta
+      property="og:image"
+      content="https://asobi-seven.vercel.app/og-image.png"
+    />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta
+      property="og:image:alt"
+      content="タイムカードを持った猫と退勤ボタンのイラスト"
+    />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="退勤ボタン｜本日の業務を終了します" />
+    <meta
+      name="twitter:description"
+      content="1日1回だけ押せる、気持ちよく退勤するためだけのボタン。"
+    />
+    <meta
+      name="twitter:image"
+      content="https://asobi-seven.vercel.app/og-image.png"
+    />
+    <meta
+      name="twitter:image:alt"
+      content="タイムカードを持った猫と退勤ボタンのイラスト"
+    />
+    <meta name="theme-color" content="#dcecf5" />
     <title>退勤ボタン｜本日の業務を終了します</title>
-    <link rel="stylesheet" href="./styles.css?v=1" />
+    <link rel="stylesheet" href="./styles.css?v=4" />
+    <link rel="stylesheet" href="./theme.css?v=7" />
   </head>
-  <body>
+  <body class="asobi-site theme-taikin">
     <div class="page-shell">
       <header class="site-header" aria-label="サイト情報">
         <a class="brand" href="./" aria-label="退勤ボタン トップ">
           <span class="brand-mark" aria-hidden="true">退</span>
-          <span>退勤ボタン</span>
+          <span class="brand-copy">
+            <small>ASOBI WORKS / 01</small>
+            <strong>退勤ボタン</strong>
+          </span>
         </a>
         <p class="today" id="todayLabel"></p>
       </header>
@@ -35,6 +72,12 @@
           </div>
 
           <div class="time-recorder" id="timeRecorder">
+            <img
+              class="cat-character taikin-cat"
+              src="./assets/cat-character.png"
+              alt=""
+              aria-hidden="true"
+            />
             <div class="recorder-top" aria-hidden="true">
               <span class="maker">OTSU<br />CLOCK</span>
               <span class="serial">No. 5931</span>
@@ -61,7 +104,10 @@
                   <span class="blank-time">09:00</span>
                   <span class="stamp-time" id="stampTime">--:--</span>
                 </div>
-                <div class="stamp-seal" id="stampSeal">退勤<br />済</div>
+                <div class="stamp-seal" id="stampSeal">
+                  <span class="stamp-paw" aria-hidden="true"></span>
+                  <span class="stamp-copy">退勤済</span>
+                </div>
               </div>
             </div>
 
@@ -82,12 +128,24 @@
           <div>
             <p class="result-kicker">おつかれさまでした</p>
             <h2><span id="resultTime">--:--</span>、退勤。</h2>
-            <p>今日のあなたは、もう自由です。</p>
+            <p id="resultMessage">今日のあなたは、もう自由です。</p>
           </div>
-          <button class="share-button" id="shareButton" type="button">
-            <span aria-hidden="true">𝕏</span>
-            Xで退勤を報告する
-          </button>
+          <div class="share-control">
+            <button class="share-button" id="shareButton" type="button">
+              <span aria-hidden="true">𝕏</span>
+              Xに投稿する
+            </button>
+            <button
+              class="share-button share-button-secondary"
+              id="shareImageButton"
+              type="button"
+            >
+              <span aria-hidden="true">▧</span>
+              タイムカード画像付きで共有
+            </button>
+            <p class="share-hint">共有先でXを選んでください</p>
+            <p class="share-status" id="shareStatus" role="status" hidden></p>
+          </div>
         </section>
       </main>
 
@@ -98,6 +156,6 @@
     </div>
 
     <div class="flash" id="flash" aria-hidden="true"></div>
-    <script src="./script.js?v=1"></script>
+    <script src="./script.js?v=8"></script>
   </body>
 </html>
