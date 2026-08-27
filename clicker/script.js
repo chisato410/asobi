@@ -2,6 +2,7 @@
 // ここに保存した値は、タブを閉じても・PCを再起動しても同じ端末なら残り続ける。
 // (ただしシークレットモードや別の端末では引き継がれない)
 const STORAGE_KEY = "muimi-clicker:lifetime-total";
+const PUBLIC_URL = "https://asobi-clicker.vercel.app/";
 
 // 称号(ランク)の一覧。しきい値(threshold)以上のスコアで名乗れる称号を
 // 配列の後ろから順にチェックする。
@@ -65,6 +66,7 @@ const elements = {
   cpsValue: document.querySelector("#cpsValue"),
   resetButton: document.querySelector("#resetButton"),
   scoreShareButton: document.querySelector("#scoreShareButton"),
+  scoreTextShareButton: document.querySelector("#scoreTextShareButton"),
   scoreShareHelp: document.querySelector("#scoreShareHelp"),
   lifetimeLabel: document.querySelector("#lifetimeLabel"),
   flash: document.querySelector("#flash"),
@@ -82,6 +84,7 @@ const elements = {
   resultWaitTime: document.querySelector("#resultWaitTime"),
   resultDetail: document.querySelector("#resultDetail"),
   cupShareButton: document.querySelector("#cupShareButton"),
+  cupTextShareButton: document.querySelector("#cupTextShareButton"),
   cupShareHelp: document.querySelector("#cupShareHelp"),
   cupRetryButton: document.querySelector("#cupRetryButton"),
 };
@@ -581,12 +584,10 @@ function prepareShareIllustrations() {
       elements.cupShareButton.disabled = false;
       const supportsDirectShare = supportsNativeFileShare();
       const helpText = supportsDirectShare
-        ? ""
-        : "Xが開いたら⌘V / Ctrl+Vで画像を貼り付けてください。";
+        ? "共有先でXを選ぶだけです。"
+        : "画像をコピーしてXを開きます。投稿画面で貼り付けてください。";
       elements.scoreShareHelp.textContent = helpText;
       elements.cupShareHelp.textContent = helpText;
-      elements.scoreShareHelp.hidden = supportsDirectShare;
-      elements.cupShareHelp.hidden = supportsDirectShare;
       return;
     }
 
@@ -697,14 +698,24 @@ async function copyImageToClipboard(file) {
 }
 
 function openXShareWindow(text) {
-  const params = new URLSearchParams({ text });
+  const params = new URLSearchParams({ text, url: PUBLIC_URL });
   window.location.assign(`https://twitter.com/intent/tweet?${params.toString()}`);
+}
+
+function downloadShareImage(cardFile) {
+  const downloadUrl = URL.createObjectURL(cardFile);
+  const link = document.createElement("a");
+  link.href = downloadUrl;
+  link.download = cardFile.name;
+  document.body.append(link);
+  link.click();
+  link.remove();
+  window.setTimeout(() => URL.revokeObjectURL(downloadUrl), 1000);
 }
 
 async function shareWithRandomImage(baseText, cardData) {
   setShareButtonsBusy(true);
-  const isWebPage = window.location.protocol.startsWith("http");
-  const text = isWebPage ? `${baseText}\n\n${window.location.href}` : baseText;
+  const text = `${baseText}\n\n${PUBLIC_URL}`;
   const supportsDirectShare = supportsNativeFileShare();
   const cardFile = createClickerShareCard(cardData, supportsDirectShare);
   if (!cardFile) {
@@ -714,7 +725,7 @@ async function shareWithRandomImage(baseText, cardData) {
   }
 
   const shareData = { title: "無意味クリッカー", text, files: [cardFile] };
-  if (navigator.share && navigator.canShare?.(shareData)) {
+  if (supportsDirectShare && navigator.share && navigator.canShare?.(shareData)) {
     try {
       await navigator.share(shareData);
       setShareButtonsBusy(false);
@@ -728,17 +739,18 @@ async function shareWithRandomImage(baseText, cardData) {
   }
 
   if (await copyImageToClipboard(cardFile)) {
-    showShareToast("画像をコピーしました。Xを開いています。投稿欄で⌘V / Ctrl+Vしてください。");
+    showShareToast("画像をコピーしました。Xの投稿画面で貼り付けてください。");
+    setShareButtonsBusy(false);
     window.setTimeout(() => {
-      const params = new URLSearchParams({ text });
-      window.location.assign(`https://twitter.com/intent/tweet?${params.toString()}`);
-    }, 850);
+      openXShareWindow(baseText);
+    }, 650);
     return;
   }
 
-  showShareToast("画像共有に未対応のため、文章だけでXを開きます。");
+  downloadShareImage(cardFile);
+  showShareToast("画像を保存しました。Xの投稿画面で添付してください。");
   setShareButtonsBusy(false);
-  openXShareWindow(text);
+  window.setTimeout(() => openXShareWindow(baseText), 650);
 }
 
 async function shareCupResult() {
@@ -759,6 +771,19 @@ async function shareCupResult() {
   });
 }
 
+function shareCupResultLink() {
+  if (!cupLastResult) return;
+
+  const sizeLabel = cupLastResult.durationSeconds === 300 ? "ビッグサイズ" : "ふつうサイズ";
+  const waitLabel = formatWaitLabel(cupLastResult.elapsedSeconds);
+  const text =
+    `カップ麺(${sizeLabel})、${waitLabel}待って完成。\n` +
+    `待っている間に${cupLastResult.clicks}回叩きました。おいしく食べます!\n\n` +
+    `#無意味クリッカー #カップ麺タイマー`;
+
+  openXShareWindow(text);
+}
+
 // タイマーの完了を待たず、今この瞬間のスコア・称号をいつでもシェアできるボタン用。
 async function shareCurrentScore() {
   const rank = currentRank(sessionScore);
@@ -772,6 +797,15 @@ async function shareCurrentScore() {
     subValue: rank.label,
     detail: `累計 ${lifetimeTotal.toLocaleString("ja-JP")}回`,
   });
+}
+
+function shareCurrentScoreLink() {
+  const rank = currentRank(sessionScore);
+  const text =
+    `無意味クリッカーで「${rank.label}」(スコア${sessionScore.toLocaleString("ja-JP")})になりました。\n\n` +
+    `#無意味クリッカー`;
+
+  openXShareWindow(text);
 }
 
 function initialise() {
@@ -793,6 +827,7 @@ function initialise() {
   });
   elements.resetButton.addEventListener("click", handleReset);
   elements.scoreShareButton.addEventListener("click", shareCurrentScore);
+  elements.scoreTextShareButton.addEventListener("click", shareCurrentScoreLink);
 
   window.setInterval(tickCps, 250);
 
@@ -806,6 +841,7 @@ function initialise() {
   elements.doneButton.addEventListener("click", finalizeCupRound);
   elements.finishButton.addEventListener("click", finalizeCupRound);
   elements.cupShareButton.addEventListener("click", shareCupResult);
+  elements.cupTextShareButton.addEventListener("click", shareCupResultLink);
   elements.cupRetryButton.addEventListener("click", retryCupTimer);
 }
 

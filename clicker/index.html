@@ -7,10 +7,49 @@
       name="description"
       content="出てきた瞬間だけ叩ける、無意味なモグラ叩き。時間が経つほどどんどん忙しくなります。"
     />
+    <link rel="canonical" href="https://asobi-clicker.vercel.app/" />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://asobi-clicker.vercel.app/" />
+    <meta property="og:site_name" content="asobi" />
+    <meta property="og:locale" content="ja_JP" />
+    <meta property="og:title" content="無意味クリッカー｜出てきたら叩く。それだけ。" />
+    <meta
+      property="og:description"
+      content="カップ麺を待ちながら遊べる、時間とともに忙しくなるモグラ叩き。"
+    />
+    <meta
+      property="og:image"
+      content="https://asobi-clicker.vercel.app/og-image-v2.png"
+    />
+    <meta
+      property="og:image:secure_url"
+      content="https://asobi-clicker.vercel.app/og-image-v2.png"
+    />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:type" content="image/png" />
+    <meta
+      property="og:image:alt"
+      content="モグラ、ハムスター、ネズミと、肉球を上げる猫の無意味クリッカーのイラスト"
+    />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="無意味クリッカー｜出てきたら叩く。それだけ。" />
+    <meta
+      name="twitter:description"
+      content="カップ麺を待ちながら遊べる、時間とともに忙しくなるモグラ叩き。"
+    />
+    <meta
+      name="twitter:image"
+      content="https://asobi-clicker.vercel.app/og-image-v2.png"
+    />
+    <meta
+      name="twitter:image:alt"
+      content="モグラ、ハムスター、ネズミと、肉球を上げる猫の無意味クリッカーのイラスト"
+    />
     <meta name="theme-color" content="#dcecf5" />
     <title>無意味クリッカー｜出てきたら叩くだけ</title>
-    <link rel="stylesheet" href="./styles.css?v=4" />
-    <link rel="stylesheet" href="./theme.css?v=6" />
+    <link rel="stylesheet" href="./styles.css?v=5" />
+    <link rel="stylesheet" href="./theme.css?v=7" />
   </head>
   <body class="asobi-site theme-clicker">
     <div class="page-shell">
@@ -87,18 +126,28 @@
 
             <div class="stat-row">
               <span id="cpsValue">毎秒 0 回</span>
-              <button
-                class="share-button score-share-button"
-                id="scoreShareButton"
-                type="button"
-                disabled
-              >
-                <span aria-hidden="true">𝕏</span>
-                ランダム画像つきでXへ共有
-              </button>
-              <p class="share-help" id="scoreShareHelp">
-                共有画像を準備しています…
-              </p>
+              <div class="share-action-group score-share-group">
+                <button
+                  class="share-button score-share-button"
+                  id="scoreShareButton"
+                  type="button"
+                  disabled
+                >
+                  <span aria-hidden="true">▧</span>
+                  画像付きでXへ共有
+                </button>
+                <button
+                  class="share-button share-button-secondary score-share-button"
+                  id="scoreTextShareButton"
+                  type="button"
+                >
+                  <span aria-hidden="true">𝕏</span>
+                  リンクだけXに投稿
+                </button>
+                <p class="share-help" id="scoreShareHelp">
+                  共有画像を準備しています…
+                </p>
+              </div>
               <button class="reset-button" id="resetButton" type="button">
                 今回の記録をリセット
               </button>
@@ -168,8 +217,16 @@
               <div class="cup-result-actions">
                 <div class="share-action-group">
                   <button class="share-button" id="cupShareButton" type="button" disabled>
+                    <span aria-hidden="true">▧</span>
+                    画像付きでXへ共有
+                  </button>
+                  <button
+                    class="share-button share-button-secondary"
+                    id="cupTextShareButton"
+                    type="button"
+                  >
                     <span aria-hidden="true">𝕏</span>
-                    ランダム画像つきで完成報告
+                    リンクだけXに投稿
                   </button>
                   <p class="share-help" id="cupShareHelp">
                     共有画像を準備しています…
@@ -216,6 +273,6 @@
     </div>
 
     <div class="flash" id="flash" aria-hidden="true"></div>
-    <script src="./script.js?v=12"></script>
+    <script src="./script.js?v=13"></script>
   </body>
 </html>
