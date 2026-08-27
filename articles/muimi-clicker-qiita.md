@@ -1,10 +1,7 @@
----
-title: "カップ麺を待つ3分をモグラ叩きにした。Vanilla JSで2つの時間を扱う"
-emoji: "🐾"
-type: "tech"
-topics: ["javascript", "html", "css", "canvas", "webapi"]
-published: false
----
+<!--
+Qiitaタイトル: カップ麺を待つ3分をモグラ叩きにした。Vanilla JSで2つの時間を扱う
+推奨タグ: JavaScript / HTML / CSS / Canvas / WebAPI
+-->
 
 カップ麺の完成を待つ3分間は、短いようで長いです。
 

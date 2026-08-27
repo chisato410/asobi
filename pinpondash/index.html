@@ -7,10 +7,59 @@
       name="description"
       content="ちょうどいいタイミングでピンポンを押して、逃げ切れ。1回外したら御用、というだけの反射神経ゲーム。"
     />
+    <link rel="canonical" href="https://asobi-pinpondash.vercel.app/" />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://asobi-pinpondash.vercel.app/?share=2" />
+    <meta property="og:site_name" content="asobi" />
+    <meta property="og:locale" content="ja_JP" />
+    <meta
+      property="og:title"
+      content="ピンポンダッシュ｜ちょうどいい瞬間で、鳴らして逃げろ。"
+    />
+    <meta
+      property="og:description"
+      content="ちょうどいいタイミングでピンポンを押して、逃げ切れ。1回外したら御用、というだけの反射神経ゲーム。"
+    />
+    <meta
+      property="og:image"
+      content="https://asobi-pinpondash.vercel.app/og-image-v2.png"
+    />
+    <meta
+      property="og:image:secure_url"
+      content="https://asobi-pinpondash.vercel.app/og-image-v2.png"
+    />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:type" content="image/png" />
+    <meta
+      property="og:image:alt"
+      content="三毛猫が玄関のピンポンを押して走り出すイラスト"
+    />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta
+      name="twitter:url"
+      content="https://asobi-pinpondash.vercel.app/?share=2"
+    />
+    <meta
+      name="twitter:title"
+      content="ピンポンダッシュ｜ちょうどいい瞬間で、鳴らして逃げろ。"
+    />
+    <meta
+      name="twitter:description"
+      content="ちょうどいいタイミングで押して逃げ切る反射神経ゲーム。"
+    />
+    <meta
+      name="twitter:image"
+      content="https://asobi-pinpondash.vercel.app/og-image-v2.png"
+    />
+    <meta
+      name="twitter:image:alt"
+      content="三毛猫が玄関のピンポンを押して走り出すイラスト"
+    />
     <meta name="theme-color" content="#dcecf5" />
-    <title>ピンポンダッシュ｜ちょうどいいタイミングで押すだけ</title>
-    <link rel="stylesheet" href="./styles.css?v=6" />
-    <link rel="stylesheet" href="./theme.css?v=2" />
+    <title>ピンポンダッシュ｜ちょうどいい瞬間で、鳴らして逃げろ。</title>
+    <link rel="stylesheet" href="./styles.css?v=7" />
+    <link rel="stylesheet" href="./theme.css?v=3" />
   </head>
   <body class="asobi-site theme-pinpon">
     <div class="page-shell">
@@ -83,9 +132,22 @@
             </div>
             <div class="result-actions">
               <div class="share-action-group">
-                <button class="share-button" id="resultShareButton" type="button" disabled>
+                <button
+                  class="share-button"
+                  id="resultImageShareButton"
+                  type="button"
+                  disabled
+                >
+                  <span aria-hidden="true">▧</span>
+                  画像付きでXへ共有
+                </button>
+                <button
+                  class="share-button share-button-secondary"
+                  id="resultShareButton"
+                  type="button"
+                >
                   <span aria-hidden="true">𝕏</span>
-                  ランダム画像つきでXへ共有
+                  リンクだけXに投稿
                 </button>
                 <p class="share-help" id="resultShareHelp">
                   共有画像を準備しています…
@@ -105,6 +167,6 @@
       </footer>
     </div>
 
-    <script src="./script.js?v=10"></script>
+    <script src="./script.js?v=12"></script>
   </body>
 </html>

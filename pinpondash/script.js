@@ -2,6 +2,7 @@
 // 同じ端末なら値が残る(シークレットモードや別端末には引き継がれない)。
 const STORAGE_KEY = "pinpon-dash:best-streak";
 const MAX_ROUND_TRIPS = 5;
+const PUBLIC_URL = "https://asobi-pinpondash.vercel.app/?share=2";
 const SHARE_ILLUSTRATIONS = Array.from(
   { length: 7 },
   (_, index) => `./assets/share/share-${String(index + 1).padStart(2, "0")}.png`
@@ -52,6 +53,7 @@ const elements = {
   resultStreak: document.querySelector("#resultStreak"),
   resultDetail: document.querySelector("#resultDetail"),
   resultShareButton: document.querySelector("#resultShareButton"),
+  resultImageShareButton: document.querySelector("#resultImageShareButton"),
   resultShareHelp: document.querySelector("#resultShareHelp"),
   retryButton: document.querySelector("#retryButton"),
   dashCat: document.querySelector("#dashCat"),
@@ -377,12 +379,11 @@ function prepareShareIllustrations() {
 
     if (!isShareReady && hasLoadedImage) {
       isShareReady = true;
-      elements.resultShareButton.disabled = false;
+      elements.resultImageShareButton.disabled = false;
       const supportsDirectShare = supportsNativeFileShare();
       elements.resultShareHelp.textContent = supportsDirectShare
-        ? ""
-        : "Xが開いたら⌘V / Ctrl+Vで画像を貼り付けてください。";
-      elements.resultShareHelp.hidden = supportsDirectShare;
+        ? "共有先でXを選ぶだけです。"
+        : "画像をコピーしてXを開きます。投稿画面で貼り付けてください。";
       return;
     }
 
@@ -476,8 +477,8 @@ function showShareToast(message) {
   window.setTimeout(() => toast.remove(), 3200);
 }
 
-function setShareButtonBusy(isBusy) {
-  elements.resultShareButton.disabled = isBusy;
+function setImageShareButtonBusy(isBusy) {
+  elements.resultImageShareButton.disabled = isBusy;
 }
 
 async function copyImageToClipboard(file) {
@@ -491,56 +492,72 @@ async function copyImageToClipboard(file) {
 }
 
 function openXShare(text) {
-  const params = new URLSearchParams({ text });
+  const params = new URLSearchParams({ text, url: PUBLIC_URL });
   window.location.assign(`https://twitter.com/intent/tweet?${params.toString()}`);
 }
 
-async function shareResult() {
-  setShareButtonBusy(true);
-  const isWebPage = window.location.protocol.startsWith("http");
-
-  // 別パラメータ(url=...)ではなく、投稿本文(text)自体にリンクを埋め込む。
-  // こうすることで、リンクが確実に投稿内容の一部として表示される。
+function resultShareText(includeUrl = false) {
   let text =
     `ピンポンダッシュで${currentStreak}回連続成功しました。\n` +
     `(自己ベスト: ${bestStreak}回)`;
-  if (isWebPage) text += `\n\n${window.location.href}`;
+  if (includeUrl) text += `\n\n${PUBLIC_URL}`;
   text += `\n\n#ピンポンダッシュ`;
+  return text;
+}
+
+function shareResultOnX() {
+  openXShare(resultShareText());
+}
+
+function downloadShareImage(cardFile) {
+  const downloadUrl = URL.createObjectURL(cardFile);
+  const link = document.createElement("a");
+  link.href = downloadUrl;
+  link.download = cardFile.name;
+  document.body.append(link);
+  link.click();
+  link.remove();
+  window.setTimeout(() => URL.revokeObjectURL(downloadUrl), 1000);
+}
+
+async function shareResultImage() {
+  setImageShareButtonBusy(true);
+  const text = resultShareText(true);
 
   const supportsDirectShare = supportsNativeFileShare();
   const cardFile = createPinponShareCard(supportsDirectShare);
   if (!cardFile) {
     showShareToast("共有画像を準備中です。少し待ってもう一度押してください。");
-    setShareButtonBusy(false);
+    setImageShareButtonBusy(false);
     return;
   }
 
   const shareData = { title: "ピンポンダッシュ", text, files: [cardFile] };
-  if (navigator.share && navigator.canShare?.(shareData)) {
+  if (supportsDirectShare && navigator.share && navigator.canShare?.(shareData)) {
     try {
       await navigator.share(shareData);
-      setShareButtonBusy(false);
+      setImageShareButtonBusy(false);
       return;
     } catch (error) {
       if (error?.name === "AbortError") {
-        setShareButtonBusy(false);
+        setImageShareButtonBusy(false);
         return;
       }
     }
   }
 
-  if (await copyImageToClipboard(cardFile)) {
-    showShareToast("画像をコピーしました。Xを開いています。投稿欄で⌘V / Ctrl+Vしてください。");
-    window.setTimeout(() => {
-      const params = new URLSearchParams({ text });
-      window.location.assign(`https://twitter.com/intent/tweet?${params.toString()}`);
-    }, 850);
+  const didCopyImage = await copyImageToClipboard(cardFile);
+  if (didCopyImage) {
+    showShareToast("画像をコピーしました。Xの投稿画面で貼り付けてください。");
+    setImageShareButtonBusy(false);
+    window.setTimeout(() => openXShare(resultShareText()), 650);
     return;
   }
 
-  showShareToast("画像共有に未対応のため、文章だけでXを開きます。");
-  setShareButtonBusy(false);
-  openXShare(text);
+  downloadShareImage(cardFile);
+  showShareToast("画像を保存しました。Xの投稿画面で添付してください。");
+  setImageShareButtonBusy(false);
+  window.setTimeout(() => openXShare(resultShareText()), 650);
 }
 
 function initialise() {
@@ -553,7 +570,8 @@ function initialise() {
   elements.startButton.addEventListener("click", startGame);
   elements.pingButton.addEventListener("click", attemptPress);
   elements.retryButton.addEventListener("click", retryGame);
-  elements.resultShareButton.addEventListener("click", shareResult);
+  elements.resultShareButton.addEventListener("click", shareResultOnX);
+  elements.resultImageShareButton.addEventListener("click", shareResultImage);
 
   // スペースキーやEnterキーでもピンポンを押せるようにする(反射神経ゲームなので押しやすさ重視)。
   window.addEventListener("keydown", (event) => {

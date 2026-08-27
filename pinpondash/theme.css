@@ -382,6 +382,17 @@ h1 .headline-line {
   color: var(--white);
 }
 
+.share-button-secondary {
+  background: rgba(255, 253, 248, 0.72);
+  color: var(--ink);
+  box-shadow: inset 0 0 0 1px var(--soft-line);
+}
+
+.share-button-secondary:hover {
+  background: var(--pop-soft);
+  color: var(--ink);
+}
+
 .reset-button {
   background: rgba(255, 253, 248, 0.7);
   box-shadow: inset 0 0 0 1px var(--soft-line);
