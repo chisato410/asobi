@@ -48,7 +48,7 @@
     />
     <meta name="theme-color" content="#dcecf5" />
     <title>無意味クリッカー｜出てきたら叩くだけ</title>
-    <link rel="stylesheet" href="./styles.css?v=5" />
+    <link rel="stylesheet" href="./styles.css?v=6" />
     <link rel="stylesheet" href="./theme.css?v=7" />
   </head>
   <body class="asobi-site theme-clicker">
@@ -126,28 +126,6 @@
 
             <div class="stat-row">
               <span id="cpsValue">毎秒 0 回</span>
-              <div class="share-action-group score-share-group">
-                <button
-                  class="share-button score-share-button"
-                  id="scoreShareButton"
-                  type="button"
-                  disabled
-                >
-                  <span aria-hidden="true">▧</span>
-                  画像付きでXへ共有
-                </button>
-                <button
-                  class="share-button share-button-secondary score-share-button"
-                  id="scoreTextShareButton"
-                  type="button"
-                >
-                  <span aria-hidden="true">𝕏</span>
-                  リンクだけXに投稿
-                </button>
-                <p class="share-help" id="scoreShareHelp">
-                  共有画像を準備しています…
-                </p>
-              </div>
               <button class="reset-button" id="resetButton" type="button">
                 今回の記録をリセット
               </button>
@@ -164,6 +142,10 @@
               <h2 id="cupTimerTitle">お湯を注いだら、押して待とう。</h2>
               <p class="lead">
                 待っている間は、上で出てきたやつを叩いて時間を潰せます。
+              </p>
+              <p class="timer-optional-note">
+                <span aria-hidden="true">✓</span>
+                タイマーは使わなくてもOK。モグラ叩きだけでも遊べます。
               </p>
             </div>
 
@@ -235,6 +217,34 @@
                 <button class="reset-button" id="cupRetryButton" type="button">
                   もう一度挑戦する
                 </button>
+              </div>
+            </section>
+
+            <section class="score-share-panel" aria-labelledby="scoreShareTitle">
+              <p class="score-share-caption" id="scoreShareTitle">
+                いまのスコアを共有
+              </p>
+              <div class="share-action-group score-share-group">
+                <button
+                  class="share-button score-share-button"
+                  id="scoreShareButton"
+                  type="button"
+                  disabled
+                >
+                  <span aria-hidden="true">▧</span>
+                  画像付きでXへ共有
+                </button>
+                <button
+                  class="share-button share-button-secondary score-share-button"
+                  id="scoreTextShareButton"
+                  type="button"
+                >
+                  <span aria-hidden="true">𝕏</span>
+                  リンクだけXに投稿
+                </button>
+                <p class="share-help" id="scoreShareHelp">
+                  共有画像を準備しています…
+                </p>
               </div>
             </section>
           </section>
