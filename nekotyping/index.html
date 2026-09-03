@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="猫種、毛柄、肉球。ねこのことばだけが出てくるタイピングゲーム。" />
+    <link rel="canonical" href="https://asobi-nekotyping.vercel.app/" />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://asobi-nekotyping.vercel.app/" />
+    <meta property="og:site_name" content="asobi" />
+    <meta property="og:locale" content="ja_JP" />
+    <meta property="og:title" content="ねこタイプ｜ねこの名前を、すばやくタイプ。" />
+    <meta property="og:description" content="猫種・毛柄・猫ことば、全120語。30秒・60秒・90秒から選べるタイピングゲーム。" />
+    <meta property="og:image" content="https://asobi-nekotyping.vercel.app/og-image.png" />
+    <meta property="og:image:secure_url" content="https://asobi-nekotyping.vercel.app/og-image.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:type" content="image/png" />
+    <meta property="og:image:alt" content="3匹の猫がキーボードで遊ぶ、ねこタイプのイラスト" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="ねこタイプ｜ねこの名前を、すばやくタイプ。" />
+    <meta name="twitter:description" content="猫種・毛柄・猫ことば、全120語のタイピングゲーム。" />
+    <meta name="twitter:image" content="https://asobi-nekotyping.vercel.app/og-image.png" />
+    <meta name="twitter:image:alt" content="3匹の猫がキーボードで遊ぶ、ねこタイプのイラスト" />
+    <meta name="theme-color" content="#f7ebd4" />
+    <link rel="icon" type="image/svg+xml" href="./assets/paw.svg" />
+    <title>ねこタイプ｜猫のことばだけのタイピングゲーム</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@500;700;800&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="page-shell">
+      <header class="site-header">
+        <a class="brand" href="./" aria-label="ねこタイプ トップ">
+          <span>
+            <strong class="asobi-logo">asobi<i aria-hidden="true">●</i></strong>
+            <small>ねこタイプ</small>
+          </span>
+        </a>
+        <div class="sound-tools">
+          <button class="sound-button" id="soundButton" type="button" aria-pressed="true">
+            <span aria-hidden="true">♪</span><span id="soundLabel">音あり</span>
+          </button>
+          <label class="volume-control" for="volumeControl">
+            <span>音量</span>
+            <input id="volumeControl" type="range" min="0" max="100" value="70" step="1" aria-label="音量" />
+            <output id="volumeValue" for="volumeControl">70%</output>
+          </label>
+        </div>
+      </header>
+
+      <main>
+        <section class="game-stage" aria-labelledby="pageTitle">
+          <div class="intro">
+            <p class="category-label" id="categoryLabel"><span aria-hidden="true">✦</span> 猫種・毛柄・猫ことば</p>
+            <h1 id="pageTitle"><span>ねこの名前を、</span><span>すばやくタイプ。</span></h1>
+            <p>時間を選んで、何匹のねこと出会える？<br />音が同じローマ字なら、どちらでも正解です。</p>
+
+            <fieldset class="level-picker" id="levelPicker">
+              <legend>あそぶ時間</legend>
+              <div class="level-options">
+                <label>
+                  <input type="radio" name="level" value="90" />
+                  <span><b>ゆったり</b><small>90秒</small></span>
+                </label>
+                <label>
+                  <input type="radio" name="level" value="60" checked />
+                  <span><b>ふつう</b><small>60秒</small></span>
+                </label>
+                <label>
+                  <input type="radio" name="level" value="30" />
+                  <span><b>本気</b><small>30秒</small></span>
+                </label>
+              </div>
+            </fieldset>
+
+            <div class="mini-guide" aria-label="遊び方">
+              <span><b>1</b> 時間を選ぶ</span>
+              <span><b>2</b> はじめる</span>
+              <span><b>3</b> 肉球を集める</span>
+            </div>
+          </div>
+
+          <div class="type-machine" id="typeMachine">
+            <img class="typing-cats" src="./assets/cats-keyboard.png" alt="キーボードに前足をのせる、グレー、茶トラ、三毛の3匹の猫" />
+
+            <div class="score-row">
+              <div><span>のこり</span><strong id="timeValue">60.0</strong><small>秒</small></div>
+              <div><span aria-hidden="true">★</span><strong id="scoreValue">0</strong><small>点</small></div>
+              <div><span class="hud-paw" aria-hidden="true"><img src="./assets/paw.svg" alt="" /></span><strong id="pawValue">0</strong><small>肉球</small></div>
+            </div>
+
+            <div class="word-card" id="wordCard">
+              <div class="coat-swatch" id="coatSwatch" aria-hidden="true"></div>
+              <p class="word-kind" id="wordKind">スタート待ち</p>
+              <p class="japanese-word" id="japaneseWord">ねこタイプ</p>
+              <p class="reading" id="reading">ねこたいぷ</p>
+              <p class="romaji" id="romaji" aria-live="polite">
+                <span class="typed"></span><span class="remaining">nekotype</span>
+              </p>
+              <div class="tail-progress" aria-hidden="true"><span id="tailProgress"></span></div>
+            </div>
+
+            <button class="start-button" id="startButton" type="button">
+              <img class="button-paw" src="./assets/paw.svg" alt="" aria-hidden="true" />
+              <span id="startLabel">60秒ではじめる</span>
+            </button>
+
+            <div class="paw-trail" id="pawTrail" aria-hidden="true">
+              <img src="./assets/paw.svg" alt="" /><img src="./assets/paw.svg" alt="" /><img src="./assets/paw.svg" alt="" /><img src="./assets/paw.svg" alt="" /><img src="./assets/paw.svg" alt="" />
+            </div>
+          </div>
+        </section>
+
+        <section class="cat-note" id="catNote" aria-labelledby="noteTitle">
+          <header class="note-heading">
+            <span class="note-mark" aria-hidden="true">猫</span>
+            <div><small>正解すると増えていく</small><h2 id="noteTitle">ねこメモ帳</h2></div>
+            <strong class="memo-count" id="memoCount">0枚</strong>
+          </header>
+          <div class="note-list" id="noteList" aria-live="polite">
+            <p class="note-empty" id="noteEmpty">まだ白紙です。猫ことばを正解すると、Wikipediaからメモが届きます。</p>
+          </div>
+        </section>
+      </main>
+
+      <footer>
+        <p>猫種と毛柄は、ちがうもの。どちらも等しく愛でながらタイプします。</p>
+        <p class="api-note">解説はWikipediaの公開APIを利用しています。通信できないときもゲームは遊べます。</p>
+      </footer>
+    </div>
+
+    <dialog class="result-dialog" id="resultDialog">
+      <div class="result-cat" aria-hidden="true"><span>˶ᵔ ᵕ ᵔ˶</span></div>
+      <p class="result-kicker" id="resultKicker">60秒、おつかれさまでした</p>
+      <h2><strong id="resultPaws">0</strong>この肉球を<br />あつめました。</h2>
+      <dl>
+        <div><dt>スコア</dt><dd id="resultScore">0</dd></div>
+        <div><dt>正確さ</dt><dd id="resultAccuracy">100%</dd></div>
+        <div><dt>最高コンボ</dt><dd id="resultCombo">0</dd></div>
+      </dl>
+      <div class="share-panel">
+        <p>結果をシェア</p>
+        <div class="share-buttons">
+          <button id="shareImageButton" type="button" disabled><span aria-hidden="true">▧</span>画像付きでXへ共有</button>
+          <button id="shareLinkButton" type="button"><span aria-hidden="true">𝕏</span>リンクだけXに投稿</button>
+        </div>
+        <p class="share-status" id="shareStatus" role="status">共有画像を準備しています…</p>
+      </div>
+      <div class="result-actions">
+        <button id="retryButton" type="button">もう一度あそぶ</button>
+        <button id="closeButton" type="button">閉じる</button>
+      </div>
+    </dialog>
+
+    <script src="./typing.js"></script>
+    <script src="./script.js"></script>
+  </body>
+</html>

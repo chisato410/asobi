@@ -1,0 +1,84 @@
+- generic [ref=e2]:
+  - banner [ref=e3]:
+    - link "ねこタイプ トップ" [ref=e4] [cursor=pointer]:
+      - /url: ./
+      - generic [ref=e5]:
+        - strong [ref=e6]:
+          - text: asobi
+          - generic [aria-hidden] [ref=e7]: ●
+        - generic [ref=e8]: ねこタイプ
+    - generic [ref=e9]:
+      - button "音あり" [pressed] [ref=e10] [cursor=pointer]:
+        - generic [aria-hidden] [ref=e11]: ♪
+      - generic [ref=e13]:
+        - generic [ref=e14]: 音量
+        - slider "音量" [ref=e15] [cursor=pointer]: "70"
+        - status [ref=e16]: 70%
+  - main [ref=e17]:
+    - region [ref=e18]:
+      - generic [ref=e19]:
+        - text: 〽
+        - paragraph [ref=e20]: ✦ 猫種・毛柄・猫ことば
+        - heading "ねこの名前を、 すばやくタイプ。" [level=1] [ref=e21]:
+          - generic [ref=e22]: ねこの名前を、
+          - generic [ref=e23]: すばやくタイプ。
+        - paragraph [ref=e24]: 時間を選んで、何匹のねこと出会える？音が同じローマ字なら、どちらでも正解です。
+        - group "あそぶ時間" [ref=e25]:
+          - generic [ref=e27]:
+            - generic [ref=e28] [cursor=pointer]:
+              - radio "ゆったり 90秒"
+              - generic [ref=e29]:
+                - generic [ref=e30]: ゆったり
+                - generic [ref=e31]: 90秒
+            - generic [ref=e32] [cursor=pointer]:
+              - radio "ふつう 60秒" [checked]
+              - generic [ref=e33]:
+                - generic [ref=e34]: ふつう
+                - generic [ref=e35]: 60秒
+            - generic [ref=e36] [cursor=pointer]:
+              - radio "本気 30秒"
+              - generic [ref=e37]:
+                - generic [ref=e38]: 本気
+                - generic [ref=e39]: 30秒
+        - generic "遊び方" [ref=e40]:
+          - generic [ref=e41]:
+            - generic [ref=e42]: "1"
+            - text: 時間を選ぶ
+          - generic [ref=e43]:
+            - generic [ref=e44]: "2"
+            - text: はじめる
+          - generic [ref=e45]:
+            - generic [ref=e46]: "3"
+            - text: 肉球を集める
+        - text: 〽
+      - generic [ref=e47]:
+        - img "キーボードに前足をのせる、グレー、茶トラ、三毛の3匹の猫"
+        - generic [ref=e48]:
+          - generic [ref=e49]:
+            - generic [ref=e50]: のこり
+            - strong [ref=e51]: "60.0"
+            - text: 秒
+          - generic [ref=e52]:
+            - generic [aria-hidden] [ref=e53]: ★
+            - strong [ref=e54]: "0"
+            - text: 点
+          - generic [ref=e55]:
+            - strong [ref=e57]: "0"
+            - text: 肉球
+        - generic [ref=e58]:
+          - paragraph [ref=e60]: スタート待ち
+          - paragraph [ref=e61]: ねこタイプ
+          - paragraph [ref=e62]: ねこたいぷ
+          - paragraph [ref=e63]: nekotype
+        - button "60秒ではじめる" [ref=e67] [cursor=pointer]
+    - region [ref=e71]:
+      - generic [ref=e72]:
+        - generic [aria-hidden] [ref=e73]: 猫
+        - generic [ref=e74]:
+          - text: 正解すると増えていく
+          - heading "ねこメモ帳" [level=2] [ref=e75]
+        - strong [ref=e76]: 0枚
+      - paragraph [ref=e78]: まだ白紙です。猫ことばを正解すると、Wikipediaからメモが届きます。
+  - contentinfo [ref=e79]:
+    - paragraph [ref=e80]: 猫種と毛柄は、ちがうもの。どちらも等しく愛でながらタイプします。
+    - paragraph [ref=e81]: 解説はWikipediaの公開APIを利用しています。通信できないときもゲームは遊べます。
