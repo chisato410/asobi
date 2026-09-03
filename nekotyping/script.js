@@ -389,10 +389,18 @@ async function copyImageToClipboard(file) {
   }
 }
 
-function supportsNativeFileShare(file) {
+function supportsFileShareEnvironment() {
   const isMobileDevice = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent)
     || (/Macintosh/i.test(navigator.userAgent) && navigator.maxTouchPoints > 1);
-  if (!isMobileDevice || !navigator.share || !navigator.canShare) return false;
+  return isMobileDevice && Boolean(navigator.share) && Boolean(navigator.canShare);
+}
+
+function pasteShortcutLabel() {
+  return /Macintosh|Mac OS X/i.test(navigator.userAgent) ? "⌘V" : "Ctrl+V";
+}
+
+function supportsNativeFileShare(file) {
+  if (!supportsFileShareEnvironment()) return false;
   try {
     return navigator.canShare({ files: [file] });
   } catch {
@@ -441,7 +449,7 @@ async function shareResultImage() {
 
     const copied = await copyImageToClipboard(file);
     if (copied) {
-      setShareStatus("画像をコピーしました。Xで貼り付けてください。");
+      setShareStatus(`画像をコピーしました。Xの投稿欄で${pasteShortcutLabel()}を押して貼り付けてください。`);
     } else {
       downloadShareImage(file);
       setShareStatus("画像を保存しました。Xの投稿に添付してください。");
@@ -463,7 +471,9 @@ async function shareResultImage() {
 function prepareShareArt() {
   shareArt.addEventListener("load", () => {
     elements.shareImage.disabled = false;
-    setShareStatus("画像をコピーまたは保存して、Xの投稿画面を開きます。");
+    setShareStatus(supportsFileShareEnvironment()
+      ? "共有先でXを選ぶだけです。"
+      : `画像をコピーしてXの投稿画面を開きます。Xでは自動で貼られないので、投稿欄で${pasteShortcutLabel()}を押してください。`);
   }, { once: true });
   shareArt.addEventListener("error", () => {
     setShareStatus("共有画像を読み込めませんでした。再読み込みしてください。");
