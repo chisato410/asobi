@@ -15,6 +15,11 @@
   const SPAWN_POOL = [0, 0, 0, 0, 1, 1, 1, 2];
   const GAME_CAT_SCALE = 0.85;
   const MAX_TILT = 0.48;
+  const PLATE_Y_OFFSET = 100;
+  const PLATE_HEIGHT = 44;
+  const PLATE_COLLIDER_HEIGHT = 24;
+  const PLATE_LIP_RADIUS = 12;
+  const SPILL_LINE_BOTTOM = 45;
   const CAT_SOURCE = "./assets/cat-source.png";
   const CAT_CROPS = [
     { x: 104, y: 92, w: 286, h: 366 },
@@ -208,6 +213,16 @@
     return { width: el.playfield.clientWidth, height: el.playfield.clientHeight };
   }
 
+  function stageMetrics(width, height) {
+    const plateWidth = Math.min(width * (width <= 600 ? 0.76 : 0.64), 650);
+    return {
+      plateWidth,
+      plateX: width / 2,
+      plateY: height - PLATE_Y_OFFSET,
+      spillLineY: height - SPILL_LINE_BOTTOM,
+    };
+  }
+
   function setupPhysics() {
     if (runner) Runner.stop(runner);
     if (engine) Composite.clear(engine.world, false, true);
@@ -221,8 +236,9 @@
     engine.velocityIterations = 10;
     engine.constraintIterations = 4;
 
-    const plateWidth = Math.min(width * (width <= 600 ? 0.76 : 0.64), 650);
-    const plateY = height - 100;
+    const metrics = stageMetrics(width, height);
+    const { plateWidth, plateX, plateY } = metrics;
+    el.playfield.style.setProperty("--spill-line-bottom", `${SPILL_LINE_BOTTOM}px`);
 
     const plateOptions = {
       label: "plate",
@@ -232,18 +248,19 @@
       density: 0.0046,
       sleepThreshold: 90,
     };
-    const plateBase = Bodies.rectangle(width / 2, plateY, plateWidth - 12, 24, {
+    const colliderY = plateY - (PLATE_HEIGHT - PLATE_COLLIDER_HEIGHT) / 2;
+    const plateBase = Bodies.rectangle(plateX, colliderY, plateWidth - PLATE_LIP_RADIUS * 2, PLATE_COLLIDER_HEIGHT, {
       ...plateOptions,
-      chamfer: { radius: 12 },
+      chamfer: { radius: PLATE_LIP_RADIUS },
     });
-    const leftLip = Bodies.circle(width / 2 - plateWidth / 2 + 15, plateY - 9, 12, plateOptions);
-    const rightLip = Bodies.circle(width / 2 + plateWidth / 2 - 15, plateY - 9, 12, plateOptions);
+    const leftLip = Bodies.circle(plateX - plateWidth / 2 + PLATE_LIP_RADIUS, colliderY, PLATE_LIP_RADIUS, plateOptions);
+    const rightLip = Bodies.circle(plateX + plateWidth / 2 - PLATE_LIP_RADIUS, colliderY, PLATE_LIP_RADIUS, plateOptions);
     plateBody = Body.create({ parts: [plateBase, leftLip, rightLip], ...plateOptions });
     Body.setInertia(plateBody, plateBody.inertia * 1.75);
     plateConstraint = Constraint.create({
-      pointA: { x: width / 2, y: plateY },
+      pointA: { x: plateX, y: plateY },
       bodyB: plateBody,
-      pointB: { x: 0, y: 0 },
+      pointB: { x: plateX - plateBody.position.x, y: plateY - plateBody.position.y },
       length: 0,
       stiffness: 0.98,
       damping: 0.18,
@@ -491,8 +508,39 @@
     };
   }
 
+  function isOutsidePlateEnd(body, metrics) {
+    if (!plateBody) return false;
+    const cos = Math.cos(plateBody.angle);
+    const sin = Math.sin(plateBody.angle);
+    let minX = Infinity;
+    let maxX = -Infinity;
+    for (const vertex of body.vertices) {
+      const dx = vertex.x - metrics.plateX;
+      const dy = vertex.y - metrics.plateY;
+      const localX = dx * cos + dy * sin;
+      minX = Math.min(minX, localX);
+      maxX = Math.max(maxX, localX);
+    }
+
+    const visual = catVisual(body);
+    const visualDx = visual.x - metrics.plateX;
+    const visualDy = visual.y - metrics.plateY;
+    const localY = -visualDx * sin + visualDy * cos;
+    const halfPlate = metrics.plateWidth / 2;
+    const hasClearedEnd = maxX < -halfPlate - 2 || minX > halfPlate + 2;
+    return hasClearedEnd && localY > -PLATE_HEIGHT / 2;
+  }
+
+  function hasSpilled(body, metrics, stageWidth) {
+    const visual = catVisual(body);
+    const crossedSpillLine = visual.y > metrics.spillLineY;
+    const leftScreen = body.bounds.max.x < 0 || body.bounds.min.x > stageWidth;
+    return crossedSpillLine || leftScreen || isOutsidePlateEnd(body, metrics);
+  }
+
   function render(now) {
     const { width, height } = stageSize();
+    const metrics = stageMetrics(width, height);
     if (plateBody) {
       el.plate.style.transform = `rotate(${plateBody.angle}rad)`;
       const normalized = Math.max(-1, Math.min(1, plateBody.angle / MAX_TILT));
@@ -523,7 +571,7 @@
 
       if (
         state === "playing" &&
-        (body.position.y > height - 12 || body.position.x < -45 || body.position.x > width + 45)
+        hasSpilled(body, metrics, width)
       ) {
         endGame();
       }
@@ -568,6 +616,7 @@
     canvas.height = 900;
     const shot = canvas.getContext("2d");
     const stage = stageSize();
+    const metrics = stageMetrics(stage.width, stage.height);
     const frame = { x: 54, y: 118, width: 1092, height: 710 };
     const sceneScale = Math.min(frame.width / stage.width, frame.height / stage.height);
     const sceneX = frame.x + (frame.width - stage.width * sceneScale) / 2;
@@ -608,7 +657,17 @@
       shot.stroke();
     }
 
-    const pivotX = stage.width / 2 - 42;
+    shot.save();
+    shot.setLineDash([8, 8]);
+    shot.strokeStyle = "rgba(233,149,121,.72)";
+    shot.lineWidth = 2;
+    shot.beginPath();
+    shot.moveTo(0, metrics.spillLineY);
+    shot.lineTo(stage.width, metrics.spillLineY);
+    shot.stroke();
+    shot.restore();
+
+    const pivotX = metrics.plateX - 42;
     const pivotY = stage.height - 85;
     roundedRect(shot, pivotX, pivotY, 84, 60, 18);
     shot.fillStyle = "#f2bd32";
@@ -617,17 +676,16 @@
     shot.strokeStyle = "#30281f";
     shot.stroke();
     shot.beginPath();
-    shot.arc(stage.width / 2, pivotY + 18, 8.5, 0, Math.PI * 2);
+    shot.arc(metrics.plateX, pivotY + 18, 8.5, 0, Math.PI * 2);
     shot.fillStyle = "#e99579";
     shot.fill();
     shot.stroke();
 
     if (plateBody) {
-      const plateWidth = Math.min(stage.width * (stage.width <= 600 ? 0.76 : 0.64), 650);
       shot.save();
-      shot.translate(plateBody.position.x, plateBody.position.y);
+      shot.translate(metrics.plateX, metrics.plateY);
       shot.rotate(plateBody.angle);
-      roundedRect(shot, -plateWidth / 2, -22, plateWidth, 44, 18);
+      roundedRect(shot, -metrics.plateWidth / 2, -PLATE_HEIGHT / 2, metrics.plateWidth, PLATE_HEIGHT, 18);
       shot.fillStyle = "#fff8ea";
       shot.fill();
       shot.lineWidth = 3;
@@ -705,18 +763,29 @@
       const file = new File([resultImageBlob], `nekomori-${score}.png`, { type: "image/png" });
       const text = `ねこもりで${score.toLocaleString("ja-JP")}てん！\n#ねこもり #asobi`;
       if (navigator.canShare?.({ files: [file] })) {
-        await navigator.share({ files: [file], title: "ねこもり", text });
+        await navigator.share({ files: [file], title: text, text });
         return;
       }
 
-      const imageUrl = URL.createObjectURL(resultImageBlob);
-      const download = document.createElement("a");
-      download.href = imageUrl;
-      download.download = file.name;
-      download.click();
-      window.setTimeout(() => URL.revokeObjectURL(imageUrl), 1500);
-      window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}`, "_blank", "noopener,noreferrer");
-      showToast("お皿画像を保存しました。Xの投稿に添付してね");
+      window.open(`https://x.com/intent/tweet?text=${encodeURIComponent(text)}`, "_blank", "noopener,noreferrer");
+      let copiedImage = false;
+      if (navigator.clipboard?.write && window.ClipboardItem) {
+        try {
+          await navigator.clipboard.write([new ClipboardItem({ "image/png": resultImageBlob })]);
+          copiedImage = true;
+        } catch { /* fall back to a downloaded image */ }
+      }
+      if (copiedImage) {
+        showToast("本文は入力済みです。画像を投稿画面へ貼り付けてね");
+      } else {
+        const imageUrl = URL.createObjectURL(resultImageBlob);
+        const download = document.createElement("a");
+        download.href = imageUrl;
+        download.download = file.name;
+        download.click();
+        window.setTimeout(() => URL.revokeObjectURL(imageUrl), 1500);
+        showToast("本文は入力済みです。保存した画像を添付してね");
+      }
     } catch (error) {
       if (error?.name !== "AbortError") showToast("共有を開始できませんでした");
     }

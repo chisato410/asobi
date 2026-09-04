@@ -197,8 +197,8 @@ h1 em { color: var(--orange); font-style: normal; }
   position: absolute;
   left: 0;
   right: 0;
-  bottom: 45px;
-  height: 1px;
+  bottom: var(--spill-line-bottom, 45px);
+  height: 0;
   border-top: 2px dashed rgba(233,149,121,.58);
 }
 .danger-zone span {
