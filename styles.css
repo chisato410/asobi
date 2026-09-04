@@ -217,8 +217,14 @@ h1 em { color: var(--orange); font-style: normal; }
   background-repeat: no-repeat;
   background-position: center;
   background-size: contain;
-  mix-blend-mode: multiply;
+  opacity: 0;
+  transition: opacity .18s ease;
 }
+
+.cats-ready .physics-cat,
+.cats-ready .preview-cat,
+.cats-ready .next-cat,
+.cats-ready .start-cat { opacity: 1; }
 
 .physics-cat {
   position: absolute;
@@ -229,12 +235,12 @@ h1 em { color: var(--orange); font-style: normal; }
   will-change: transform;
 }
 
-.cat-level-0 { background-image: url("./assets/cat-0.png"); }
-.cat-level-1 { background-image: url("./assets/cat-1.png"); }
-.cat-level-2 { background-image: url("./assets/cat-2.png"); }
-.cat-level-3 { background-image: url("./assets/cat-3.png"); }
-.cat-level-4 { background-image: url("./assets/cat-4.png"); }
-.cat-level-5 { background-image: url("./assets/cat-5.png"); }
+.cat-level-0 { background-image: var(--cat-0); }
+.cat-level-1 { background-image: var(--cat-1); }
+.cat-level-2 { background-image: var(--cat-2); }
+.cat-level-3 { background-image: var(--cat-3); }
+.cat-level-4 { background-image: var(--cat-4); }
+.cat-level-5 { background-image: var(--cat-5); }
 
 .drop-guide {
   position: absolute;
@@ -351,7 +357,7 @@ h1 em { color: var(--orange); font-style: normal; }
   backdrop-filter: blur(3px);
 }
 .start-overlay[hidden], .result-overlay[hidden] { display: none; }
-.start-cat { width: 150px; height: 150px; margin-bottom: -18px; }
+.start-cat { width: 132px; height: 132px; margin-bottom: 4px; }
 .start-overlay p { margin: 0 0 15px; font: 700 13px/1.6 var(--display); }
 .start-overlay small { margin-top: 10px; color: var(--ink-soft); font-size: 10px; }
 
@@ -490,7 +496,7 @@ h1 em { color: var(--orange); font-style: normal; }
     box-shadow: 3px 4px 0 rgba(75,57,40,.2);
   }
   .mobile-drop-button[hidden] { display: none; }
-  .start-cat { width: 130px; height: 130px; }
+  .start-cat { width: 118px; height: 118px; }
   .footer-note { display: none; }
 }
 

@@ -14,6 +14,15 @@
   ];
   const SPAWN_POOL = [0, 0, 0, 0, 1, 1, 1, 2];
   const MAX_TILT = 0.48;
+  const CAT_SOURCE = "./assets/cat-source.png";
+  const CAT_CROPS = [
+    { x: 104, y: 92, w: 286, h: 366 },
+    { x: 516, y: 184, w: 392, h: 286 },
+    { x: 970, y: 218, w: 542, h: 260 },
+    { x: 58, y: 616, w: 418, h: 326 },
+    { x: 468, y: 520, w: 508, h: 424 },
+    { x: 1020, y: 506, w: 466, h: 470 },
+  ];
 
   const el = {
     playfield: document.querySelector("#playfield"),
@@ -76,6 +85,115 @@
 
   function randomSpawnLevel() {
     return SPAWN_POOL[Math.floor(Math.random() * SPAWN_POOL.length)];
+  }
+
+  function loadImage(src) {
+    return new Promise((resolve, reject) => {
+      const image = new Image();
+      image.decoding = "async";
+      image.onload = () => resolve(image);
+      image.onerror = reject;
+      image.src = src;
+    });
+  }
+
+  function isConnectedBackground(data, offset) {
+    const red = data[offset];
+    const green = data[offset + 1];
+    const blue = data[offset + 2];
+    const alpha = data[offset + 3];
+    const darkest = Math.min(red, green, blue);
+    const lightest = Math.max(red, green, blue);
+    return alpha === 0 || (darkest > 218 && lightest - darkest < 34);
+  }
+
+  function extractTransparentCat(source, crop) {
+    const canvas = document.createElement("canvas");
+    canvas.width = crop.w;
+    canvas.height = crop.h;
+    const context = canvas.getContext("2d", { willReadFrequently: true });
+    context.drawImage(source, crop.x, crop.y, crop.w, crop.h, 0, 0, crop.w, crop.h);
+
+    const imageData = context.getImageData(0, 0, crop.w, crop.h);
+    const { data } = imageData;
+    const visited = new Uint8Array(crop.w * crop.h);
+    const queue = new Int32Array(crop.w * crop.h);
+    let head = 0;
+    let tail = 0;
+
+    function enqueue(x, y) {
+      if (x < 0 || y < 0 || x >= crop.w || y >= crop.h) return;
+      const pixel = y * crop.w + x;
+      if (visited[pixel]) return;
+      visited[pixel] = 1;
+      if (!isConnectedBackground(data, pixel * 4)) return;
+      queue[tail] = pixel;
+      tail += 1;
+    }
+
+    for (let x = 0; x < crop.w; x += 1) {
+      enqueue(x, 0);
+      enqueue(x, crop.h - 1);
+    }
+    for (let y = 1; y < crop.h - 1; y += 1) {
+      enqueue(0, y);
+      enqueue(crop.w - 1, y);
+    }
+
+    while (head < tail) {
+      const pixel = queue[head];
+      head += 1;
+      const x = pixel % crop.w;
+      const y = Math.floor(pixel / crop.w);
+      data[pixel * 4 + 3] = 0;
+      enqueue(x - 1, y);
+      enqueue(x + 1, y);
+      enqueue(x, y - 1);
+      enqueue(x, y + 1);
+    }
+
+    context.putImageData(imageData, 0, 0);
+
+    let minX = crop.w;
+    let minY = crop.h;
+    let maxX = 0;
+    let maxY = 0;
+    for (let y = 0; y < crop.h; y += 1) {
+      for (let x = 0; x < crop.w; x += 1) {
+        if (data[(y * crop.w + x) * 4 + 3] < 12) continue;
+        minX = Math.min(minX, x);
+        minY = Math.min(minY, y);
+        maxX = Math.max(maxX, x);
+        maxY = Math.max(maxY, y);
+      }
+    }
+
+    const padding = 8;
+    const sx = Math.max(0, minX - padding);
+    const sy = Math.max(0, minY - padding);
+    const sw = Math.min(crop.w - sx, maxX - minX + 1 + padding * 2);
+    const sh = Math.min(crop.h - sy, maxY - minY + 1 + padding * 2);
+    const output = document.createElement("canvas");
+    output.width = sw;
+    output.height = sh;
+    output.getContext("2d").drawImage(canvas, sx, sy, sw, sh, 0, 0, sw, sh);
+
+    return new Promise((resolve) => {
+      output.toBlob((blob) => resolve(URL.createObjectURL(blob)), "image/png");
+    });
+  }
+
+  async function prepareCatArt() {
+    try {
+      const source = await loadImage(CAT_SOURCE);
+      const urls = await Promise.all(CAT_CROPS.map((crop) => extractTransparentCat(source, crop)));
+      urls.forEach((url, index) => {
+        document.documentElement.style.setProperty(`--cat-${index}`, `url("${url}")`);
+      });
+      document.body.classList.add("cats-ready");
+    } catch {
+      showToast("ネコ画像を読み込めませんでした");
+    }
   }
 
   function stageSize() {
@@ -477,6 +595,7 @@
   resizeObserver.observe(el.playfield);
 
   el.best.textContent = best.toLocaleString("ja-JP");
+  prepareCatArt();
   updateNext();
   setupPhysics();
   animationId = requestAnimationFrame(render);
