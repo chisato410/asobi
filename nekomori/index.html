@@ -19,8 +19,10 @@
       content="シーソー皿にネコを積み上げる、逆発想のバランスゲーム。"
     />
     <meta property="og:image" content="https://asobi-nekomori.vercel.app/og-image.png" />
+    <meta property="og:image:type" content="image/png" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="お皿の上に積み重なるネコたちと、ねこもりのタイトル" />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="ねこもり｜のせて、くっつけて、こぼさない。" />
     <meta
@@ -28,6 +30,7 @@
       content="同じネコをくっつけてデカネコへ。お皿の傾きにご用心。"
     />
     <meta name="twitter:image" content="https://asobi-nekomori.vercel.app/og-image.png" />
+    <meta name="twitter:image:alt" content="お皿の上に積み重なるネコたちと、ねこもりのタイトル" />
     <title>ねこもり｜のせて、くっつけて、こぼさない。</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -35,7 +38,7 @@
       href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@500;700;800&amp;family=Zen+Kaku+Gothic+New:wght@400;500;700&amp;display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="./styles.css?v=8" />
+    <link rel="stylesheet" href="./styles.css?v=9" />
   </head>
   <body>
     <div class="paper-grain" aria-hidden="true"></div>
@@ -112,6 +115,11 @@
                   <button class="share-button" type="button" data-share-result disabled>
                     <span aria-hidden="true">𝕏</span> 画像つきで共有
                   </button>
+                  <p class="share-note">
+                    スマホは本文＋画像をそのまま共有。<br />
+                    PCは本文を自動入力し、画像をコピーします。<br />
+                    投稿画面で⌘V / Ctrl+V（コピー不可時は保存）。
+                  </p>
                 </div>
               </div>
 
@@ -222,6 +230,6 @@
     </div>
 
     <script src="./assets/matter.min.js"></script>
-    <script src="./script.js?v=8"></script>
+    <script src="./script.js?v=9"></script>
   </body>
 </html>

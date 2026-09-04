@@ -20,6 +20,7 @@
   const PLATE_COLLIDER_HEIGHT = 24;
   const PLATE_LIP_RADIUS = 12;
   const SPILL_LINE_BOTTOM = 45;
+  const SHARE_URL = "https://asobi-nekomori.vercel.app/";
   const CAT_SOURCE = "./assets/cat-source.png";
   const CAT_CROPS = [
     { x: 104, y: 92, w: 286, h: 366 },
@@ -761,7 +762,7 @@
     try {
       if (!resultImageBlob) resultImageBlob = await createResultImage();
       const file = new File([resultImageBlob], `nekomori-${score}.png`, { type: "image/png" });
-      const text = `ねこもりで${score.toLocaleString("ja-JP")}てん！\n#ねこもり #asobi`;
+      const text = `ねこもりで${score.toLocaleString("ja-JP")}てん！\n#ねこもり #asobi\n${SHARE_URL}`;
       if (navigator.canShare?.({ files: [file] })) {
         await navigator.share({ files: [file], title: text, text });
         return;

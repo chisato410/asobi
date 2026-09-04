@@ -404,6 +404,15 @@ h1 em { color: var(--orange); font-style: normal; }
 .secondary-button:hover,
 .share-button:hover { transform: translateY(-1px); }
 .share-button:disabled { opacity: .48; cursor: wait; }
+.share-note {
+  margin: 2px -18px 0;
+  padding-top: 8px;
+  border-top: 1px dashed rgba(75,57,40,.34);
+  color: var(--ink-soft);
+  font-size: 9px;
+  font-weight: 700;
+  line-height: 1.55;
+}
 
 .result-view-actions {
   position: absolute;
@@ -437,7 +446,7 @@ h1 em { color: var(--orange); font-style: normal; }
 .result-kicker { margin: 0; color: var(--orange); font: 800 14px/1 var(--display); }
 .result-overlay h2 { margin: 5px 0 0; font: 800 68px/1 var(--display); }
 .result-overlay h2 small { margin-left: 6px; font-size: 16px; }
-.result-overlay > p:not(.result-kicker) { margin: 8px 0 18px; color: var(--ink-soft); font-weight: 700; }
+#resultMessage { margin: 8px 0 18px; color: var(--ink-soft); font-weight: 700; }
 
 .side-panel { display: grid; align-content: start; gap: 12px; }
 .score-card, .next-card, .tilt-card, .howto {
