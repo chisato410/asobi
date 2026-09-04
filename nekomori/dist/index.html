@@ -1,0 +1,227 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="ネコを落として、くっつけて、こぼさない。シーソー皿の上にネコを積み上げるバランスゲーム。"
+    />
+    <meta name="theme-color" content="#f7edda" />
+    <link rel="canonical" href="https://asobi-nekomori.vercel.app/" />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="ja_JP" />
+    <meta property="og:site_name" content="asobi" />
+    <meta property="og:url" content="https://asobi-nekomori.vercel.app/" />
+    <meta property="og:title" content="ねこもり｜のせて、くっつけて、こぼさない。" />
+    <meta
+      property="og:description"
+      content="シーソー皿にネコを積み上げる、逆発想のバランスゲーム。"
+    />
+    <meta property="og:image" content="https://asobi-nekomori.vercel.app/og-image.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="ねこもり｜のせて、くっつけて、こぼさない。" />
+    <meta
+      name="twitter:description"
+      content="同じネコをくっつけてデカネコへ。お皿の傾きにご用心。"
+    />
+    <meta name="twitter:image" content="https://asobi-nekomori.vercel.app/og-image.png" />
+    <title>ねこもり｜のせて、くっつけて、こぼさない。</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@500;700;800&amp;family=Zen+Kaku+Gothic+New:wght@400;500;700&amp;display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./styles.css?v=8" />
+  </head>
+  <body>
+    <div class="paper-grain" aria-hidden="true"></div>
+    <div class="app-shell">
+      <header class="topbar">
+        <a class="brand" href="./" aria-label="ねこもり トップ">
+          <span class="brand-word">asobi</span>
+          <span class="brand-paw" aria-hidden="true">●</span>
+        </a>
+        <div class="title-lockup">
+          <span class="work-no">ASOBI WORKS / 05</span>
+          <strong>ねこもり</strong>
+        </div>
+        <button class="sound-button" id="soundButton" type="button" aria-label="音をオフにする" aria-pressed="true">
+          <span aria-hidden="true">♪</span>
+          <span class="sound-label">ON</span>
+        </button>
+      </header>
+
+      <main class="game-layout">
+        <section class="game-card" aria-labelledby="pageTitle">
+          <div class="game-heading">
+            <div>
+              <p class="eyebrow">CAT BALANCE PUZZLE</p>
+              <h1 id="pageTitle">のせて、くっつけて、<em>こぼさない。</em></h1>
+            </div>
+            <p class="micro-rule">同じネコが触れると合体。<br />お皿から落ちたら、おしまい。</p>
+          </div>
+
+          <div class="playfield-wrap">
+            <div class="playfield" id="playfield" tabindex="0" aria-label="ネコを左右に動かして落とすゲームエリア">
+              <div class="sky-doodle sky-doodle-left" aria-hidden="true">⌁</div>
+              <div class="sky-doodle sky-doodle-right" aria-hidden="true">✦</div>
+              <div class="drop-guide" id="dropGuide" aria-hidden="true">
+                <div class="guide-cat preview-cat cat-level-0"></div>
+                <div class="guide-line"></div>
+                <span>ここに落とす</span>
+              </div>
+
+              <div class="danger-zone" id="dangerZone" aria-hidden="true">
+                <span>こぼれライン</span>
+              </div>
+              <div class="cat-layer" id="catLayer" aria-hidden="true"></div>
+
+              <div class="plate" id="plate" aria-hidden="true">
+                <div class="plate-rim"></div>
+                <div class="plate-face">
+                  <span class="plate-paw">●</span>
+                  <span>NEKOMORI</span>
+                </div>
+              </div>
+              <div class="pivot" aria-hidden="true">
+                <div class="pivot-pin"></div>
+              </div>
+              <canvas class="effects-canvas" id="effectsCanvas" aria-hidden="true"></canvas>
+
+              <div class="start-overlay" id="startOverlay">
+                <div class="start-cat cat-level-5" aria-hidden="true"></div>
+                <p>左右に動かして、ねらいを定めよう</p>
+                <button class="primary-button" id="startButton" type="button">
+                  <span>はじめる</span>
+                  <span aria-hidden="true">↗</span>
+                </button>
+                <small>クリック / タップ / スペースキー</small>
+              </div>
+
+              <div class="result-overlay" id="resultOverlay" hidden>
+                <p class="result-kicker">おさらが ひっくり返った！</p>
+                <h2><span id="resultScore">0</span><small>てん</small></h2>
+                <p id="resultMessage">こんどは、もう少し真ん中へ。</p>
+                <div class="result-actions-stack">
+                  <button class="primary-button" id="retryButton" type="button">もういちど</button>
+                  <button class="secondary-button" id="viewResultButton" type="button">お皿をみてみる</button>
+                  <button class="share-button" type="button" data-share-result disabled>
+                    <span aria-hidden="true">𝕏</span> 画像つきで共有
+                  </button>
+                </div>
+              </div>
+
+              <div class="result-view-actions" id="resultViewActions" hidden>
+                <button type="button" id="backToResultButton">← 結果へもどる</button>
+                <button type="button" data-share-result disabled><span aria-hidden="true">𝕏</span> 画像つきで共有</button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <aside class="side-panel" aria-label="ゲームの情報">
+          <section class="score-card">
+            <p class="score-label">SCORE</p>
+            <p class="score-value"><span id="scoreValue">0</span><small>てん</small></p>
+            <div class="best-row">
+              <span>自己ベスト</span>
+              <strong id="bestValue">0</strong>
+            </div>
+          </section>
+
+          <section class="next-card">
+            <div class="card-labels">
+              <p>NEXT CAT</p>
+              <span id="catName">しまねこ</span>
+            </div>
+            <div class="next-preview">
+              <div class="next-cat cat-level-0" id="nextCat" aria-hidden="true"></div>
+              <div class="next-arrow" aria-hidden="true">↓</div>
+            </div>
+          </section>
+
+          <section class="tilt-card">
+            <div class="tilt-copy">
+              <span>おさらの傾き</span>
+              <strong id="tiltLabel">あんてい</strong>
+            </div>
+            <div class="tilt-meter" aria-hidden="true">
+              <span class="tilt-safe"></span>
+              <i id="tiltNeedle"></i>
+            </div>
+            <div class="tilt-ends" aria-hidden="true"><span>LEFT</span><span>RIGHT</span></div>
+          </section>
+
+          <details class="howto">
+            <summary>あそびかた <span aria-hidden="true">＋</span></summary>
+            <ol>
+              <li>マウスか指で落とす場所を決める</li>
+              <li>同じネコをくっつけてデカネコにする</li>
+              <li>左右の重さをそろえて、こぼさない</li>
+            </ol>
+            <section class="howto-evolution" aria-labelledby="catTableTitle">
+              <div class="evolution-heading">
+                <div>
+                  <p>NEKO TABLE</p>
+                  <h2 id="catTableTitle">ネコ進化表</h2>
+                </div>
+                <span>同じ2匹で合体</span>
+              </div>
+              <div class="evolution-grid" role="list" aria-label="ネコの合体順">
+                <div class="evolution-cell" role="listitem">
+                  <span class="element-no">01</span>
+                  <div class="evolution-cat cat-level-0" aria-hidden="true"></div>
+                  <strong>しまねこ</strong>
+                  <small>DROP</small>
+                </div>
+                <div class="evolution-cell" role="listitem">
+                  <span class="element-no">02</span>
+                  <div class="evolution-cat cat-level-1" aria-hidden="true"></div>
+                  <strong>まるねこ</strong>
+                  <small>DROP</small>
+                </div>
+                <div class="evolution-cell" role="listitem">
+                  <span class="element-no">03</span>
+                  <div class="evolution-cat cat-level-2" aria-hidden="true"></div>
+                  <strong>しろふわ</strong>
+                  <small>DROP</small>
+                </div>
+                <div class="evolution-cell" role="listitem" data-merge-level="3">
+                  <span class="element-no">04</span>
+                  <div class="evolution-cat cat-level-3" aria-hidden="true"></div>
+                  <strong>みけねこ</strong>
+                  <small>+120</small>
+                </div>
+                <div class="evolution-cell" role="listitem" data-merge-level="4">
+                  <span class="element-no">05</span>
+                  <div class="evolution-cat cat-level-4" aria-hidden="true"></div>
+                  <strong>のびねこ</strong>
+                  <small>+260</small>
+                </div>
+                <div class="evolution-cell is-final" role="listitem" data-merge-level="5">
+                  <span class="element-no">06</span>
+                  <div class="evolution-cat cat-level-5" aria-hidden="true"></div>
+                  <strong>デカネコ</strong>
+                  <small>+600</small>
+                </div>
+              </div>
+              <p class="evolution-note"><span>01</span>から順に、同じネコを重ねて育てよう。</p>
+            </section>
+          </details>
+        </aside>
+      </main>
+
+      <footer class="footer-note">
+        <span>NEKOMORI</span>
+        <p>すきまに、ぴたっ。バランスは、ぎりぎり。</p>
+      </footer>
+    </div>
+
+    <script src="./assets/matter.min.js"></script>
+    <script src="./script.js?v=8"></script>
+  </body>
+</html>
