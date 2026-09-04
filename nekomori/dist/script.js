@@ -789,26 +789,11 @@
 
   async function shareFromDesktop(file, text) {
     const intentUrl = `https://x.com/intent/tweet?text=${encodeURIComponent(text)}`;
-    // Clipboard access and popup creation both require the original click gesture.
-    // Start the copy before X takes focus, then open the composer immediately.
-    const copyPromise = copyResultImage(resultImageBlob);
-    const shareWindow = window.open(
-      intentUrl,
-      "nekomori-x-share",
-      "scrollbars=yes,resizable=yes,toolbar=no,location=yes,width=550,height=620"
-    );
-    if (shareWindow) shareWindow.opener = null;
-
-    const copiedImage = await copyPromise;
+    // Clipboard access needs the original click and the current page's focus.
+    // Complete it before navigating so desktop popup policies cannot block X.
+    const copiedImage = await copyResultImage(resultImageBlob);
     if (!copiedImage) downloadResultImage(resultImageBlob, file.name);
-
-    if (!shareWindow) {
-      window.location.assign(intentUrl);
-      return;
-    }
-    showToast(copiedImage
-      ? "本文は入力済みです。画像を⌘V / Ctrl+Vで貼り付けてね"
-      : "本文は入力済みです。保存した画像を添付してね");
+    window.location.assign(intentUrl);
   }
 
   async function shareResult() {
