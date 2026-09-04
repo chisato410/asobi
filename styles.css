@@ -105,6 +105,9 @@ button { color: inherit; }
 
 .sound-button:focus-visible,
 .primary-button:focus-visible,
+.secondary-button:focus-visible,
+.share-button:focus-visible,
+.result-view-actions button:focus-visible,
 .playfield:focus-visible {
   outline: 3px solid var(--gold);
   outline-offset: 3px;
@@ -381,6 +384,55 @@ h1 em { color: var(--orange); font-style: normal; }
 }
 .primary-button:hover { transform: translateY(-2px) rotate(-.4deg); box-shadow: 5px 7px 0 rgba(75,57,40,.2); }
 .primary-button:active { transform: translateY(2px); box-shadow: 1px 2px 0 rgba(75,57,40,.22); }
+
+.result-actions-stack { width: min(240px, 100%); display: grid; gap: 8px; }
+.result-actions-stack .primary-button { width: 100%; min-width: 0; }
+.secondary-button,
+.share-button {
+  width: 100%;
+  min-height: 43px;
+  border: 2px solid var(--ink);
+  border-radius: 14px;
+  font: 800 13px/1 var(--display);
+  letter-spacing: .04em;
+  box-shadow: 2px 3px 0 rgba(75,57,40,.16);
+  cursor: pointer;
+}
+.secondary-button { background: var(--cream); }
+.share-button { color: var(--cream); background: var(--ink); }
+.share-button span { margin-right: 5px; font-size: 15px; }
+.secondary-button:hover,
+.share-button:hover { transform: translateY(-1px); }
+.share-button:disabled { opacity: .48; cursor: wait; }
+
+.result-view-actions {
+  position: absolute;
+  z-index: 31;
+  left: 50%;
+  bottom: 14px;
+  display: flex;
+  gap: 8px;
+  padding: 7px;
+  border: 2px solid var(--ink);
+  border-radius: 16px;
+  background: rgba(255,248,234,.9);
+  box-shadow: 3px 4px 0 rgba(75,57,40,.17);
+  backdrop-filter: blur(4px);
+  transform: translateX(-50%);
+}
+.result-view-actions[hidden] { display: none; }
+.result-view-actions button {
+  min-height: 38px;
+  padding: 0 13px;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  font: 800 11px/1 var(--display);
+  white-space: nowrap;
+  cursor: pointer;
+}
+.result-view-actions button:last-child { color: var(--cream); background: var(--ink); }
+.result-view-actions button:disabled { opacity: .48; cursor: wait; }
 
 .result-kicker { margin: 0; color: var(--orange); font: 800 14px/1 var(--display); }
 .result-overlay h2 { margin: 5px 0 0; font: 800 68px/1 var(--display); }

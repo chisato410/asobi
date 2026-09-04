@@ -35,6 +35,10 @@
     resultOverlay: document.querySelector("#resultOverlay"),
     startButton: document.querySelector("#startButton"),
     retryButton: document.querySelector("#retryButton"),
+    viewResultButton: document.querySelector("#viewResultButton"),
+    resultViewActions: document.querySelector("#resultViewActions"),
+    backToResultButton: document.querySelector("#backToResultButton"),
+    shareResultButtons: [...document.querySelectorAll("[data-share-result]")],
     score: document.querySelector("#scoreValue"),
     best: document.querySelector("#bestValue"),
     resultScore: document.querySelector("#resultScore"),
@@ -65,6 +69,9 @@
   let animationId = 0;
   let particles = [];
   let lastFrameAt = performance.now();
+  let catArtImages = [];
+  let resultImageBlob = null;
+  let resultCaptureId = 0;
 
   const ctx = el.effectsCanvas.getContext("2d");
 
@@ -190,6 +197,7 @@
       urls.forEach((url, index) => {
         document.documentElement.style.setProperty(`--cat-${index}`, `url("${url}")`);
       });
+      catArtImages = await Promise.all(urls.map((url) => loadImage(url)));
       document.body.classList.add("cats-ready");
     } catch {
       showToast("ネコ画像を読み込めませんでした");
@@ -285,6 +293,11 @@
     nextLevel = randomSpawnLevel();
     el.startOverlay.hidden = true;
     el.resultOverlay.hidden = true;
+    el.resultViewActions.hidden = true;
+    el.playfield.classList.remove("is-viewing-result");
+    resultCaptureId += 1;
+    resultImageBlob = null;
+    el.shareResultButtons.forEach((button) => { button.disabled = true; });
     el.guide.style.opacity = "1";
     updateScore();
     updateNext();
@@ -296,6 +309,7 @@
     if (state !== "playing") return;
     state = "gameover";
     canDrop = false;
+    if (runner) Runner.stop(runner);
     saveBest();
     updateScore();
     el.guide.style.opacity = "0";
@@ -306,12 +320,9 @@
         ? "いい積みっぷり。次はデカネコまで！"
         : "こんどは、もう少し真ん中へ。";
     el.resultOverlay.hidden = false;
+    el.resultViewActions.hidden = true;
     playTone([[180, 0, .22], [125, .1, .34]], "sawtooth", .08);
-
-    if (plateConstraint) {
-      Composite.remove(engine.world, plateConstraint);
-      plateConstraint = null;
-    }
+    prepareResultImage();
   }
 
   function dropCat() {
@@ -468,6 +479,18 @@
     el.guide.style.left = `${aimX}px`;
   }
 
+  function catVisual(body) {
+    const size = CAT_SPECS[body.catLevel].art * GAME_CAT_SCALE;
+    const cos = Math.cos(body.angle);
+    const sin = Math.sin(body.angle);
+    const offset = body.artOffset || { x: 0, y: 0 };
+    return {
+      x: body.position.x + offset.x * cos - offset.y * sin,
+      y: body.position.y + offset.x * sin + offset.y * cos,
+      size,
+    };
+  }
+
   function render(now) {
     const { width, height } = stageSize();
     if (plateBody) {
@@ -495,13 +518,8 @@
     }
 
     for (const body of [...bodies]) {
-      const artSize = CAT_SPECS[body.catLevel].art * GAME_CAT_SCALE;
-      const cos = Math.cos(body.angle);
-      const sin = Math.sin(body.angle);
-      const artOffset = body.artOffset || { x: 0, y: 0 };
-      const artX = body.position.x + artOffset.x * cos - artOffset.y * sin;
-      const artY = body.position.y + artOffset.x * sin + artOffset.y * cos;
-      body.art.style.transform = `translate3d(${artX - artSize / 2}px, ${artY - artSize / 2}px, 0) rotate(${body.angle}rad)`;
+      const visual = catVisual(body);
+      body.art.style.transform = `translate3d(${visual.x - visual.size / 2}px, ${visual.y - visual.size / 2}px, 0) rotate(${body.angle}rad)`;
 
       if (
         state === "playing" &&
@@ -522,6 +540,186 @@
     el.tiltNeedle.style.left = "50%";
     el.tiltLabel.textContent = "あんてい";
     el.tiltLabel.style.color = "var(--moss)";
+  }
+
+  function roundedRect(context, x, y, width, height, radius) {
+    const r = Math.min(radius, width / 2, height / 2);
+    context.beginPath();
+    context.moveTo(x + r, y);
+    context.arcTo(x + width, y, x + width, y + height, r);
+    context.arcTo(x + width, y + height, x, y + height, r);
+    context.arcTo(x, y + height, x, y, r);
+    context.arcTo(x, y, x + width, y, r);
+    context.closePath();
+  }
+
+  function drawContainedImage(context, image, size) {
+    if (!image?.complete || !image.naturalWidth || !image.naturalHeight) return false;
+    const scale = Math.min(size / image.naturalWidth, size / image.naturalHeight);
+    const width = image.naturalWidth * scale;
+    const height = image.naturalHeight * scale;
+    context.drawImage(image, -width / 2, -height / 2, width, height);
+    return true;
+  }
+
+  function createResultImage() {
+    const canvas = document.createElement("canvas");
+    canvas.width = 1200;
+    canvas.height = 900;
+    const shot = canvas.getContext("2d");
+    const stage = stageSize();
+    const frame = { x: 54, y: 118, width: 1092, height: 710 };
+    const sceneScale = Math.min(frame.width / stage.width, frame.height / stage.height);
+    const sceneX = frame.x + (frame.width - stage.width * sceneScale) / 2;
+    const sceneY = frame.y + (frame.height - stage.height * sceneScale) / 2;
+
+    shot.fillStyle = "#f7edda";
+    shot.fillRect(0, 0, canvas.width, canvas.height);
+    shot.fillStyle = "rgba(75,57,40,.055)";
+    for (let y = 12; y < canvas.height; y += 18) {
+      for (let x = 12 + (y % 36); x < canvas.width; x += 36) {
+        shot.fillRect(x, y, 1.5, 1.5);
+      }
+    }
+
+    shot.fillStyle = "#30281f";
+    shot.font = '800 34px "M PLUS Rounded 1c", sans-serif';
+    shot.textAlign = "left";
+    shot.fillText("asobi / ねこもり", 58, 72);
+    shot.textAlign = "right";
+    shot.font = '800 22px "M PLUS Rounded 1c", sans-serif';
+    shot.fillStyle = "#e88724";
+    shot.fillText(`${score.toLocaleString("ja-JP")} てん`, 1142, 70);
+
+    shot.save();
+    roundedRect(shot, frame.x, frame.y, frame.width, frame.height, 28);
+    shot.clip();
+    shot.fillStyle = "#f5e9d3";
+    shot.fillRect(frame.x, frame.y, frame.width, frame.height);
+    shot.translate(sceneX, sceneY);
+    shot.scale(sceneScale, sceneScale);
+
+    shot.strokeStyle = "rgba(112,91,64,.09)";
+    shot.lineWidth = 1 / sceneScale;
+    for (let y = 40; y < stage.height; y += 40) {
+      shot.beginPath();
+      shot.moveTo(0, y);
+      shot.lineTo(stage.width, y);
+      shot.stroke();
+    }
+
+    const pivotX = stage.width / 2 - 42;
+    const pivotY = stage.height - 85;
+    roundedRect(shot, pivotX, pivotY, 84, 60, 18);
+    shot.fillStyle = "#f2bd32";
+    shot.fill();
+    shot.lineWidth = 3;
+    shot.strokeStyle = "#30281f";
+    shot.stroke();
+    shot.beginPath();
+    shot.arc(stage.width / 2, pivotY + 18, 8.5, 0, Math.PI * 2);
+    shot.fillStyle = "#e99579";
+    shot.fill();
+    shot.stroke();
+
+    if (plateBody) {
+      const plateWidth = Math.min(stage.width * (stage.width <= 600 ? 0.76 : 0.64), 650);
+      shot.save();
+      shot.translate(plateBody.position.x, plateBody.position.y);
+      shot.rotate(plateBody.angle);
+      roundedRect(shot, -plateWidth / 2, -22, plateWidth, 44, 18);
+      shot.fillStyle = "#fff8ea";
+      shot.fill();
+      shot.lineWidth = 3;
+      shot.strokeStyle = "#30281f";
+      shot.stroke();
+      shot.fillStyle = "#9b8264";
+      shot.font = '800 9px "M PLUS Rounded 1c", sans-serif';
+      shot.textAlign = "center";
+      shot.fillText("●  NEKOMORI", 0, 7);
+      shot.restore();
+    }
+
+    for (const body of bodies) {
+      const visual = catVisual(body);
+      shot.save();
+      shot.translate(visual.x, visual.y);
+      shot.rotate(body.angle);
+      if (!drawContainedImage(shot, catArtImages[body.catLevel], visual.size)) {
+        shot.beginPath();
+        shot.arc(0, 0, visual.size * .28, 0, Math.PI * 2);
+        shot.fillStyle = "#a68c49";
+        shot.fill();
+      }
+      shot.restore();
+    }
+    shot.restore();
+
+    roundedRect(shot, frame.x, frame.y, frame.width, frame.height, 28);
+    shot.lineWidth = 4;
+    shot.strokeStyle = "#30281f";
+    shot.stroke();
+    shot.fillStyle = "#6f6253";
+    shot.font = '700 18px "M PLUS Rounded 1c", sans-serif';
+    shot.textAlign = "center";
+    shot.fillText("すきまに、ぴたっ。バランスは、ぎりぎり。", canvas.width / 2, 866);
+
+    return new Promise((resolve, reject) => {
+      canvas.toBlob((blob) => blob ? resolve(blob) : reject(new Error("画像を作成できませんでした")), "image/png");
+    });
+  }
+
+  async function prepareResultImage() {
+    const captureId = ++resultCaptureId;
+    resultImageBlob = null;
+    el.shareResultButtons.forEach((button) => { button.disabled = true; });
+    try {
+      const blob = await createResultImage();
+      if (captureId === resultCaptureId) resultImageBlob = blob;
+    } catch {
+      if (captureId === resultCaptureId) resultImageBlob = null;
+    } finally {
+      if (captureId === resultCaptureId) {
+        el.shareResultButtons.forEach((button) => { button.disabled = false; });
+      }
+    }
+  }
+
+  function showResultScene() {
+    if (state !== "gameover") return;
+    el.resultOverlay.hidden = true;
+    el.resultViewActions.hidden = false;
+    el.playfield.classList.add("is-viewing-result");
+  }
+
+  function showResultOverlay() {
+    if (state !== "gameover") return;
+    el.resultOverlay.hidden = false;
+    el.resultViewActions.hidden = true;
+    el.playfield.classList.remove("is-viewing-result");
+  }
+
+  async function shareResult() {
+    try {
+      if (!resultImageBlob) resultImageBlob = await createResultImage();
+      const file = new File([resultImageBlob], `nekomori-${score}.png`, { type: "image/png" });
+      const text = `ねこもりで${score.toLocaleString("ja-JP")}てん！\n#ねこもり #asobi`;
+      if (navigator.canShare?.({ files: [file] })) {
+        await navigator.share({ files: [file], title: "ねこもり", text });
+        return;
+      }
+
+      const imageUrl = URL.createObjectURL(resultImageBlob);
+      const download = document.createElement("a");
+      download.href = imageUrl;
+      download.download = file.name;
+      download.click();
+      window.setTimeout(() => URL.revokeObjectURL(imageUrl), 1500);
+      window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}`, "_blank", "noopener,noreferrer");
+      showToast("お皿画像を保存しました。Xの投稿に添付してね");
+    } catch (error) {
+      if (error?.name !== "AbortError") showToast("共有を開始できませんでした");
+    }
   }
 
   function resizeEffects() {
@@ -610,6 +808,9 @@
 
   el.startButton.addEventListener("click", startGame);
   el.retryButton.addEventListener("click", startGame);
+  el.viewResultButton.addEventListener("click", showResultScene);
+  el.backToResultButton.addEventListener("click", showResultOverlay);
+  el.shareResultButtons.forEach((button) => button.addEventListener("click", shareResult));
 
   el.playfield.addEventListener("pointermove", (event) => {
     if (state !== "playing") return;
