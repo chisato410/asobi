@@ -5,12 +5,12 @@
   const STORAGE_KEY = "nekomori:best-score";
   const CAT_NAMES = ["しまねこ", "まるねこ", "しろふわ", "みけねこ", "のびねこ", "デカネコ"];
   const CAT_SPECS = [
-    { w: 58, h: 68, art: 103, chamfer: 20, score: 8 },
-    { w: 80, h: 48, art: 112, chamfer: 22, score: 22 },
-    { w: 104, h: 47, art: 132, chamfer: 22, score: 54 },
-    { w: 108, h: 57, art: 140, chamfer: 24, score: 120 },
-    { w: 134, h: 60, art: 164, chamfer: 26, score: 260 },
-    { w: 112, h: 116, art: 166, chamfer: 42, score: 600 },
+    { w: 68, h: 88, art: 103, chamfer: 24, score: 8 },
+    { w: 104, h: 60, art: 112, chamfer: 26, score: 22 },
+    { w: 124, h: 55, art: 132, chamfer: 26, score: 54 },
+    { w: 126, h: 76, art: 140, chamfer: 32, score: 120 },
+    { w: 144, h: 72, art: 164, chamfer: 30, score: 260 },
+    { w: 124, h: 150, art: 166, chamfer: 52, score: 600 },
   ];
   const SPAWN_POOL = [0, 0, 0, 0, 1, 1, 1, 2];
   const MAX_TILT = 0.48;
@@ -47,6 +47,7 @@
     soundButton: document.querySelector("#soundButton"),
     soundLabel: document.querySelector("#soundButton .sound-label"),
     effectsCanvas: document.querySelector("#effectsCanvas"),
+    evolutionCells: [...document.querySelectorAll("[data-merge-level]")],
   };
 
   let engine;
@@ -209,21 +210,29 @@
     const { width, height } = stageSize();
     engine = Engine.create({ enableSleeping: true });
     engine.gravity.y = 1.08;
-    engine.positionIterations = 8;
-    engine.velocityIterations = 6;
+    engine.positionIterations = 12;
+    engine.velocityIterations = 10;
+    engine.constraintIterations = 4;
 
     const plateWidth = Math.min(width * (width <= 600 ? 0.76 : 0.64), 650);
     const plateY = height - 100;
 
-    plateBody = Bodies.rectangle(width / 2, plateY, plateWidth - 10, 27, {
+    const plateOptions = {
       label: "plate",
-      restitution: 0.08,
-      friction: 0.92,
-      frictionStatic: 1.7,
-      density: 0.006,
-      chamfer: { radius: 13 },
+      restitution: 0.025,
+      friction: 1,
+      frictionStatic: 2.1,
+      density: 0.0046,
       sleepThreshold: 90,
+    };
+    const plateBase = Bodies.rectangle(width / 2, plateY, plateWidth - 12, 24, {
+      ...plateOptions,
+      chamfer: { radius: 12 },
     });
+    const leftLip = Bodies.circle(width / 2 - plateWidth / 2 + 15, plateY - 9, 12, plateOptions);
+    const rightLip = Bodies.circle(width / 2 + plateWidth / 2 - 15, plateY - 9, 12, plateOptions);
+    plateBody = Body.create({ parts: [plateBase, leftLip, rightLip], ...plateOptions });
+    Body.setInertia(plateBody, plateBody.inertia * 1.75);
     plateConstraint = Constraint.create({
       pointA: { x: width / 2, y: plateY },
       bodyB: plateBody,
@@ -247,12 +256,25 @@
 
   function stabilizePlate() {
     if (!plateBody || state === "gameover") return;
-    const restoring = -plateBody.angle * plateBody.mass * 0.0042;
-    const damping = -plateBody.angularVelocity * plateBody.mass * 0.052;
+    const angle = plateBody.angle;
+    const restoring = -angle * plateBody.mass * 0.0023;
+    const damping = -plateBody.angularVelocity * plateBody.mass * 0.048;
     plateBody.torque += restoring + damping;
 
-    if (plateBody.angle > 0.62) Body.setAngle(plateBody, 0.62);
-    if (plateBody.angle < -0.62) Body.setAngle(plateBody, -0.62);
+    if (Math.abs(angle) > 0.4) {
+      plateBody.torque += -Math.sign(angle) * (Math.abs(angle) - 0.4) * plateBody.mass * 0.018;
+    }
+    if (Math.abs(plateBody.angularVelocity) > 0.055) {
+      Body.setAngularVelocity(plateBody, Math.sign(plateBody.angularVelocity) * 0.055);
+    }
+
+    for (const cat of bodies) {
+      if (Math.abs(cat.angularVelocity) > 0.17) {
+        Body.setAngularVelocity(cat, Math.sign(cat.angularVelocity) * 0.17);
+      }
+      const speed = Math.hypot(cat.velocity.x, cat.velocity.y);
+      if (speed > 15) Body.setVelocity(cat, { x: cat.velocity.x * 0.82, y: cat.velocity.y * 0.82 });
+    }
   }
 
   function startGame() {
@@ -302,7 +324,7 @@
     canDrop = false;
     el.dropButton.disabled = true;
     const level = nextLevel;
-    createCat(level, aimX, 52, { angle: (Math.random() - .5) * .18 });
+    createCat(level, aimX, 52, { angle: (Math.random() - .5) * .1 });
     score += 2;
     updateScore();
     playTone([[280, 0, .04]], "sine", .045);
@@ -318,17 +340,38 @@
 
   function createCat(level, x, y, options = {}) {
     const spec = CAT_SPECS[level];
-    const body = Bodies.rectangle(x, y, spec.w, spec.h, {
+    const bodyOptions = {
       label: `cat-${level}`,
-      angle: options.angle || 0,
-      restitution: 0.04,
-      friction: 0.88,
-      frictionStatic: 1.6,
-      frictionAir: 0.008,
-      density: 0.00115,
-      chamfer: { radius: spec.chamfer },
-      sleepThreshold: 35,
-    });
+      restitution: 0.018,
+      friction: 0.96,
+      frictionStatic: 1.9,
+      frictionAir: 0.015,
+      density: 0.00108,
+      slop: 0.025,
+      sleepThreshold: 28,
+    };
+    const parts = [];
+    if (level === 0) {
+      parts.push(Bodies.circle(x, y - 19, 27, bodyOptions));
+      parts.push(Bodies.rectangle(x, y + 18, 64, 54, { ...bodyOptions, chamfer: { radius: 23 } }));
+    } else if (level === 1) {
+      parts.push(Bodies.rectangle(x, y, 92, 56, { ...bodyOptions, chamfer: { radius: 26 } }));
+      parts.push(Bodies.circle(x + 34, y + 3, 27, bodyOptions));
+    } else if (level === 2) {
+      parts.push(Bodies.rectangle(x, y, 112, 50, { ...bodyOptions, chamfer: { radius: 25 } }));
+      parts.push(Bodies.circle(x - 45, y + 1, 25, bodyOptions));
+    } else if (level === 3) {
+      parts.push(Bodies.rectangle(x, y, 122, 74, { ...bodyOptions, chamfer: { radius: 32 } }));
+    } else if (level === 4) {
+      parts.push(Bodies.rectangle(x, y + 5, 134, 62, { ...bodyOptions, chamfer: { radius: 29 } }));
+      parts.push(Bodies.circle(x - 51, y - 5, 28, bodyOptions));
+    } else {
+      parts.push(Bodies.circle(x, y - 34, 36, bodyOptions));
+      parts.push(Bodies.circle(x, y + 28, 59, bodyOptions));
+    }
+    const body = parts.length === 1 ? parts[0] : Body.create({ parts, ...bodyOptions });
+    Body.setPosition(body, { x, y });
+    Body.setAngle(body, options.angle || 0);
     body.catLevel = level;
     body.isMerging = false;
 
@@ -347,15 +390,15 @@
   function handleCollisions(event) {
     if (state !== "playing") return;
     for (const pair of event.pairs) {
-      const a = pair.bodyA;
-      const b = pair.bodyB;
+      const a = pair.bodyA.parent || pair.bodyA;
+      const b = pair.bodyB.parent || pair.bodyB;
       if (!bodies.has(a) || !bodies.has(b)) continue;
       if (a.catLevel !== b.catLevel || a.catLevel >= CAT_SPECS.length - 1) continue;
       if (a.isMerging || b.isMerging) continue;
 
       a.isMerging = true;
       b.isMerging = true;
-      window.setTimeout(() => mergeCats(a, b), 30);
+      window.setTimeout(() => mergeCats(a, b), 70);
     }
   }
 
@@ -366,7 +409,7 @@
     const y = (a.position.y + b.position.y) / 2;
     const velocity = {
       x: (a.velocity.x + b.velocity.x) * .2,
-      y: Math.min(-1.8, (a.velocity.y + b.velocity.y) * .12 - 1.3),
+      y: Math.max(-2.2, Math.min(-0.8, (a.velocity.y + b.velocity.y) * .08 - 1.1)),
     };
 
     removeCat(a);
@@ -375,6 +418,12 @@
     Body.setVelocity(merged, velocity);
     score += CAT_SPECS[level].score;
     updateScore();
+    const tableCell = el.evolutionCells.find((cell) => Number(cell.dataset.mergeLevel) === level);
+    if (tableCell) {
+      tableCell.classList.remove("is-made");
+      void tableCell.offsetWidth;
+      tableCell.classList.add("is-made");
+    }
     burst(x, y, level);
     showToast(level === 5 ? "デカネコ、できた！" : `${CAT_NAMES[level]}に合体！`);
     playMerge(level);

@@ -213,7 +213,8 @@ h1 em { color: var(--orange); font-style: normal; }
 .physics-cat,
 .preview-cat,
 .next-cat,
-.start-cat {
+.start-cat,
+.evolution-cat {
   background-repeat: no-repeat;
   background-position: center;
   background-size: contain;
@@ -224,7 +225,8 @@ h1 em { color: var(--orange); font-style: normal; }
 .cats-ready .physics-cat,
 .cats-ready .preview-cat,
 .cats-ready .next-cat,
-.cats-ready .start-cat { opacity: 1; }
+.cats-ready .start-cat,
+.cats-ready .evolution-cat { opacity: 1; }
 
 .physics-cat {
   position: absolute;
@@ -387,7 +389,7 @@ h1 em { color: var(--orange); font-style: normal; }
 .result-overlay > p:not(.result-kicker) { margin: 8px 0 18px; color: var(--ink-soft); font-weight: 700; }
 
 .side-panel { display: grid; align-content: start; gap: 12px; }
-.score-card, .next-card, .tilt-card, .howto {
+.score-card, .next-card, .evolution-card, .tilt-card, .howto {
   border: 2px solid var(--ink);
   border-radius: var(--radius-md);
   background: rgba(255,248,234,.68);
@@ -407,6 +409,53 @@ h1 em { color: var(--orange); font-style: normal; }
 .next-preview { height: 116px; position: relative; display: grid; place-items: center; }
 .next-cat { width: 118px; height: 118px; }
 .next-arrow { position: absolute; right: 8px; bottom: 14px; color: var(--orange); font: 800 22px/1 var(--display); }
+
+.evolution-card { padding: 13px 12px 12px; }
+.evolution-heading { display: flex; align-items: end; justify-content: space-between; gap: 10px; margin: 0 3px 10px; }
+.evolution-heading p { margin: 0 0 3px; color: var(--orange); font: 800 9px/1 var(--display); letter-spacing: .16em; }
+.evolution-heading h2 { margin: 0; font: 800 14px/1 var(--display); letter-spacing: .05em; }
+.evolution-heading > span {
+  padding: 4px 7px;
+  border: 1px solid rgba(75,57,40,.48);
+  border-radius: 999px;
+  color: var(--ink-soft);
+  background: rgba(247,237,218,.72);
+  font: 700 8px/1 var(--display);
+}
+.evolution-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 5px;
+}
+.evolution-cell {
+  position: relative;
+  min-width: 0;
+  height: 94px;
+  padding: 5px 4px 4px;
+  display: grid;
+  grid-template-rows: 55px auto auto;
+  place-items: center;
+  border: 1.5px solid var(--ink);
+  border-radius: 9px;
+  background: rgba(255,248,234,.7);
+  box-shadow: inset 0 -3px 0 rgba(168,108,73,.08);
+}
+.evolution-cell:nth-child(2),
+.evolution-cell:nth-child(5) { background: rgba(242,189,50,.12); }
+.evolution-cell.is-final { background: rgba(232,135,36,.17); border-width: 2px; }
+.element-no { position: absolute; left: 5px; top: 4px; color: var(--ink-soft); font: 800 7px/1 var(--display); letter-spacing: .04em; }
+.evolution-cat { width: 58px; height: 58px; }
+.evolution-cell strong { max-width: 100%; overflow: hidden; font: 800 9px/1 var(--display); text-overflow: ellipsis; white-space: nowrap; }
+.evolution-cell small { margin-top: 2px; color: var(--orange); font: 800 6px/1 var(--display); letter-spacing: .08em; }
+.evolution-cell[data-merge-level].is-made { animation: table-discovered .65s ease both; }
+.evolution-note { margin: 9px 2px 0; color: var(--ink-soft); font-size: 9px; line-height: 1.5; }
+.evolution-note span { display: inline-grid; width: 19px; height: 19px; margin-right: 4px; place-items: center; border-radius: 5px; color: var(--cream); background: var(--orange); font: 800 7px/1 var(--display); }
+
+@keyframes table-discovered {
+  0%, 35% { transform: rotate(-2deg) scale(.93); background: var(--gold); }
+  65% { transform: rotate(1deg) scale(1.04); }
+  100% { transform: none; }
+}
 
 .tilt-card { padding: 14px 16px 12px; }
 .tilt-copy { display: flex; justify-content: space-between; align-items: center; font-size: 11px; }
@@ -456,6 +505,8 @@ h1 em { color: var(--orange); font-style: normal; }
   .game-layout { grid-template-columns: 1fr; padding-top: 10px; }
   .side-panel { grid-template-columns: 1fr 1fr; }
   .next-card { grid-row: span 2; }
+  .evolution-card { grid-column: 1 / -1; }
+  .evolution-grid { grid-template-columns: repeat(6, 1fr); }
   .drop-button { grid-column: 1 / -1; }
   .howto { grid-column: 1 / -1; }
 }
@@ -480,6 +531,7 @@ h1 em { color: var(--orange); font-style: normal; }
   .next-preview { height: 96px; }
   .next-cat { width: 98px; height: 98px; }
   .tilt-card { grid-column: 1 / -1; }
+  .evolution-grid { grid-template-columns: repeat(3, 1fr); }
   .drop-button { display: none; }
   .mobile-drop-button {
     position: absolute;
