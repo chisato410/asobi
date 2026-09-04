@@ -342,6 +342,7 @@
   function createCat(level, x, y, options = {}) {
     const spec = CAT_SPECS[level];
     const scaled = (value) => value * GAME_CAT_SCALE;
+    const balanceDirection = Math.random() < 0.5 ? -1 : 1;
     const bodyOptions = {
       label: `cat-${level}`,
       restitution: 0.018,
@@ -355,7 +356,7 @@
     const parts = [];
     if (level === 0) {
       parts.push(Bodies.circle(x, y - scaled(19), scaled(27), bodyOptions));
-      parts.push(Bodies.rectangle(x, y + scaled(18), scaled(64), scaled(54), { ...bodyOptions, chamfer: { radius: scaled(23) } }));
+      parts.push(Bodies.rectangle(x, y + scaled(18), scaled(64), scaled(54), { ...bodyOptions, chamfer: { radius: scaled(27) } }));
     } else if (level === 1) {
       parts.push(Bodies.rectangle(x, y, scaled(92), scaled(56), { ...bodyOptions, chamfer: { radius: scaled(26) } }));
       parts.push(Bodies.circle(x + scaled(34), y + scaled(3), scaled(27), bodyOptions));
@@ -374,6 +375,20 @@
     const body = parts.length === 1 ? parts[0] : Body.create({ parts, ...bodyOptions });
     Body.setPosition(body, { x, y });
     Body.setAngle(body, options.angle || 0);
+
+    // A perfectly centered body can balance unnaturally on a narrow edge. Shift
+    // its physical centre slightly so gravity chooses a natural falling side.
+    const portrait = level === 0 || level === CAT_SPECS.length - 1;
+    const centreOffset = portrait
+      ? { x: scaled(6) * balanceDirection, y: 0 }
+      : { x: 0, y: -scaled(6) };
+    const cos = Math.cos(body.angle);
+    const sin = Math.sin(body.angle);
+    Body.setCentre(body, {
+      x: centreOffset.x * cos - centreOffset.y * sin,
+      y: centreOffset.x * sin + centreOffset.y * cos,
+    }, true);
+    body.artOffset = { x: -centreOffset.x, y: -centreOffset.y };
     body.catLevel = level;
     body.isMerging = false;
 
@@ -489,7 +504,12 @@
 
     for (const body of [...bodies]) {
       const artSize = CAT_SPECS[body.catLevel].art * GAME_CAT_SCALE;
-      body.art.style.transform = `translate3d(${body.position.x - artSize / 2}px, ${body.position.y - artSize / 2}px, 0) rotate(${body.angle}rad)`;
+      const cos = Math.cos(body.angle);
+      const sin = Math.sin(body.angle);
+      const artOffset = body.artOffset || { x: 0, y: 0 };
+      const artX = body.position.x + artOffset.x * cos - artOffset.y * sin;
+      const artY = body.position.y + artOffset.x * sin + artOffset.y * cos;
+      body.art.style.transform = `translate3d(${artX - artSize / 2}px, ${artY - artSize / 2}px, 0) rotate(${body.angle}rad)`;
 
       if (
         state === "playing" &&
