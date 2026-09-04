@@ -105,7 +105,6 @@ button { color: inherit; }
 
 .sound-button:focus-visible,
 .primary-button:focus-visible,
-.drop-button:focus-visible,
 .playfield:focus-visible {
   outline: 3px solid var(--gold);
   outline-offset: 3px;
@@ -389,7 +388,7 @@ h1 em { color: var(--orange); font-style: normal; }
 .result-overlay > p:not(.result-kicker) { margin: 8px 0 18px; color: var(--ink-soft); font-weight: 700; }
 
 .side-panel { display: grid; align-content: start; gap: 12px; }
-.score-card, .next-card, .evolution-card, .tilt-card, .howto {
+.score-card, .next-card, .tilt-card, .howto {
   border: 2px solid var(--ink);
   border-radius: var(--radius-md);
   background: rgba(255,248,234,.68);
@@ -410,7 +409,7 @@ h1 em { color: var(--orange); font-style: normal; }
 .next-cat { width: 118px; height: 118px; }
 .next-arrow { position: absolute; right: 8px; bottom: 14px; color: var(--orange); font: 800 22px/1 var(--display); }
 
-.evolution-card { padding: 13px 12px 12px; }
+.howto-evolution { padding: 13px 12px 12px; border-top: 1px dashed rgba(75,57,40,.38); }
 .evolution-heading { display: flex; align-items: end; justify-content: space-between; gap: 10px; margin: 0 3px 10px; }
 .evolution-heading p { margin: 0 0 3px; color: var(--orange); font: 800 9px/1 var(--display); letter-spacing: .16em; }
 .evolution-heading h2 { margin: 0; font: 800 14px/1 var(--display); letter-spacing: .05em; }
@@ -465,25 +464,6 @@ h1 em { color: var(--orange); font-style: normal; }
 .tilt-meter i { position: absolute; left: 50%; top: -7px; width: 3px; height: 21px; border-radius: 2px; background: var(--ink); transform: translateX(-50%); transition: left .1s linear; }
 .tilt-ends { display: flex; justify-content: space-between; margin-top: 6px; color: #9b8d7c; font: 700 8px/1 var(--display); letter-spacing: .12em; }
 
-.drop-button {
-  min-height: 65px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 13px 0 18px;
-  border: 3px solid var(--ink);
-  border-radius: var(--radius-md);
-  background: var(--orange);
-  font: 800 16px/1.1 var(--display);
-  box-shadow: 4px 5px 0 rgba(75,57,40,.19);
-  cursor: pointer;
-}
-.drop-button:disabled { opacity: .45; cursor: not-allowed; filter: grayscale(.3); }
-.drop-button:not(:disabled):hover { transform: rotate(-.5deg) translateY(-1px); }
-.drop-button-copy { display: grid; gap: 4px; text-align: left; }
-.drop-button-copy small { font-size: 8px; letter-spacing: .14em; }
-.drop-key { padding: 8px 9px; border: 2px solid var(--ink); border-radius: 8px; background: var(--cream); font: 800 8px/1 var(--display); box-shadow: inset 0 -2px 0 var(--paper-deep); }
-
 .howto { overflow: hidden; }
 .howto summary { padding: 13px 16px; display: flex; justify-content: space-between; list-style: none; font: 800 12px/1 var(--display); cursor: pointer; }
 .howto summary::-webkit-details-marker { display: none; }
@@ -494,8 +474,6 @@ h1 em { color: var(--orange); font-style: normal; }
 .footer-note span { font: 800 9px/1 var(--display); letter-spacing: .18em; }
 .footer-note p { margin: 0; }
 
-.mobile-drop-button { display: none; }
-
 @media (max-width: 900px) {
   .app-shell { width: min(100% - 24px, 720px); padding-top: 10px; }
   .topbar { min-height: 58px; }
@@ -505,9 +483,7 @@ h1 em { color: var(--orange); font-style: normal; }
   .game-layout { grid-template-columns: 1fr; padding-top: 10px; }
   .side-panel { grid-template-columns: 1fr 1fr; }
   .next-card { grid-row: span 2; }
-  .evolution-card { grid-column: 1 / -1; }
   .evolution-grid { grid-template-columns: repeat(6, 1fr); }
-  .drop-button { grid-column: 1 / -1; }
   .howto { grid-column: 1 / -1; }
 }
 
@@ -532,22 +508,6 @@ h1 em { color: var(--orange); font-style: normal; }
   .next-cat { width: 98px; height: 98px; }
   .tilt-card { grid-column: 1 / -1; }
   .evolution-grid { grid-template-columns: repeat(3, 1fr); }
-  .drop-button { display: none; }
-  .mobile-drop-button {
-    position: absolute;
-    display: block;
-    z-index: 25;
-    right: 12px;
-    bottom: 12px;
-    min-height: 45px;
-    padding: 0 15px;
-    border: 2px solid var(--ink);
-    border-radius: 14px;
-    background: var(--orange);
-    font: 800 12px/1 var(--display);
-    box-shadow: 3px 4px 0 rgba(75,57,40,.2);
-  }
-  .mobile-drop-button[hidden] { display: none; }
   .start-cat { width: 118px; height: 118px; }
   .footer-note { display: none; }
 }

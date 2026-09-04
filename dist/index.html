@@ -35,7 +35,7 @@
       href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@500;700;800&amp;family=Zen+Kaku+Gothic+New:wght@400;500;700&amp;display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="./styles.css?v=5" />
+    <link rel="stylesheet" href="./styles.css?v=6" />
   </head>
   <body>
     <div class="paper-grain" aria-hidden="true"></div>
@@ -109,14 +109,11 @@
                 <button class="primary-button" id="retryButton" type="button">もういちど</button>
               </div>
 
-              <button class="mobile-drop-button" id="mobileDropButton" type="button" hidden>
-                ここに落とす
-              </button>
             </div>
           </div>
         </section>
 
-        <aside class="side-panel" aria-label="ゲームの情報と操作">
+        <aside class="side-panel" aria-label="ゲームの情報">
           <section class="score-card">
             <p class="score-label">SCORE</p>
             <p class="score-value"><span id="scoreValue">0</span><small>てん</small></p>
@@ -137,55 +134,6 @@
             </div>
           </section>
 
-          <section class="evolution-card" aria-labelledby="catTableTitle">
-            <div class="evolution-heading">
-              <div>
-                <p>NEKO TABLE</p>
-                <h2 id="catTableTitle">ネコ進化表</h2>
-              </div>
-              <span>同じ2匹で合体</span>
-            </div>
-            <div class="evolution-grid" role="list" aria-label="ネコの合体順">
-              <div class="evolution-cell" role="listitem">
-                <span class="element-no">01</span>
-                <div class="evolution-cat cat-level-0" aria-hidden="true"></div>
-                <strong>しまねこ</strong>
-                <small>DROP</small>
-              </div>
-              <div class="evolution-cell" role="listitem">
-                <span class="element-no">02</span>
-                <div class="evolution-cat cat-level-1" aria-hidden="true"></div>
-                <strong>まるねこ</strong>
-                <small>DROP</small>
-              </div>
-              <div class="evolution-cell" role="listitem">
-                <span class="element-no">03</span>
-                <div class="evolution-cat cat-level-2" aria-hidden="true"></div>
-                <strong>しろふわ</strong>
-                <small>DROP</small>
-              </div>
-              <div class="evolution-cell" role="listitem" data-merge-level="3">
-                <span class="element-no">04</span>
-                <div class="evolution-cat cat-level-3" aria-hidden="true"></div>
-                <strong>みけねこ</strong>
-                <small>+120</small>
-              </div>
-              <div class="evolution-cell" role="listitem" data-merge-level="4">
-                <span class="element-no">05</span>
-                <div class="evolution-cat cat-level-4" aria-hidden="true"></div>
-                <strong>のびねこ</strong>
-                <small>+260</small>
-              </div>
-              <div class="evolution-cell is-final" role="listitem" data-merge-level="5">
-                <span class="element-no">06</span>
-                <div class="evolution-cat cat-level-5" aria-hidden="true"></div>
-                <strong>デカネコ</strong>
-                <small>+600</small>
-              </div>
-            </div>
-            <p class="evolution-note"><span>01</span>から順に、同じネコを重ねて育てよう。</p>
-          </section>
-
           <section class="tilt-card">
             <div class="tilt-copy">
               <span>おさらの傾き</span>
@@ -198,11 +146,6 @@
             <div class="tilt-ends" aria-hidden="true"><span>LEFT</span><span>RIGHT</span></div>
           </section>
 
-          <button class="drop-button" id="dropButton" type="button" disabled>
-            <span class="drop-button-copy"><small>DROP CAT</small>ネコを落とす</span>
-            <span class="drop-key">SPACE</span>
-          </button>
-
           <details class="howto">
             <summary>あそびかた <span aria-hidden="true">＋</span></summary>
             <ol>
@@ -210,6 +153,54 @@
               <li>同じネコをくっつけてデカネコにする</li>
               <li>左右の重さをそろえて、こぼさない</li>
             </ol>
+            <section class="howto-evolution" aria-labelledby="catTableTitle">
+              <div class="evolution-heading">
+                <div>
+                  <p>NEKO TABLE</p>
+                  <h2 id="catTableTitle">ネコ進化表</h2>
+                </div>
+                <span>同じ2匹で合体</span>
+              </div>
+              <div class="evolution-grid" role="list" aria-label="ネコの合体順">
+                <div class="evolution-cell" role="listitem">
+                  <span class="element-no">01</span>
+                  <div class="evolution-cat cat-level-0" aria-hidden="true"></div>
+                  <strong>しまねこ</strong>
+                  <small>DROP</small>
+                </div>
+                <div class="evolution-cell" role="listitem">
+                  <span class="element-no">02</span>
+                  <div class="evolution-cat cat-level-1" aria-hidden="true"></div>
+                  <strong>まるねこ</strong>
+                  <small>DROP</small>
+                </div>
+                <div class="evolution-cell" role="listitem">
+                  <span class="element-no">03</span>
+                  <div class="evolution-cat cat-level-2" aria-hidden="true"></div>
+                  <strong>しろふわ</strong>
+                  <small>DROP</small>
+                </div>
+                <div class="evolution-cell" role="listitem" data-merge-level="3">
+                  <span class="element-no">04</span>
+                  <div class="evolution-cat cat-level-3" aria-hidden="true"></div>
+                  <strong>みけねこ</strong>
+                  <small>+120</small>
+                </div>
+                <div class="evolution-cell" role="listitem" data-merge-level="4">
+                  <span class="element-no">05</span>
+                  <div class="evolution-cat cat-level-4" aria-hidden="true"></div>
+                  <strong>のびねこ</strong>
+                  <small>+260</small>
+                </div>
+                <div class="evolution-cell is-final" role="listitem" data-merge-level="5">
+                  <span class="element-no">06</span>
+                  <div class="evolution-cat cat-level-5" aria-hidden="true"></div>
+                  <strong>デカネコ</strong>
+                  <small>+600</small>
+                </div>
+              </div>
+              <p class="evolution-note"><span>01</span>から順に、同じネコを重ねて育てよう。</p>
+            </section>
           </details>
         </aside>
       </main>
@@ -221,6 +212,6 @@
     </div>
 
     <script src="./assets/matter.min.js"></script>
-    <script src="./script.js?v=5"></script>
+    <script src="./script.js?v=6"></script>
   </body>
 </html>

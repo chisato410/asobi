@@ -35,8 +35,6 @@
     resultOverlay: document.querySelector("#resultOverlay"),
     startButton: document.querySelector("#startButton"),
     retryButton: document.querySelector("#retryButton"),
-    dropButton: document.querySelector("#dropButton"),
-    mobileDropButton: document.querySelector("#mobileDropButton"),
     score: document.querySelector("#scoreValue"),
     best: document.querySelector("#bestValue"),
     resultScore: document.querySelector("#resultScore"),
@@ -287,8 +285,6 @@
     nextLevel = randomSpawnLevel();
     el.startOverlay.hidden = true;
     el.resultOverlay.hidden = true;
-    el.dropButton.disabled = false;
-    el.mobileDropButton.hidden = false;
     el.guide.style.opacity = "1";
     updateScore();
     updateNext();
@@ -302,8 +298,6 @@
     canDrop = false;
     saveBest();
     updateScore();
-    el.dropButton.disabled = true;
-    el.mobileDropButton.hidden = true;
     el.guide.style.opacity = "0";
     el.resultScore.textContent = score.toLocaleString("ja-JP");
     el.resultMessage.textContent = score >= 700
@@ -323,7 +317,6 @@
   function dropCat() {
     if (state !== "playing" || !canDrop) return;
     canDrop = false;
-    el.dropButton.disabled = true;
     const level = nextLevel;
     createCat(level, aimX, 52, { angle: (Math.random() - .5) * .1 });
     score += 2;
@@ -335,7 +328,6 @@
     window.setTimeout(() => {
       if (state !== "playing") return;
       canDrop = true;
-      el.dropButton.disabled = false;
     }, 520);
   }
 
@@ -618,8 +610,6 @@
 
   el.startButton.addEventListener("click", startGame);
   el.retryButton.addEventListener("click", startGame);
-  el.dropButton.addEventListener("click", dropCat);
-  el.mobileDropButton.addEventListener("click", dropCat);
 
   el.playfield.addEventListener("pointermove", (event) => {
     if (state !== "playing") return;
@@ -629,7 +619,7 @@
   el.playfield.addEventListener("pointerdown", (event) => {
     if (state !== "playing") return;
     setAimFromClientX(event.clientX);
-    if (event.pointerType !== "touch" && !event.target.closest("button")) dropCat();
+    if (!event.target.closest("button")) dropCat();
   });
 
   window.addEventListener("keydown", (event) => {
