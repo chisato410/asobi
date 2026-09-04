@@ -758,35 +758,74 @@
     el.playfield.classList.remove("is-viewing-result");
   }
 
+  function isMobileShareDevice() {
+    if (navigator.userAgentData?.mobile === true) return true;
+    if (/Android|iPhone|iPad|iPod/i.test(navigator.userAgent)) return true;
+    return navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1;
+  }
+
+  function copyResultImage(blob) {
+    if (!navigator.clipboard?.write || !window.ClipboardItem) return Promise.resolve(false);
+    if (window.ClipboardItem.supports && !window.ClipboardItem.supports("image/png")) {
+      return Promise.resolve(false);
+    }
+    try {
+      return navigator.clipboard
+        .write([new ClipboardItem({ "image/png": blob })])
+        .then(() => true, () => false);
+    } catch {
+      return Promise.resolve(false);
+    }
+  }
+
+  function downloadResultImage(blob, fileName) {
+    const imageUrl = URL.createObjectURL(blob);
+    const download = document.createElement("a");
+    download.href = imageUrl;
+    download.download = fileName;
+    download.click();
+    window.setTimeout(() => URL.revokeObjectURL(imageUrl), 1500);
+  }
+
+  async function shareFromDesktop(file, text) {
+    const intentUrl = `https://x.com/intent/tweet?text=${encodeURIComponent(text)}`;
+    // Clipboard access and popup creation both require the original click gesture.
+    // Start the copy before X takes focus, then open the composer immediately.
+    const copyPromise = copyResultImage(resultImageBlob);
+    const shareWindow = window.open(
+      intentUrl,
+      "nekomori-x-share",
+      "scrollbars=yes,resizable=yes,toolbar=no,location=yes,width=550,height=620"
+    );
+    if (shareWindow) shareWindow.opener = null;
+
+    const copiedImage = await copyPromise;
+    if (!copiedImage) downloadResultImage(resultImageBlob, file.name);
+
+    if (!shareWindow) {
+      window.location.assign(intentUrl);
+      return;
+    }
+    showToast(copiedImage
+      ? "本文は入力済みです。画像を⌘V / Ctrl+Vで貼り付けてね"
+      : "本文は入力済みです。保存した画像を添付してね");
+  }
+
   async function shareResult() {
     try {
       if (!resultImageBlob) resultImageBlob = await createResultImage();
       const file = new File([resultImageBlob], `nekomori-${score}.png`, { type: "image/png" });
       const text = `ねこもりで${score.toLocaleString("ja-JP")}てん！\n#ねこもり #asobi\n${SHARE_URL}`;
-      if (navigator.canShare?.({ files: [file] })) {
-        await navigator.share({ files: [file], title: text, text });
-        return;
-      }
-
-      window.open(`https://x.com/intent/tweet?text=${encodeURIComponent(text)}`, "_blank", "noopener,noreferrer");
-      let copiedImage = false;
-      if (navigator.clipboard?.write && window.ClipboardItem) {
+      if (isMobileShareDevice() && navigator.canShare?.({ files: [file] })) {
         try {
-          await navigator.clipboard.write([new ClipboardItem({ "image/png": resultImageBlob })]);
-          copiedImage = true;
-        } catch { /* fall back to a downloaded image */ }
+          await navigator.share({ files: [file], title: text, text });
+          return;
+        } catch (error) {
+          if (error?.name === "AbortError") return;
+          // Some desktop-like webviews advertise file sharing but cannot complete it.
+        }
       }
-      if (copiedImage) {
-        showToast("本文は入力済みです。画像を投稿画面へ貼り付けてね");
-      } else {
-        const imageUrl = URL.createObjectURL(resultImageBlob);
-        const download = document.createElement("a");
-        download.href = imageUrl;
-        download.download = file.name;
-        download.click();
-        window.setTimeout(() => URL.revokeObjectURL(imageUrl), 1500);
-        showToast("本文は入力済みです。保存した画像を添付してね");
-      }
+      await shareFromDesktop(file, text);
     } catch (error) {
       if (error?.name !== "AbortError") showToast("共有を開始できませんでした");
     }
