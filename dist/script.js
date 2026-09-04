@@ -13,6 +13,7 @@
     { w: 124, h: 150, art: 166, chamfer: 52, score: 600 },
   ];
   const SPAWN_POOL = [0, 0, 0, 0, 1, 1, 1, 2];
+  const GAME_CAT_SCALE = 0.85;
   const MAX_TILT = 0.48;
   const CAT_SOURCE = "./assets/cat-source.png";
   const CAT_CROPS = [
@@ -340,6 +341,7 @@
 
   function createCat(level, x, y, options = {}) {
     const spec = CAT_SPECS[level];
+    const scaled = (value) => value * GAME_CAT_SCALE;
     const bodyOptions = {
       label: `cat-${level}`,
       restitution: 0.018,
@@ -352,22 +354,22 @@
     };
     const parts = [];
     if (level === 0) {
-      parts.push(Bodies.circle(x, y - 19, 27, bodyOptions));
-      parts.push(Bodies.rectangle(x, y + 18, 64, 54, { ...bodyOptions, chamfer: { radius: 23 } }));
+      parts.push(Bodies.circle(x, y - scaled(19), scaled(27), bodyOptions));
+      parts.push(Bodies.rectangle(x, y + scaled(18), scaled(64), scaled(54), { ...bodyOptions, chamfer: { radius: scaled(23) } }));
     } else if (level === 1) {
-      parts.push(Bodies.rectangle(x, y, 92, 56, { ...bodyOptions, chamfer: { radius: 26 } }));
-      parts.push(Bodies.circle(x + 34, y + 3, 27, bodyOptions));
+      parts.push(Bodies.rectangle(x, y, scaled(92), scaled(56), { ...bodyOptions, chamfer: { radius: scaled(26) } }));
+      parts.push(Bodies.circle(x + scaled(34), y + scaled(3), scaled(27), bodyOptions));
     } else if (level === 2) {
-      parts.push(Bodies.rectangle(x, y, 112, 50, { ...bodyOptions, chamfer: { radius: 25 } }));
-      parts.push(Bodies.circle(x - 45, y + 1, 25, bodyOptions));
+      parts.push(Bodies.rectangle(x, y, scaled(112), scaled(50), { ...bodyOptions, chamfer: { radius: scaled(25) } }));
+      parts.push(Bodies.circle(x - scaled(45), y + scaled(1), scaled(25), bodyOptions));
     } else if (level === 3) {
-      parts.push(Bodies.rectangle(x, y, 122, 74, { ...bodyOptions, chamfer: { radius: 32 } }));
+      parts.push(Bodies.rectangle(x, y, scaled(122), scaled(74), { ...bodyOptions, chamfer: { radius: scaled(32) } }));
     } else if (level === 4) {
-      parts.push(Bodies.rectangle(x, y + 5, 134, 62, { ...bodyOptions, chamfer: { radius: 29 } }));
-      parts.push(Bodies.circle(x - 51, y - 5, 28, bodyOptions));
+      parts.push(Bodies.rectangle(x, y + scaled(5), scaled(134), scaled(62), { ...bodyOptions, chamfer: { radius: scaled(29) } }));
+      parts.push(Bodies.circle(x - scaled(51), y - scaled(5), scaled(28), bodyOptions));
     } else {
-      parts.push(Bodies.circle(x, y - 34, 36, bodyOptions));
-      parts.push(Bodies.circle(x, y + 28, 59, bodyOptions));
+      parts.push(Bodies.circle(x, y - scaled(34), scaled(36), bodyOptions));
+      parts.push(Bodies.circle(x, y + scaled(28), scaled(59), bodyOptions));
     }
     const body = parts.length === 1 ? parts[0] : Body.create({ parts, ...bodyOptions });
     Body.setPosition(body, { x, y });
@@ -377,8 +379,8 @@
 
     const art = document.createElement("div");
     art.className = `physics-cat cat-level-${level}`;
-    art.style.width = `${spec.art}px`;
-    art.style.height = `${spec.art}px`;
+    art.style.width = `${spec.art * GAME_CAT_SCALE}px`;
+    art.style.height = `${spec.art * GAME_CAT_SCALE}px`;
     art.dataset.level = String(level);
     el.catLayer.append(art);
     body.art = art;
@@ -486,7 +488,7 @@
     }
 
     for (const body of [...bodies]) {
-      const artSize = CAT_SPECS[body.catLevel].art;
+      const artSize = CAT_SPECS[body.catLevel].art * GAME_CAT_SCALE;
       body.art.style.transform = `translate3d(${body.position.x - artSize / 2}px, ${body.position.y - artSize / 2}px, 0) rotate(${body.angle}rad)`;
 
       if (
