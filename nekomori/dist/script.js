@@ -16,6 +16,8 @@
   const DESKTOP_CAT_SCALE = 0.85;
   const MOBILE_CAT_SCALE = 0.7;
   const MOBILE_STAGE_MAX = 600;
+  const CAT_DENSITY = 0.00092;
+  const MAX_PLATE_ANGULAR_SPEED = 0.047;
   const MAX_TILT = 0.48;
   const PLATE_Y_OFFSET = 100;
   const PLATE_HEIGHT = 44;
@@ -295,8 +297,8 @@
     if (Math.abs(angle) > 0.4) {
       plateBody.torque += -Math.sign(angle) * (Math.abs(angle) - 0.4) * plateBody.mass * 0.018;
     }
-    if (Math.abs(plateBody.angularVelocity) > 0.055) {
-      Body.setAngularVelocity(plateBody, Math.sign(plateBody.angularVelocity) * 0.055);
+    if (Math.abs(plateBody.angularVelocity) > MAX_PLATE_ANGULAR_SPEED) {
+      Body.setAngularVelocity(plateBody, Math.sign(plateBody.angularVelocity) * MAX_PLATE_ANGULAR_SPEED);
     }
 
     for (const cat of bodies) {
@@ -377,7 +379,7 @@
       friction: 0.96,
       frictionStatic: 1.9,
       frictionAir: 0.015,
-      density: 0.00108,
+      density: CAT_DENSITY,
       slop: 0.025,
       sleepThreshold: 28,
     };
