@@ -13,7 +13,9 @@
     { w: 124, h: 150, art: 166, chamfer: 52, score: 600 },
   ];
   const SPAWN_POOL = [0, 0, 0, 0, 1, 1, 1, 2];
-  const GAME_CAT_SCALE = 0.85;
+  const DESKTOP_CAT_SCALE = 0.85;
+  const MOBILE_CAT_SCALE = 0.7;
+  const MOBILE_STAGE_MAX = 600;
   const MAX_TILT = 0.48;
   const PLATE_Y_OFFSET = 100;
   const PLATE_HEIGHT = 44;
@@ -214,6 +216,10 @@
     return { width: el.playfield.clientWidth, height: el.playfield.clientHeight };
   }
 
+  function catScaleForStage() {
+    return stageSize().width <= MOBILE_STAGE_MAX ? MOBILE_CAT_SCALE : DESKTOP_CAT_SCALE;
+  }
+
   function stageMetrics(width, height) {
     const plateWidth = Math.min(width * (width <= 600 ? 0.76 : 0.64), 650);
     return {
@@ -362,7 +368,8 @@
 
   function createCat(level, x, y, options = {}) {
     const spec = CAT_SPECS[level];
-    const scaled = (value) => value * GAME_CAT_SCALE;
+    const catScale = catScaleForStage();
+    const scaled = (value) => value * catScale;
     const balanceDirection = Math.random() < 0.5 ? -1 : 1;
     const bodyOptions = {
       label: `cat-${level}`,
@@ -411,12 +418,13 @@
     }, true);
     body.artOffset = { x: -centreOffset.x, y: -centreOffset.y };
     body.catLevel = level;
+    body.catScale = catScale;
     body.isMerging = false;
 
     const art = document.createElement("div");
     art.className = `physics-cat cat-level-${level}`;
-    art.style.width = `${spec.art * GAME_CAT_SCALE}px`;
-    art.style.height = `${spec.art * GAME_CAT_SCALE}px`;
+    art.style.width = `${spec.art * catScale}px`;
+    art.style.height = `${spec.art * catScale}px`;
     art.dataset.level = String(level);
     el.catLayer.append(art);
     body.art = art;
@@ -498,7 +506,7 @@
   }
 
   function catVisual(body) {
-    const size = CAT_SPECS[body.catLevel].art * GAME_CAT_SCALE;
+    const size = CAT_SPECS[body.catLevel].art * (body.catScale || DESKTOP_CAT_SCALE);
     const cos = Math.cos(body.angle);
     const sin = Math.sin(body.angle);
     const offset = body.artOffset || { x: 0, y: 0 };
