@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="description" content="宇宙をふわふわ漂う、まるっとした猫たち。タップ・長押し・ホバー・クリックでつついたり、放り投げたりして遊べます。" />
+    <meta name="theme-color" content="#05060f" />
+    <link rel="icon" href="data:," />
+    <title>ネコスペース｜宇宙を漂う猫たち</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@500;700;800&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div id="scene-host" aria-hidden="true"></div>
+
+    <div class="app-shell">
+      <header class="topbar">
+        <a class="brand" href="./" aria-label="ネコスペース トップ">
+          <span>asobi</span><i aria-hidden="true"></i>
+        </a>
+        <div class="title-lockup">
+          <small>ASOBI WORKS</small>
+          <strong>ネコスペース</strong>
+        </div>
+        <button class="mini-button" id="rulesButton" type="button">あそびかた</button>
+      </header>
+
+      <main class="stage" aria-labelledby="pageTitle">
+        <div class="intro-copy">
+          <p class="eyebrow">STRAY CATS IN ORBIT</p>
+          <h1 id="pageTitle">宇宙で、<em>猫が漂う。</em></h1>
+          <p class="lede">つついたり、放り投げたり、そっと撫でたり。</p>
+        </div>
+        <p class="loading-note" id="loadingNote" hidden>猫を呼んでいます…</p>
+      </main>
+
+      <footer class="footer-note"><span>NEKOSPACE</span><p>無重力だから、そっと触れてね。</p></footer>
+    </div>
+
+    <dialog class="game-dialog" id="rulesDialog">
+      <button class="dialog-close" type="button" data-close-dialog aria-label="閉じる">×</button>
+      <p class="eyebrow">HOW TO PLAY WITH CATS</p>
+      <h2>猫との遊び方</h2>
+      <ol>
+        <li><span>👆</span><p><strong>タップ / クリック</strong><small>軽くつついて、ぽーんと弾き飛ばす。</small></p></li>
+        <li><span>✋</span><p><strong>長押し</strong><small>捕まえてくるくる遊ばせる。</small></p></li>
+        <li><span>🖐</span><p><strong>ドラッグ</strong><small>掴んだまま動かして、離すと放り投げる。</small></p></li>
+        <li><span>✨</span><p><strong>ホバー</strong><small>カーソルを近づけると気づいてくれる。</small></p></li>
+      </ol>
+      <button class="primary-button" type="button" data-close-dialog>わかった</button>
+    </dialog>
+
+    <script type="importmap">
+      {
+        "imports": {
+          "three": "./assets/vendor/three.module.js"
+        }
+      }
+    </script>
+    <script type="module" src="./script.js"></script>
+  </body>
+</html>
