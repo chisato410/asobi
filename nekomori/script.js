@@ -766,12 +766,6 @@
     el.playfield.classList.remove("is-viewing-result");
   }
 
-  function isMobileShareDevice() {
-    if (navigator.userAgentData?.mobile === true) return true;
-    if (/Android|iPhone|iPad|iPod/i.test(navigator.userAgent)) return true;
-    return navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1;
-  }
-
   function copyResultImage(blob) {
     if (!navigator.clipboard?.write || !window.ClipboardItem) return Promise.resolve(false);
     if (window.ClipboardItem.supports && !window.ClipboardItem.supports("image/png")) {
@@ -795,10 +789,10 @@
     window.setTimeout(() => URL.revokeObjectURL(imageUrl), 1500);
   }
 
-  async function shareFromDesktop(file, text) {
+  async function shareToX(file, text) {
     const intentUrl = `https://x.com/intent/tweet?text=${encodeURIComponent(text)}`;
     // Clipboard access needs the original click and the current page's focus.
-    // Complete it before navigating so desktop popup policies cannot block X.
+    // Complete it before navigating so popup policies cannot block X.
     const copiedImage = await copyResultImage(resultImageBlob);
     if (!copiedImage) downloadResultImage(resultImageBlob, file.name);
     window.location.assign(intentUrl);
@@ -809,16 +803,7 @@
       if (!resultImageBlob) resultImageBlob = await createResultImage();
       const file = new File([resultImageBlob], `nekomori-${score}.png`, { type: "image/png" });
       const text = `ねこもりで${score.toLocaleString("ja-JP")}てん！\n#ねこもり #asobi\n${SHARE_URL}`;
-      if (isMobileShareDevice() && navigator.canShare?.({ files: [file] })) {
-        try {
-          await navigator.share({ files: [file], title: text, text });
-          return;
-        } catch (error) {
-          if (error?.name === "AbortError") return;
-          // Some desktop-like webviews advertise file sharing but cannot complete it.
-        }
-      }
-      await shareFromDesktop(file, text);
+      await shareToX(file, text);
     } catch (error) {
       if (error?.name !== "AbortError") showToast("共有を開始できませんでした");
     }
