@@ -334,8 +334,11 @@
 
   function pieceMarkup(item, rotation) {
     const cells = rotatedCells(item.shape, rotation); const size = bounds(cells);
-    const src = catSprite(item, rotation);
-    return `<div class="piece-visual" data-span="${Math.max(size.w,size.h)}" style="width:calc(var(--tile) * ${size.w});height:calc(var(--tile) * ${size.h})" aria-hidden="true">${src ? `<img class="jelly-cat" src="${src}" alt="" draggable="false" />` : ""}</div>`;
+    const pose = poseFor(item, rotation);
+    const sprite = catSprite(item, rotation);
+    const src = sprite || CAT_ASSETS[pose.name];
+    const fallbackRotation = !sprite && pose.turns ? ` style="transform:rotate(${pose.turns * 90}deg)"` : "";
+    return `<div class="piece-visual" data-span="${Math.max(size.w,size.h)}" style="width:calc(var(--tile) * ${size.w});height:calc(var(--tile) * ${size.h})" aria-hidden="true"><img class="jelly-cat" src="${src}" alt="" draggable="false" decoding="async"${fallbackRotation} /></div>`;
   }
 
   function loadLevel(index) {
