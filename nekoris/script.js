@@ -512,7 +512,7 @@
     const last = levelIndex === LEVELS.length - 1;
     const stageNumber = levelIndex + 1;
     const shareText = `ネコリス STAGE ${stageNumber} クリア！\n猫は液体。すきまなく、ぴたっ。\n#ネコリス`;
-    const shareUrl = `${window.location.origin}${window.location.pathname}?card=nekoris-game-v2`;
+    const shareUrl = `${window.location.origin}${window.location.pathname}?card=nekoris-game-v3`;
     playSound("clear");
     el.clearStage.textContent = `STAGE ${stageNumber} CLEAR!`;
     el.clearMessage.textContent = last ? "ぜんぶの猫が、居心地のいい場所を見つけました。" : "猫たちは、すっかり落ち着いたようです。";
