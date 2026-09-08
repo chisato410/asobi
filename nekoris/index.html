@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="寝相の違うネコを、段ボール箱へすきまなく詰めるパズルゲーム。猫は液体、ぴたっと収まればクリア。" />
+    <meta name="theme-color" content="#f7edda" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="ネコリス｜猫は液体。すきまなく、ぴたっ。" />
+    <meta property="og:description" content="寝相の違う猫を、段ボール箱へすきまなく詰めるパズルゲーム。" />
+    <meta property="og:url" content="https://nekoris-game.hz-freedom-252712646.chatgpt.site/" />
+    <meta property="og:image" content="https://nekoris-game.hz-freedom-252712646.chatgpt.site/og.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="ネコリス STAGE CLEAR! 箱から顔を出す猫たち" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="ネコリス｜猫は液体。すきまなく、ぴたっ。" />
+    <meta name="twitter:description" content="寝相の違う猫を、段ボール箱へすきまなく詰めるパズルゲーム。" />
+    <meta name="twitter:image" content="https://nekoris-game.hz-freedom-252712646.chatgpt.site/og.png" />
+    <title>ネコリス｜猫は液体。すきまなく、ぴたっ。</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@500;700;800&amp;family=Zen+Kaku+Gothic+New:wght@400;500;700&amp;display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="paper-grain" aria-hidden="true"></div>
+    <div class="app-shell">
+      <header class="topbar">
+        <a class="brand" href="./" aria-label="ネコリス トップ">
+          <span>asobi</span><i aria-hidden="true"></i>
+        </a>
+        <div class="title-lockup">
+          <small>ASOBI WORKS / 06</small>
+          <strong>ネコリス</strong>
+        </div>
+        <div class="topbar-actions">
+          <button class="mini-button sound-button" id="soundButton" type="button" aria-pressed="false" aria-label="効果音を切る">♪ 音あり</button>
+          <button class="mini-button" id="rulesButton" type="button">あそびかた</button>
+        </div>
+      </header>
+
+      <main class="game-shell">
+        <section class="game-panel" aria-labelledby="pageTitle">
+          <header class="game-heading">
+            <div>
+              <p class="eyebrow">LIQUID CAT BOX PUZZLE</p>
+              <h1 id="pageTitle">猫は液体。<em>すきまなく、ぴたっ。</em></h1>
+            </div>
+            <p class="stage-copy" id="stageCopy">ちいさな箱から、ためしてみよう。</p>
+          </header>
+
+          <div class="play-area">
+            <div class="board-wrap">
+              <div class="box-label" aria-hidden="true">
+                <span>NEKORIS BOX</span><span>われものではありません</span>
+              </div>
+              <div class="board" id="board" role="grid" tabindex="0" aria-label="猫を詰める箱。矢印キーで場所を選び、Enterキーで猫を置けます">
+                <div class="target-grid" id="targetGrid"></div>
+                <div class="placed-layer" id="placedLayer"></div>
+                <div class="placement-preview" id="placementPreview" hidden></div>
+              </div>
+              <p class="board-note"><span aria-hidden="true">↖</span> 猫を選んで、箱のマスを押す</p>
+            </div>
+
+            <aside class="tray-panel" aria-label="箱に入れる猫">
+              <div class="tray-heading">
+                <div><small>CATS TO PACK</small><h2>待っている猫</h2></div>
+                <span id="catCount">4匹</span>
+              </div>
+              <div class="cat-tray" id="catTray"></div>
+              <div class="selected-tools" id="selectedTools">
+                <p><span id="selectedName">猫を選んでね</span><small id="selectedSize">—</small></p>
+                <button id="rotateButton" type="button" disabled><span aria-hidden="true">↻</span> くるっ</button>
+              </div>
+            </aside>
+          </div>
+        </section>
+
+        <aside class="info-column" aria-label="ゲームの情報">
+          <section class="stage-card">
+            <div class="stage-number"><small>STAGE</small><strong id="stageNumber">1</strong><span>/ <b id="stageTotal">10</b></span></div>
+            <div class="fill-status">
+              <div><span>箱の埋まり具合</span><strong id="fillValue">0%</strong></div>
+              <div class="fill-track" aria-hidden="true"><i id="fillBar"></i></div>
+            </div>
+          </section>
+
+          <section class="action-card">
+            <button class="hint-button" id="hintButton" type="button"><span aria-hidden="true">✦</span> ヒント</button>
+            <button class="reset-button" id="resetButton" type="button">はじめから</button>
+          </section>
+
+          <section class="memo-card">
+            <span class="tape" aria-hidden="true"></span>
+            <p>ねこの性質</p>
+            <strong>せまいところほど<br />入りたくなる。</strong>
+            <small>選んだ猫は「くるっ」で回せます。箱の猫を押すと戻ります。</small>
+          </section>
+        </aside>
+      </main>
+
+      <footer class="footer-note"><span>NEKORIS</span><p>それぞれの寝相に、それぞれの居場所。</p></footer>
+    </div>
+
+    <dialog class="game-dialog" id="rulesDialog">
+      <button class="dialog-close" type="button" data-close-dialog aria-label="閉じる">×</button>
+      <p class="eyebrow">HOW TO PACK CATS</p>
+      <h2>箱いっぱいに、猫を詰めよう。</h2>
+      <ol>
+        <li><span>1</span><p><strong>猫を選ぶ</strong><small>待っている猫を押します。</small></p></li>
+        <li><span>2</span><p><strong>向きを変える</strong><small>「くるっ」または R キーで回転。</small></p></li>
+        <li><span>3</span><p><strong>箱へ置く</strong><small>すべてのマスが埋まればクリア。</small></p></li>
+      </ol>
+      <button class="primary-button" type="button" data-close-dialog>わかった</button>
+    </dialog>
+
+    <dialog class="game-dialog clear-dialog" id="clearDialog">
+      <img class="clear-illustration" src="./og.png" alt="箱から顔を出してステージクリアを喜ぶ猫たち" />
+      <p class="eyebrow">PACKED PERFECTLY!</p>
+      <p class="clear-stage" id="clearStage">STAGE 1 CLEAR!</p>
+      <h2>ぴたっと、おさまりました。</h2>
+      <p id="clearMessage">猫たちは、すっかり落ち着いたようです。</p>
+      <button class="primary-button" id="nextButton" type="button">つぎの箱へ</button>
+      <a class="share-button" id="shareButton" href="#" target="_blank" rel="noopener noreferrer">Xでシェア</a>
+      <button class="text-button" id="replayButton" type="button">もういちど詰める</button>
+    </dialog>
+
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    <script src="./script.js"></script>
+  </body>
+</html>
