@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="クッキーを受け入れると、本当にクッキーが降ってくる小さなWeb体験。"
+    />
+    <link
+      rel="canonical"
+      href="https://asobi-cookie-shower.hz-freedom-252712646.chatgpt.site/"
+    />
+    <meta property="og:type" content="website" />
+    <meta
+      property="og:url"
+      content="https://asobi-cookie-shower.hz-freedom-252712646.chatgpt.site/"
+    />
+    <meta property="og:site_name" content="asobi" />
+    <meta property="og:title" content="クッキーを受け入れました。｜asobi" />
+    <meta
+      property="og:description"
+      content="クッキーを受け入れると、本当にクッキーが降ってくる小さなWeb体験。"
+    />
+    <meta
+      property="og:image"
+      content="https://asobi-cookie-shower.hz-freedom-252712646.chatgpt.site/og-image.png"
+    />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta
+      property="og:image:alt"
+      content="たくさんのクッキーと、喜ぶ猫・犬・レッサーパンダの手描きイラスト"
+    />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="クッキーを受け入れました。｜asobi" />
+    <meta
+      name="twitter:description"
+      content="クッキーを受け入れると、本当にクッキーが降ってくる小さなWeb体験。"
+    />
+    <meta
+      name="twitter:image"
+      content="https://asobi-cookie-shower.hz-freedom-252712646.chatgpt.site/og-image.png"
+    />
+    <meta
+      name="twitter:image:alt"
+      content="たくさんのクッキーと、喜ぶ猫・犬・レッサーパンダの手描きイラスト"
+    />
+    <meta name="theme-color" content="#fff8ea" />
+    <title>クッキーを受け入れますか？｜asobi</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@500;700;800&family=Zen+Kaku+Gothic+New:wght@500;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <a class="brand" href="./" aria-label="asobi トップ">
+        <span>asobi</span>
+        <i aria-hidden="true">●</i>
+      </a>
+      <p>cookie shower</p>
+    </header>
+
+    <main class="page-stage">
+      <section
+        class="consent-card"
+        id="consentCard"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="questionTitle"
+        aria-describedby="questionDescription"
+      >
+        <div class="cookie-preview" aria-hidden="true">
+          <span class="cookie-rays"></span>
+          <img src="./assets/cookie.png" alt="" />
+        </div>
+
+        <div id="questionView">
+          <p class="card-label">クッキーのお知らせ</p>
+          <h1 id="questionTitle">すべてのクッキーを<br />受け入れますか？</h1>
+          <p class="card-copy" id="questionDescription">
+            あなたの体験を、もう少しおいしくするために使います。
+          </p>
+
+          <div class="actions">
+            <button class="button button-primary" id="acceptButton" type="button">
+              すべて受け入れる
+            </button>
+            <button class="button button-secondary" id="singleButton" type="button">
+              ひとつだけにする
+            </button>
+          </div>
+
+          <p class="privacy-note">実際のCookieは保存しません。</p>
+        </div>
+
+        <div class="result-view" id="resultView" aria-live="polite" hidden>
+          <p class="card-label" id="resultLabel">受け入れました</p>
+          <h2 id="resultTitle">クッキーの準備が<br />できました！</h2>
+          <p class="card-copy" id="resultCopy">上からたっぷりお届けします。</p>
+          <div class="result-actions">
+            <button class="share-button" id="shareButton" type="button">
+              <span aria-hidden="true">𝕏</span>
+              Xに投稿する
+            </button>
+            <button class="replay-button" id="replayButton" type="button">
+              もう一度聞く
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <p class="tiny-note">選び方に正解はありません。食べすぎにはご注意を。</p>
+    </main>
+
+    <div class="animal-celebration" id="animalCelebration" aria-hidden="true">
+      <img
+        src="./assets/animal-cheer.png"
+        alt=""
+        width="900"
+        height="506"
+      />
+    </div>
+    <div class="cookie-layer" id="cookieLayer" aria-hidden="true"></div>
+    <p class="sr-only" id="announcement" aria-live="assertive"></p>
+
+    <script src="./script.js"></script>
+  </body>
+</html>
