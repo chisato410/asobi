@@ -14,7 +14,7 @@
   ];
   const SPAWN_POOL = [0, 0, 0, 0, 1, 1, 1, 2];
   const DESKTOP_CAT_SCALE = 0.85;
-  const MOBILE_CAT_SCALE = 0.7;
+  const MOBILE_CAT_SCALE = 0.62;
   const MOBILE_STAGE_MAX = 600;
   const CAT_DENSITY = 0.00092;
   const MAX_PLATE_ANGULAR_SPEED = 0.047;
@@ -82,6 +82,7 @@
   let catArtImages = [];
   let resultImageBlob = null;
   let resultCaptureId = 0;
+  let activeAimPointerId = null;
 
   const ctx = el.effectsCanvas.getContext("2d");
 
@@ -907,9 +908,28 @@
   });
 
   el.playfield.addEventListener("pointerdown", (event) => {
-    if (state !== "playing") return;
+    if (state !== "playing" || !canDrop || event.target.closest("button")) return;
     setAimFromClientX(event.clientX);
-    if (!event.target.closest("button")) dropCat();
+    if (event.pointerType === "touch" || event.pointerType === "pen") {
+      activeAimPointerId = event.pointerId;
+      el.playfield.setPointerCapture?.(event.pointerId);
+      return;
+    }
+    dropCat();
+  });
+
+  el.playfield.addEventListener("pointerup", (event) => {
+    if (event.pointerId !== activeAimPointerId) return;
+    activeAimPointerId = null;
+    setAimFromClientX(event.clientX);
+    if (el.playfield.hasPointerCapture?.(event.pointerId)) {
+      el.playfield.releasePointerCapture(event.pointerId);
+    }
+    dropCat();
+  });
+
+  el.playfield.addEventListener("pointercancel", (event) => {
+    if (event.pointerId === activeAimPointerId) activeAimPointerId = null;
   });
 
   window.addEventListener("keydown", (event) => {
