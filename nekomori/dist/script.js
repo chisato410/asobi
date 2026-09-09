@@ -16,7 +16,7 @@
   const DESKTOP_CAT_SCALE = 0.85;
   const MOBILE_CAT_SCALE = 0.62;
   const MOBILE_STAGE_MAX = 600;
-  const CAT_DENSITY = 0.00092;
+  const CAT_DENSITY = 0.00072;
   const MAX_PLATE_ANGULAR_SPEED = 0.047;
   const MAX_TILT = 0.48;
   const PLATE_Y_OFFSET = 100;
