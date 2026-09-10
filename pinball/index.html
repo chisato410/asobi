@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#0b1020" />
+    <meta name="description" content="猫たちの深夜ゲームセンターを舞台にした、ブラウザで遊べるピンボールゲーム。" />
+    <title>Neko Pinball</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="cabinet">
+      <header class="masthead">
+        <div class="brand" aria-label="Neko Pinball">
+          <span class="brand-neko">NEKO</span>
+          <span class="brand-pinball">PINBALL</span>
+        </div>
+
+        <div class="scoreboard" aria-live="polite">
+          <div>
+            <span class="score-label">Score</span>
+            <strong id="score">000000</strong>
+          </div>
+          <div>
+            <span class="score-label">Best</span>
+            <strong id="best">000000</strong>
+          </div>
+          <div>
+            <span class="score-label">Balls</span>
+            <strong id="balls">● ● ●</strong>
+          </div>
+        </div>
+
+        <button class="sound-button" id="soundButton" type="button" aria-label="音をオフにする" aria-pressed="true">
+          <span aria-hidden="true">♪</span>
+        </button>
+      </header>
+
+      <section class="game-shell" aria-label="ピンボール盤">
+        <div class="side-note left-note" aria-hidden="true">← LEFT</div>
+        <div class="canvas-wrap">
+          <canvas id="gameCanvas" width="560" height="860" aria-label="Neko Pinball ゲーム画面"></canvas>
+          <div class="game-message" id="gameMessage">
+            <p class="message-kicker">Midnight arcade</p>
+            <h1>NEKO<br />PINBALL</h1>
+            <p>ボールを打ち出して、<br />夜明けまでハイスコアをねらおう。</p>
+            <button id="startButton" type="button">ゲームをはじめる</button>
+          </div>
+        </div>
+        <div class="side-note right-note" aria-hidden="true">RIGHT →</div>
+      </section>
+
+      <section class="controls" aria-label="ゲーム操作">
+        <button class="flipper-control" id="leftControl" type="button">
+          <span class="control-key">A / ←</span>
+          <span>左フリッパー</span>
+        </button>
+        <button class="launch-control" id="launchControl" type="button">
+          <span class="control-key">SPACE</span>
+          <span id="launchLabel">ボール発射</span>
+        </button>
+        <button class="flipper-control" id="rightControl" type="button">
+          <span class="control-key">D / →</span>
+          <span>右フリッパー</span>
+        </button>
+      </section>
+
+      <footer>
+        <p><span class="status-dot"></span><span id="statusText">スタートを押して準備</span></p>
+        <p>Esc で一時停止</p>
+      </footer>
+    </main>
+
+    <script src="script.js"></script>
+  </body>
+</html>

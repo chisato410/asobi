@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#f3b529" />
+    <meta
+      name="description"
+      content="asobiに登場した猫たちを、仮の個体と元素材の両方から眺めるキャラクター台帳。"
+    />
+    <title>asobi 猫キャスト台帳</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <a class="brand" href="#top" aria-label="猫キャスト台帳の先頭へ">
+        <span class="brand-mark" aria-hidden="true">ฅ</span>
+        <span>asobi 猫キャスト台帳</span>
+      </a>
+      <div class="view-switch" role="tablist" aria-label="表示を切り替える">
+        <button class="view-button is-active" type="button" role="tab" aria-selected="true" data-view="cast">
+          個体でみる
+        </button>
+        <button class="view-button" type="button" role="tab" aria-selected="false" data-view="assets">
+          素材をぜんぶみる
+        </button>
+      </div>
+      <button class="save-button" type="button" id="saveProfiles">メモを保存</button>
+    </header>
+
+    <main id="top">
+      <section class="intro" aria-labelledby="introTitle">
+        <div class="intro-copy">
+          <p class="kicker">キャラクターづくりの前の、配役会議</p>
+          <h1 id="introTitle">この猫と、この猫。<br />同じ子だろうか？</h1>
+          <p>
+            既存素材を見た目で仮グループ化しました。名前・好きなもの・性格はまだ鉛筆書き。
+            カードへ直接書き込み、まずは「この子らしさ」を集められます。
+          </p>
+        </div>
+        <dl class="inventory">
+          <div><dt>仮の個体</dt><dd>13</dd></div>
+          <div><dt>主力キャスト候補</dt><dd>6</dd></div>
+          <div><dt>確認した猫素材</dt><dd>50+</dd></div>
+        </dl>
+        <aside class="legend" aria-label="分類の説明">
+          <span><i class="dot dot-core"></i>複数作品で再登場</span>
+          <span><i class="dot dot-new"></i>追加・作品専属</span>
+          <span><i class="dot dot-concept"></i>ムードボードのみ</span>
+        </aside>
+      </section>
+
+      <section class="view-panel is-active" id="castView" role="tabpanel">
+        <div class="section-heading">
+          <div>
+            <h2>仮のキャスト一覧</h2>
+            <p>既存呼称は仮名として入れています。書き換えた内容はこのブラウザに保存できます。</p>
+          </div>
+          <div class="filter-row" id="castFilters" aria-label="猫の分類で絞り込む"></div>
+        </div>
+        <div class="cast-grid" id="castGrid"></div>
+
+        <section class="relationship-note" aria-labelledby="relationshipTitle">
+          <div>
+            <p class="note-label">いま見えている関係</p>
+            <h2 id="relationshipTitle">6匹の“いつものメンバー”が核になりそう</h2>
+          </div>
+          <p>
+            しま・オレンジ・白ふわ・三毛・茶トラ・大きな黒灰の6匹は、同じ素材シートから生まれ、
+            ゲームごとに寝相や表情を変えて登場しています。退勤・クリック・ピンポンダッシュの3匹は、
+            毛柄だけなら合流できますが、絵柄と役割が強いので、いったん別個体のまま置いています。
+          </p>
+        </section>
+
+        <section class="live-section" aria-labelledby="liveTitle">
+          <div class="section-heading compact">
+            <div>
+              <h2 id="liveTitle">画像ファイルではない猫</h2>
+              <p>3Dモデルはそのまま動かして確認できます。ピンボールは猫の実体絵がまだありません。</p>
+            </div>
+          </div>
+          <div class="live-grid">
+            <article class="live-card">
+              <div class="model-placeholder" aria-label="ネコスペースの3Dモデルファイル">
+                <span class="orbit" aria-hidden="true"></span>
+                <strong>cats.glb</strong>
+                <small>3D model</small>
+              </div>
+              <div><strong>ネコスペース</strong><span>cats.glb / 現在は黒＋白・ピンクの1種類</span></div>
+            </article>
+            <article class="live-card empty-live">
+              <div class="empty-cabinet" aria-hidden="true"><span>NEKO</span><b>PINBALL</b><i>●</i></div>
+              <div><strong>Neko Pinball</strong><span>世界観に猫はいるが、キャラクター素材は未登場</span></div>
+            </article>
+          </div>
+        </section>
+      </section>
+
+      <section class="view-panel" id="assetsView" role="tabpanel" hidden>
+        <div class="section-heading">
+          <div>
+            <h2>猫素材を、ばーーーっと</h2>
+            <p>ゲーム内素材・OG画像・結果カード・ムードボードをまとめて表示。完全な同一ファイルは1枚にまとめています。</p>
+          </div>
+          <div class="filter-row" id="assetFilters" aria-label="作品で絞り込む"></div>
+        </div>
+        <div class="asset-grid" id="assetGrid"></div>
+      </section>
+    </main>
+
+    <div class="toast" id="toast" role="status" aria-live="polite">保存しました</div>
+    <script src="script.js"></script>
+  </body>
+</html>
