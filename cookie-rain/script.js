@@ -190,34 +190,14 @@ async function shareWithImage() {
 
   try {
     const imageFile = await getShareImageFile();
-    const shareData = {
-      title: "クッキーを受け入れました。",
-      text: getShareText(true),
-      files: [imageFile],
-    };
-
-    if (navigator.share && navigator.canShare?.({ files: [imageFile] })) {
-      showShareStatus("共有先でXを選んでください。");
-      try {
-        await navigator.share(shareData);
-        elements.shareStatus.hidden = true;
-        return;
-      } catch (error) {
-        if (error?.name === "AbortError") {
-          elements.shareStatus.hidden = true;
-          return;
-        }
-      }
-    }
-
     if (await copyImageToClipboard(imageFile)) {
-      showShareStatus("画像をコピーしました。Xの投稿画面で貼り付けてください。");
+      showShareStatus("画像をコピーしました。Xで貼り付けるだけです。");
       window.setTimeout(continueImageShareOnX, 650);
       return;
     }
 
     downloadShareImage(imageFile);
-    showShareStatus("画像を保存しました。Xの投稿画面で添付してください。");
+    showShareStatus("画像を保存しました。Xで添付してください。");
     window.setTimeout(continueImageShareOnX, 650);
   } catch {
     showShareStatus("共有画像を読み込めませんでした。もう一度お試しください。");
