@@ -321,10 +321,17 @@ h2 {
 
 .result-actions {
   display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
+  flex-direction: column;
+  gap: 18px;
   align-items: center;
   justify-content: center;
+}
+
+.share-action-group {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  width: min(100%, 520px);
 }
 
 .share-button {
@@ -353,6 +360,40 @@ h2 {
 .share-button:active {
   box-shadow: 0 1px 0 var(--orange);
   transform: translateY(4px);
+}
+
+.share-button-secondary {
+  background: var(--paper);
+  box-shadow: 0 5px 0 rgba(48, 40, 31, 0.7);
+  color: var(--ink);
+}
+
+.share-button-secondary:hover {
+  background: var(--paper-deep);
+}
+
+.share-button:disabled {
+  cursor: wait;
+  opacity: 0.65;
+  transform: none;
+}
+
+.share-hint,
+.share-status {
+  grid-column: 1 / -1;
+  margin: 0;
+  color: var(--ink-soft);
+  font-size: 0.78rem;
+  font-weight: 700;
+  line-height: 1.5;
+}
+
+.share-status {
+  color: var(--ink);
+}
+
+.share-status[hidden] {
+  display: none;
 }
 
 .replay-button {
@@ -540,7 +581,10 @@ h2 {
   }
 
   .result-actions {
-    display: grid;
+    width: 100%;
+  }
+
+  .share-action-group {
     grid-template-columns: 1fr;
   }
 

@@ -1,4 +1,5 @@
 const COOKIE_SRC = "./assets/cookie.png";
+const SHARE_IMAGE_SRC = "./og-image.png";
 const SHARE_URL = document.querySelector('link[rel="canonical"]')?.href || window.location.href;
 
 const elements = {
@@ -14,6 +15,8 @@ const elements = {
   resultTitle: document.querySelector("#resultTitle"),
   resultView: document.querySelector("#resultView"),
   shareButton: document.querySelector("#shareButton"),
+  shareImageButton: document.querySelector("#shareImageButton"),
+  shareStatus: document.querySelector("#shareStatus"),
   singleButton: document.querySelector("#singleButton"),
 };
 
@@ -111,21 +114,116 @@ function showResult(mode) {
 
   cheerAnimals();
   window.setTimeout(
-    () => elements.shareButton.focus(),
+    () => elements.shareImageButton.focus(),
     prefersReducedMotion.matches ? 2100 : 3200
   );
 }
 
-function shareOnX() {
-  const text = currentMode === "all"
+function getShareText(includeUrl = false) {
+  let text = currentMode === "all"
     ? "私はすべてのクッキーを受け入れました。🍪\nすると、本当にクッキーが降ってきた。\n#クッキーシャワー"
     : "私はクッキーをひとつだけ受け入れました。🍪\nすると、本当に1枚だけ降ってきた。\n#クッキーシャワー";
+
+  if (includeUrl) text += `\n\n${SHARE_URL}`;
+  return text;
+}
+
+function getXShareUrl() {
+  const text = getShareText();
   const query = new URLSearchParams({ text, url: SHARE_URL });
+  return `https://twitter.com/intent/tweet?${query.toString()}`;
+}
+
+function shareOnX() {
   window.open(
-    `https://twitter.com/intent/tweet?${query.toString()}`,
+    getXShareUrl(),
     "_blank",
     "noopener,noreferrer"
   );
+}
+
+function continueImageShareOnX() {
+  window.location.assign(getXShareUrl());
+}
+
+function showShareStatus(message) {
+  elements.shareStatus.textContent = message;
+  elements.shareStatus.hidden = false;
+}
+
+function setImageShareButtonBusy(isBusy) {
+  elements.shareImageButton.disabled = isBusy;
+  elements.shareImageButton.setAttribute("aria-busy", String(isBusy));
+}
+
+async function getShareImageFile() {
+  const response = await fetch(SHARE_IMAGE_SRC);
+  if (!response.ok) throw new Error("Share image could not be loaded.");
+  return new File([await response.blob()], "cookie-shower.png", { type: "image/png" });
+}
+
+function downloadShareImage(imageFile) {
+  const downloadUrl = URL.createObjectURL(imageFile);
+  const link = document.createElement("a");
+  link.href = downloadUrl;
+  link.download = imageFile.name;
+  document.body.append(link);
+  link.click();
+  link.remove();
+  window.setTimeout(() => URL.revokeObjectURL(downloadUrl), 1000);
+}
+
+async function copyImageToClipboard(imageFile) {
+  if (!navigator.clipboard?.write || typeof ClipboardItem === "undefined") return false;
+
+  try {
+    await navigator.clipboard.write([new ClipboardItem({ "image/png": imageFile })]);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+async function shareWithImage() {
+  setImageShareButtonBusy(true);
+  elements.shareStatus.hidden = true;
+
+  try {
+    const imageFile = await getShareImageFile();
+    const shareData = {
+      title: "クッキーを受け入れました。",
+      text: getShareText(true),
+      files: [imageFile],
+    };
+
+    if (navigator.share && navigator.canShare?.({ files: [imageFile] })) {
+      showShareStatus("共有先でXを選んでください。");
+      try {
+        await navigator.share(shareData);
+        elements.shareStatus.hidden = true;
+        return;
+      } catch (error) {
+        if (error?.name === "AbortError") {
+          elements.shareStatus.hidden = true;
+          return;
+        }
+      }
+    }
+
+    if (await copyImageToClipboard(imageFile)) {
+      showShareStatus("画像をコピーしました。Xの投稿画面で貼り付けてください。");
+      window.setTimeout(continueImageShareOnX, 650);
+      return;
+    }
+
+    downloadShareImage(imageFile);
+    showShareStatus("画像を保存しました。Xの投稿画面で添付してください。");
+    window.setTimeout(continueImageShareOnX, 650);
+  } catch {
+    showShareStatus("共有画像を読み込めませんでした。もう一度お試しください。");
+  } finally {
+    setImageShareButtonBusy(false);
+  }
 }
 
 function resetExperience() {
@@ -134,6 +232,7 @@ function resetExperience() {
   elements.cookieLayer.replaceChildren();
   elements.resultView.hidden = true;
   elements.questionView.hidden = false;
+  elements.shareStatus.hidden = true;
   elements.card.setAttribute("aria-describedby", "questionDescription");
   elements.announcement.textContent = "質問に戻りました。";
   elements.acceptButton.focus();
@@ -141,5 +240,6 @@ function resetExperience() {
 
 elements.acceptButton.addEventListener("click", () => showResult("all"));
 elements.singleButton.addEventListener("click", () => showResult("single"));
+elements.shareImageButton.addEventListener("click", shareWithImage);
 elements.shareButton.addEventListener("click", shareOnX);
 elements.replayButton.addEventListener("click", resetExperience);

@@ -54,7 +54,7 @@
       href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@500;700;800&family=Zen+Kaku+Gothic+New:wght@500;700&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="./styles.css" />
+    <link rel="stylesheet" href="./styles.css?v=2" />
   </head>
   <body>
     <header class="site-header">
@@ -103,10 +103,22 @@
           <h2 id="resultTitle">クッキーの準備が<br />できました！</h2>
           <p class="card-copy" id="resultCopy">上からたっぷりお届けします。</p>
           <div class="result-actions">
-            <button class="share-button" id="shareButton" type="button">
-              <span aria-hidden="true">𝕏</span>
-              Xに投稿する
-            </button>
+            <div class="share-action-group">
+              <button class="share-button" id="shareImageButton" type="button">
+                <span aria-hidden="true">▧</span>
+                画像付きでXへ共有
+              </button>
+              <button
+                class="share-button share-button-secondary"
+                id="shareButton"
+                type="button"
+              >
+                <span aria-hidden="true">𝕏</span>
+                リンクだけXに投稿
+              </button>
+              <p class="share-hint">共有先でXを選んでください</p>
+              <p class="share-status" id="shareStatus" role="status" hidden></p>
+            </div>
             <button class="replay-button" id="replayButton" type="button">
               もう一度聞く
             </button>
@@ -128,6 +140,6 @@
     <div class="cookie-layer" id="cookieLayer" aria-hidden="true"></div>
     <p class="sr-only" id="announcement" aria-live="assertive"></p>
 
-    <script src="./script.js"></script>
+    <script src="./script.js?v=2"></script>
   </body>
 </html>
