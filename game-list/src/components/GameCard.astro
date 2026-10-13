@@ -1,0 +1,85 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import PawIcon from './PawIcon.astro';
+
+const ACCENTS: Record<string, string> = {
+  orange: 'var(--orange)',
+  terracotta: 'var(--orange)',
+  coral: 'var(--coral)',
+  brown: 'var(--ink-muted)',
+  sage: 'var(--moss)',
+};
+
+const MOODS: Record<string, string> = {
+  '無意味クリッカー': 'quick focus',
+  'クッキーを受け入れますか？': 'quick chill',
+  'ねこもり': 'focus',
+  'ネコリス': 'focus',
+  'ネコスペース': 'chill',
+  'ねこタイプ': 'focus',
+  'Neko Pinball': 'quick focus',
+  'ピンポンダッシュ': 'quick',
+  '退勤ボタン': 'quick chill',
+};
+
+interface Props { game: CollectionEntry<'games'>; }
+
+const { game } = Astro.props;
+const { title, description, tag, accentColor, playUrl, thumbnail } = game.data;
+const accent = ACCENTS[accentColor];
+const moods = MOODS[title] ?? 'quick';
+---
+
+<a
+  class="game-card"
+  href={playUrl}
+  target="_blank"
+  rel="noopener noreferrer"
+  data-moods={moods}
+  aria-label={`${title}で遊ぶ（別のタブで開きます）`}
+>
+  <div class="thumbnail-wrap">
+    {
+      thumbnail ? (
+        <img class="thumbnail" src={thumbnail} alt={`${title}のゲーム画面`} width="640" height="336" loading="lazy" />
+      ) : (
+        <div class="thumbnail thumbnail-placeholder" style={`--card-accent:${accent}`}>
+          <PawIcon />
+          <span>COMING SOON</span>
+        </div>
+      )
+    }
+    <span class="play-badge" style={`--card-accent:${accent}`} aria-hidden="true">
+      <svg viewBox="0 0 24 24"><path d="M8.5 6.5v11l8-5.5-8-5.5Z" fill="currentColor" /></svg>
+    </span>
+  </div>
+
+  <div class="card-body">
+    <div class="card-heading">
+      <h3>{title}</h3>
+      <span>{tag}</span>
+    </div>
+    <p>{description}</p>
+    <strong style={`--card-accent:${accent}`}>このゲームで遊ぶ</strong>
+  </div>
+</a>
+
+<style>
+  .game-card { display: flex; min-width: 0; flex-direction: column; overflow: hidden; border: 1.5px solid var(--line); border-radius: 18px; background: var(--white); box-shadow: 3px 4px 0 var(--paper-deep); color: inherit; text-decoration: none; transition: transform 150ms ease, box-shadow 150ms ease, border-color 150ms ease; }
+  .game-card:hover { border-color: var(--ink-muted); box-shadow: 6px 7px 0 var(--paper-deep); transform: translateY(-4px) rotate(-0.35deg); }
+  .thumbnail-wrap { position: relative; overflow: hidden; aspect-ratio: 640 / 336; background: var(--paper-deep); }
+  .thumbnail { display: block; width: 100%; height: 100%; object-fit: cover; transition: transform 250ms ease; }
+  .game-card:hover .thumbnail { transform: scale(1.025); }
+  .thumbnail-placeholder { display: grid; place-items: center; background: radial-gradient(circle at 50% 45%, rgb(255 255 255 / 36%) 0 1px, transparent 2px) 0 0 / 12px 12px, var(--card-accent); color: var(--paper-light); }
+  .thumbnail-placeholder :global(svg) { width: 54px; height: 54px; }
+  .thumbnail-placeholder span { position: absolute; right: 13px; bottom: 10px; font-family: var(--font-heading); font-size: 11px; font-weight: 800; letter-spacing: 0.05em; }
+  .play-badge { position: absolute; right: 14px; bottom: 14px; display: grid; width: 43px; height: 43px; place-items: center; border: 2px solid var(--ink); border-radius: 50%; background: var(--card-accent); box-shadow: 0 3px 0 var(--ink); }
+  .play-badge svg { width: 21px; height: 21px; }
+  .card-body { display: flex; flex: 1; flex-direction: column; padding: 21px 21px 22px; }
+  .card-heading { display: flex; align-items: start; justify-content: space-between; gap: 14px; }
+  h3 { margin: 0; color: var(--ink); font-size: 19px; font-weight: 800; line-height: 1.45; }
+  .card-heading span { flex: none; margin-top: 2px; padding: 4px 9px; border-radius: 999px; background: var(--paper); color: var(--ink-muted); font-size: 12px; line-height: 1.4; }
+  p { flex: 1; margin: 12px 0 20px; color: var(--ink-soft); font-size: 14px; line-height: 1.75; }
+  strong { align-self: flex-start; border-bottom: 3px solid var(--card-accent); color: var(--ink); font-family: var(--font-heading); font-size: 14px; font-weight: 800; line-height: 1.7; }
+  @media (prefers-reduced-motion: reduce) { .game-card, .thumbnail { transition: none; } }
+</style>

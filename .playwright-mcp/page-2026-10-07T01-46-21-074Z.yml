@@ -1,0 +1,57 @@
+- generic [active] [ref=f1e1]:
+  - main [ref=f1e2]:
+    - generic [ref=f1e3]:
+      - link "ねこスロット トップ" [ref=f1e4] [cursor=pointer]:
+        - /url: ./
+        - generic [ref=f1e5]: asobi
+        - generic [aria-hidden] [ref=f1e6]: ●
+      - paragraph [ref=f1e7]: ASOBI WORKS / 10
+    - region [ref=f1e8]:
+      - heading "ねこスロット" [level=1] [ref=f1e9]
+    - region "ねこスロットのゲーム盤" [ref=f1e10]:
+      - generic [ref=f1e18]:
+        - paragraph [ref=f1e19]: WELCOME TO
+        - heading "NEKO SLOT" [level=2] [ref=f1e20]
+        - text: 毎日ねこ日和
+      - generic [ref=f1e21]:
+        - generic [ref=f1e22]:
+          - generic [ref=f1e23]: おやつ
+          - strong [ref=f1e24]: "0000"
+        - generic [ref=f1e25]:
+          - generic [ref=f1e26]: ベスト
+          - strong [ref=f1e27]: "0120"
+      - generic [ref=f1e28]:
+        - generic [aria-hidden]:
+          - generic: ★
+          - generic: ★
+        - generic "3つのリール" [ref=f1e29]:
+          - img "むすっとした灰色の猫" [ref=f1e31]
+          - img "丸くなった茶トラ猫" [ref=f1e33]
+          - img "ふわふわの白猫" [ref=f1e35]
+      - generic [ref=f1e36]:
+        - paragraph [ref=f1e37]: READY
+        - paragraph [ref=f1e38]: ボタンを押してね
+      - generic [ref=f1e39]:
+        - button "音あり" [pressed] [ref=f1e40] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f1e41]: ♪
+          - text: 音あり
+        - button "まわす SPIN" [ref=f1e42] [cursor=pointer]:
+          - generic [ref=f1e43]: まわす
+          - generic [ref=f1e44]: SPIN
+        - button "スコアを リセット" [ref=f1e45] [cursor=pointer]: スコアをリセット
+      - paragraph [ref=f1e46]: スペースキーでも回せます
+    - region "当たりの説明" [ref=f1e50]:
+      - generic [ref=f1e51]:
+        - generic [ref=f1e52]: ねこ × 3
+        - generic [ref=f1e53]: "+120"
+      - generic [ref=f1e54]:
+        - generic [ref=f1e55]: くろねこ × 3
+        - generic [ref=f1e56]: "+500"
+      - generic [ref=f1e57]:
+        - generic [ref=f1e58]: ねこ × 2
+        - generic [ref=f1e59]: "+30"
+    - paragraph [ref=f1e61]: 無料で何度でも遊べます。ねこにお金は使いません。
+  - generic [aria-hidden]:
+    - paragraph: REACH
+    - strong: くるぞ…！
+  - paragraph [ref=f1e62]

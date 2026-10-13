@@ -1,0 +1,62 @@
+- generic [ref=f1e1]:
+  - main [ref=f1e2]:
+    - generic [ref=f1e3]:
+      - link "ねこスロット トップ" [ref=f1e4] [cursor=pointer]:
+        - /url: ./
+        - generic [ref=f1e5]: asobi
+        - generic [aria-hidden] [ref=f1e6]: ●
+      - generic [ref=f1e7]:
+        - paragraph [ref=f1e8]: ASOBI WORKS / 10
+        - group "プレイモード" [ref=f1e9]:
+          - button "自動" [disabled] [ref=f1e10]
+          - button "目押し" [disabled] [pressed] [ref=f1e11]
+    - region [ref=f1e12]:
+      - heading "ねこスロット" [level=1] [ref=f1e13]
+      - paragraph [ref=f1e14]: おなじ猫が2匹で小当たり、3匹そろえば大当たり。
+    - region "ねこスロットのゲーム盤" [ref=f1e15]:
+      - generic [ref=f1e23]:
+        - paragraph [ref=f1e24]: WELCOME TO
+        - heading "NEKO SLOT" [level=2] [ref=f1e25]
+        - text: 毎日ねこ日和
+      - generic [ref=f1e26]:
+        - generic [ref=f1e27]:
+          - generic [ref=f1e28]: おやつ
+          - strong [ref=f1e29]: "0120"
+        - generic [ref=f1e30]:
+          - generic [ref=f1e31]: ベスト
+          - strong [ref=f1e32]: "0120"
+      - generic [ref=f1e33]:
+        - generic [aria-hidden]:
+          - generic: ★
+          - generic: ★
+        - generic "3つのリール" [ref=f1e34]:
+          - img "ふわふわの白猫" [ref=f1e92]
+          - img "むすっとした灰色の猫" [ref=f1e98]
+          - img "丸くなった茶トラ猫" [ref=f1e101]
+      - generic [ref=f1e41]:
+        - paragraph [ref=f1e42]: STOP 2 / 3
+        - paragraph [ref=f1e43]: 次は右リール！
+      - generic [ref=f1e44]:
+        - button "音あり" [pressed] [ref=f1e45] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f1e46]: ♪
+          - text: 音あり
+        - button "右を止める STOP 3 / 3" [active] [ref=f1e100] [cursor=pointer]:
+          - generic [ref=f1e48]: 右を止める
+          - generic [ref=f1e49]: STOP 3 / 3
+        - button "スコアを リセット" [ref=f1e50] [cursor=pointer]: スコアをリセット
+      - paragraph [ref=f1e51]: スペースキーでも回せます
+    - region "当たりの説明" [ref=f1e55]:
+      - generic [ref=f1e56]:
+        - generic [ref=f1e57]: ねこ × 3
+        - generic [ref=f1e58]: "+120"
+      - generic [ref=f1e59]:
+        - generic [ref=f1e60]: くろねこ × 3
+        - generic [ref=f1e61]: "+500"
+      - generic [ref=f1e62]:
+        - generic [ref=f1e63]: ねこ × 2
+        - generic [ref=f1e64]: "+30"
+    - paragraph [ref=f1e66]: 無料で何度でも遊べます。ねこにお金は使いません。
+  - generic [aria-hidden]:
+    - paragraph: 大当たり!!!
+    - strong: ねこサンバ開幕！
+  - paragraph [ref=f1e67]: 目押し開始。左リールから順に止めてください。

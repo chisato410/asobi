@@ -1,0 +1,21 @@
+{
+  "name": "asobi-game-list",
+  "type": "module",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "astro dev",
+    "start": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "astro": "astro"
+  },
+  "dependencies": {
+    "@keystatic/astro": "^5.0.5",
+    "@keystatic/core": "^0.5.44",
+    "astro": "^5.6.1"
+  },
+  "devDependencies": {
+    "typescript": "^5.7.3"
+  }
+}

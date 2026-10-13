@@ -1,0 +1,71 @@
+- generic [ref=e1]:
+  - main [ref=e2]:
+    - generic [ref=e3]:
+      - link "ねこスロット トップ" [ref=e4] [cursor=pointer]:
+        - /url: ./
+        - generic [ref=e5]: asobi
+        - generic [aria-hidden] [ref=e6]: ●
+      - generic [ref=e7]:
+        - group "プレイモード" [ref=e9]:
+          - button "自動" [pressed] [ref=e10] [cursor=pointer]
+          - button "目押し" [ref=e11] [cursor=pointer]
+        - button [ref=e82] [cursor=pointer]:
+          - generic [aria-hidden] [ref=e13]: X
+    - region [ref=e15]:
+      - heading "ねこスロット" [level=1] [ref=e16]
+    - region "ねこスロットのゲーム盤" [ref=e18]:
+      - generic [ref=e26]:
+        - paragraph [ref=e27]: WELCOME TO
+        - heading "NEKO SLOT" [level=2] [ref=e28]
+        - text: 毎日ねこ日和
+      - generic [ref=e29]:
+        - generic [ref=e30]:
+          - generic [ref=e31]: おやつ
+          - strong [ref=e32]: "0000"
+        - generic [ref=e33]:
+          - generic [ref=e34]: ベスト
+          - strong [ref=e35]: "0270"
+      - generic [ref=e36]:
+        - generic [aria-hidden]:
+          - generic: ★
+          - generic: ★
+        - generic "3つのリール" [ref=e37]:
+          - img "むすっとした灰色の猫" [ref=e39]
+          - img "丸くなった茶トラ猫" [ref=e41]
+          - img "ふわふわの白猫" [ref=e43]
+      - generic [ref=e44]:
+        - paragraph [ref=e45]: READY
+        - paragraph [ref=e46]: ボタンを押してね
+      - generic [ref=e47]:
+        - button "音あり" [pressed] [ref=e48] [cursor=pointer]:
+          - generic [aria-hidden] [ref=e49]: ♪
+          - text: 音あり
+        - button "まわす SPIN" [ref=e50] [cursor=pointer]:
+          - generic [ref=e51]: まわす
+          - generic [ref=e52]: SPIN
+        - button "スコアを リセット" [ref=e53] [cursor=pointer]: スコアをリセット
+      - paragraph [ref=e54]: スペースキーでも回せます
+    - region "当たりの説明" [ref=e58]:
+      - generic [ref=e59]:
+        - generic [ref=e60]: ねこ × 3
+        - generic [ref=e61]: "+120"
+      - generic [ref=e62]:
+        - generic [ref=e63]: くろねこ × 3
+        - generic [ref=e64]: "+500"
+      - generic [ref=e65]:
+        - generic [ref=e66]: ねこ × 2
+        - generic [ref=e67]: "+30"
+    - paragraph [ref=e69]: 無料で何度でも遊べます。ねこにお金は使いません。
+  - dialog [active] [ref=e73]:
+    - button "閉じる" [ref=e74] [cursor=pointer]: ×
+    - paragraph [ref=e75]: SHARE YOUR SCORE
+    - heading "ねこスコアカード" [level=2] [ref=e76]
+    - img "現在のスコアカードのプレビュー" [ref=e77]
+    - generic [ref=e78]:
+      - button "Xで共有" [disabled] [ref=e79]
+      - button "画像を保存" [disabled] [ref=e80]
+    - paragraph [ref=e81]: カードを作っています…
+  - generic [aria-hidden]:
+    - paragraph: REACH
+    - strong: くるぞ…！
+  - paragraph [ref=e70]

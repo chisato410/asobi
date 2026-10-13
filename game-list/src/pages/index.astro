@@ -1,0 +1,192 @@
+---
+import { getCollection } from 'astro:content';
+import GameCard from '../components/GameCard.astro';
+import '../styles/global.css';
+
+const games = await getCollection('games');
+games.sort((a, b) => a.data.order - b.data.order);
+
+const featuredGames = games.filter((game) => game.data.thumbnail).slice(0, 3);
+---
+
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="猫と、ちょっと変なアイデアから生まれた無料のブラウザゲーム集。インストールなしですぐ遊べます。"
+    />
+    <meta name="theme-color" content="#f7ebd4" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@500;700;800&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap"
+    />
+    <title>asobi | すぐ遊べる、小さなブラウザゲーム集</title>
+  </head>
+  <body>
+    <header class="site-header">
+      <a class="brand" href="#top" aria-label="asobi トップへ">
+        <span>asobi</span>
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M12 14c-3.2 0-6 2.4-6 5.2 0 1.4 1.1 2.3 2.5 2.1 1.1-.2 2-.8 3.5-.8s2.4.6 3.5.8c1.4.2 2.5-.7 2.5-2.1 0-2.8-2.8-5.2-6-5.2Z" />
+          <ellipse cx="7" cy="9" rx="2.1" ry="2.6" />
+          <ellipse cx="17" cy="9" rx="2.1" ry="2.6" />
+          <ellipse cx="12" cy="6.5" rx="2.3" ry="2.8" />
+        </svg>
+      </a>
+      <nav aria-label="メインナビゲーション">
+        <a href="#games">ゲーム</a>
+        <a href="#about">asobiについて</a>
+      </nav>
+    </header>
+
+    <main id="top">
+      <section class="hero" aria-labelledby="hero-title">
+        <div class="hero-copy">
+          <p class="kicker">ブラウザで、すぐあそべる。</p>
+          <h1 id="hero-title">ひまな5分を、<br />猫とあそぼう。</h1>
+          <p class="hero-text">
+            猫と、ちょっと変なアイデアから生まれたミニゲーム集です。<br class="desktop-only" />
+            登録もインストールもいりません。
+          </p>
+          <div class="hero-actions">
+            <a class="button button-primary" href="#games">ゲームをえらぶ</a>
+            <button class="button button-secondary" id="random-game" type="button">
+              おまかせで遊ぶ
+            </button>
+          </div>
+          <p class="hero-note"><span>{games.length}</span> 作品公開中・ぜんぶ無料</p>
+        </div>
+
+        <div class="hero-collage" aria-label="asobiのゲーム画面">
+          <div class="sunburst" aria-hidden="true"></div>
+          {
+            featuredGames.map((game, index) => (
+              <figure class={`snapshot snapshot-${index + 1}`}>
+                <img
+                  src={game.data.thumbnail}
+                  alt={`${game.data.title}のゲーム画面`}
+                  width="640"
+                  height="336"
+                />
+                <figcaption>{game.data.title}</figcaption>
+              </figure>
+            ))
+          }
+          <div class="hero-doodle" aria-hidden="true">ᓚᘏᗢ</div>
+        </div>
+      </section>
+
+      <section class="games-section" id="games" aria-labelledby="games-title">
+        <div class="section-heading">
+          <div>
+            <p class="kicker">今日はどれで遊ぶ？</p>
+            <h2 id="games-title">気分でえらぶ、{games.length}つのあそび</h2>
+          </div>
+          <p>1プレイはだいたい数分。途中でやめても、またいつでも。</p>
+        </div>
+
+        <div class="mood-filter" aria-label="ゲームを気分で絞り込む">
+          <button class="filter-button is-active" type="button" data-filter="all" aria-pressed="true">
+            ぜんぶ
+          </button>
+          <button class="filter-button" type="button" data-filter="quick" aria-pressed="false">
+            すぐ遊びたい
+          </button>
+          <button class="filter-button" type="button" data-filter="focus" aria-pressed="false">
+            ちょっと夢中になりたい
+          </button>
+          <button class="filter-button" type="button" data-filter="chill" aria-pressed="false">
+            のんびりしたい
+          </button>
+        </div>
+
+        <div class="game-grid" id="game-grid" aria-live="polite">
+          {games.map((game) => <GameCard game={game} />)}
+        </div>
+        <p class="empty-message" id="empty-message" hidden>この気分のゲームは、ただいま準備中です。</p>
+      </section>
+
+      <section class="about-section" id="about" aria-labelledby="about-title">
+        <div class="about-intro">
+          <div class="tape" aria-hidden="true"></div>
+          <p class="kicker">asobiについて</p>
+          <h2 id="about-title">思いついたら、小さく作って、すぐ遊ぶ。</h2>
+          <p>
+            asobiは、でぶねこが作るブラウザゲームのシリーズです。うまくなるためじゃなく、暇つぶしが少し楽しくなるための遊びを集めています。
+          </p>
+        </div>
+        <dl class="about-list">
+          <div>
+            <dt>すぐ始まる</dt>
+            <dd>会員登録なし。リンクを開いたら、そこがスタートです。</dd>
+          </div>
+          <div>
+            <dt>短く遊べる</dt>
+            <dd>休憩時間や待ち時間に、ひと区切りつく小ささです。</dd>
+          </div>
+          <div>
+            <dt>猫、多め</dt>
+            <dd>落としたり、詰めたり、眺めたり。たいてい猫がいます。</dd>
+          </div>
+        </dl>
+      </section>
+
+      <section class="closing" aria-labelledby="closing-title">
+        <div class="closing-paw" aria-hidden="true">●</div>
+        <h2 id="closing-title">さて、どれで遊ぶ？</h2>
+        <p>決められない日は、運にまかせても大丈夫。</p>
+        <button class="button button-primary" id="random-game-bottom" type="button">
+          おまかせで遊ぶ
+        </button>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <a class="brand brand-footer" href="#top" aria-label="asobi トップへ">asobi</a>
+      <p>小さな遊びを、こつこつ増やしています。</p>
+      <a href="https://x.com/sence1x" target="_blank" rel="noopener noreferrer">Xで新作をみる</a>
+      <span>© でぶねこ</span>
+    </footer>
+
+    <script define:vars={{ playUrls: games.map((game) => game.data.playUrl) }}>
+      const filterButtons = document.querySelectorAll('[data-filter]');
+      const cards = document.querySelectorAll('[data-moods]');
+      const emptyMessage = document.querySelector('#empty-message');
+
+      filterButtons.forEach((button) => {
+        button.addEventListener('click', () => {
+          const selected = button.getAttribute('data-filter');
+
+          filterButtons.forEach((item) => {
+            const active = item === button;
+            item.classList.toggle('is-active', active);
+            item.setAttribute('aria-pressed', String(active));
+          });
+
+          let visibleCount = 0;
+          cards.forEach((card) => {
+            const moods = card.getAttribute('data-moods')?.split(' ') ?? [];
+            const visible = selected === 'all' || moods.includes(selected);
+            card.toggleAttribute('hidden', !visible);
+            if (visible) visibleCount += 1;
+          });
+
+          emptyMessage?.toggleAttribute('hidden', visibleCount > 0);
+        });
+      });
+
+      const openRandomGame = () => {
+        const url = playUrls[Math.floor(Math.random() * playUrls.length)];
+        window.open(url, '_blank', 'noopener,noreferrer');
+      };
+
+      document.querySelector('#random-game')?.addEventListener('click', openRandomGame);
+      document.querySelector('#random-game-bottom')?.addEventListener('click', openRandomGame);
+    </script>
+  </body>
+</html>

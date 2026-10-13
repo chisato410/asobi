@@ -1,0 +1,16 @@
+- main [ref=f4e2]:
+  - link [ref=f4e3] [cursor=pointer]:
+    - /url: https://chatgpt.com/
+    - img "ChatGPT" [ref=f4e4]
+  - generic [ref=f4e5]:
+    - generic [ref=f4e6]:
+      - heading "アクセスするにはログインしてください" [level=1] [ref=f4e7]
+      - paragraph [ref=f4e8]: ねこスロット
+    - generic [ref=f4e9]:
+      - link "ChatGPT で続ける" [ref=f4e10] [cursor=pointer]:
+        - /url: https://asobi-neko-slot.hz-freedom-252712646.chatgpt.site/signin-with-chatgpt?return_to=%2F%3Flayout%3Donepage
+      - generic [ref=f4e12]:
+        - text: このサイトでは、安全なログインのために ChatGPT を使用しています。OpenAI の
+        - link "プライバシーポリシー" [ref=f4e13] [cursor=pointer]:
+          - /url: https://openai.com/policies/privacy-policy
+        - text: をご確認いただけます。

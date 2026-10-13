@@ -3,72 +3,97 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <meta name="theme-color" content="#0b1020" />
-    <meta name="description" content="猫たちの深夜ゲームセンターを舞台にした、ブラウザで遊べるピンボールゲーム。" />
-    <title>Neko Pinball</title>
+    <meta name="theme-color" content="#211b3a" />
+    <meta name="description" content="クレヨンで描いた猫たちと遊ぶ、ブラウザ版ねこピンボール。" />
+    <title>ねこピンボール | asobi</title>
+    <link rel="canonical" href="https://asobi-pinball.vercel.app/" />
+    <link rel="icon" href="assets/cat-mascot.png" type="image/png" />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="ja_JP" />
+    <meta property="og:site_name" content="asobi" />
+    <meta property="og:title" content="ねこピンボール | asobi" />
+    <meta property="og:description" content="はずんで、回って、ワープする。猫の鳴き声と遊ぶブラウザ・ピンボール。" />
+    <meta property="og:url" content="https://asobi-pinball.vercel.app/" />
+    <meta property="og:image" content="https://asobi-pinball.vercel.app/assets/og-neko-pinball.png" />
+    <meta property="og:image:secure_url" content="https://asobi-pinball.vercel.app/assets/og-neko-pinball.png" />
+    <meta property="og:image:type" content="image/png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="日本の夜祭りに輝く、茶トラ猫のピンボール台" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="ねこピンボール | asobi" />
+    <meta name="twitter:description" content="はずんで、回って、ワープする。猫の鳴き声と遊ぶブラウザ・ピンボール。" />
+    <meta name="twitter:image" content="https://asobi-pinball.vercel.app/assets/og-neko-pinball.png" />
+    <meta name="twitter:image:alt" content="日本の夜祭りに輝く、茶トラ猫のピンボール台" />
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
     <main class="cabinet">
-      <header class="masthead">
-        <div class="brand" aria-label="Neko Pinball">
-          <span class="brand-neko">NEKO</span>
-          <span class="brand-pinball">PINBALL</span>
-        </div>
+      <section class="machine-frame" aria-label="ねこピンボール筐体">
+        <header class="masthead">
+          <div class="brand" aria-label="Neko Pinball">
+            <span class="brand-stamp">asobi</span>
+            <span class="brand-neko">ねこ</span>
+            <span class="brand-pinball">PINBALL</span>
+            <span class="brand-paw" aria-hidden="true">● ●</span>
+          </div>
 
-        <div class="scoreboard" aria-live="polite">
-          <div>
-            <span class="score-label">Score</span>
-            <strong id="score">000000</strong>
+          <div class="scoreboard" aria-live="polite">
+            <div>
+              <span class="score-label">今回</span>
+              <strong id="score">000000</strong>
+            </div>
+            <div>
+              <span class="score-label">最高</span>
+              <strong id="best">000000</strong>
+            </div>
+            <div>
+              <span class="score-label">残り</span>
+              <strong id="balls">● ● ●</strong>
+            </div>
           </div>
-          <div>
-            <span class="score-label">Best</span>
-            <strong id="best">000000</strong>
-          </div>
-          <div>
-            <span class="score-label">Balls</span>
-            <strong id="balls">● ● ●</strong>
-          </div>
-        </div>
 
-        <button class="sound-button" id="soundButton" type="button" aria-label="音をオフにする" aria-pressed="true">
-          <span aria-hidden="true">♪</span>
-        </button>
-      </header>
+          <button class="sound-button" id="soundButton" type="button" aria-label="音をオフにする" aria-pressed="true">
+            <span aria-hidden="true">♪</span>
+          </button>
+        </header>
 
-      <section class="game-shell" aria-label="ピンボール盤">
-        <div class="side-note left-note" aria-hidden="true">← LEFT</div>
-        <div class="canvas-wrap">
-          <canvas id="gameCanvas" width="560" height="860" aria-label="Neko Pinball ゲーム画面"></canvas>
-          <div class="game-message" id="gameMessage">
-            <p class="message-kicker">Midnight arcade</p>
-            <h1>NEKO<br />PINBALL</h1>
-            <p>ボールを打ち出して、<br />夜明けまでハイスコアをねらおう。</p>
-            <button id="startButton" type="button">ゲームをはじめる</button>
+        <section class="game-shell" aria-label="ピンボール盤">
+          <div class="canvas-wrap">
+            <canvas id="gameCanvas" width="560" height="860" aria-label="Neko Pinball ゲーム画面"></canvas>
+            <div class="game-message" id="gameMessage">
+              <img class="message-cat" src="assets/cat-mascot.png" alt="丸くなってこちらを見ている茶トラ猫" />
+              <p class="message-kicker">猫まつり・今夜も営業中</p>
+              <h1>ねこ<span>ピンボール</span></h1>
+              <p>発射ボタンを長押しして強さをためて、<br />肉球バンパーをねらおう。</p>
+              <button id="startButton" type="button">ゲームをはじめる</button>
+            </div>
           </div>
-        </div>
-        <div class="side-note right-note" aria-hidden="true">RIGHT →</div>
+        </section>
+
+        <section class="controls" aria-label="ゲーム操作">
+          <button class="flipper-control" id="leftControl" type="button">
+            <span class="control-key">A / ←</span>
+            <span class="control-action">左フリッパー</span>
+          </button>
+          <button class="launch-control" id="launchControl" type="button">
+            <span class="control-key">SPACE 長押し</span>
+            <span class="control-action" id="launchLabel">ボール発射</span>
+            <span class="power-meter" id="powerMeter" role="progressbar" aria-label="発射の強さ" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-valuetext="強さ 0パーセント">
+              <span class="power-fill" id="powerFill"></span>
+            </span>
+          </button>
+          <button class="flipper-control" id="rightControl" type="button">
+            <span class="control-key">D / →</span>
+            <span class="control-action">右フリッパー</span>
+          </button>
+        </section>
+
+        <footer>
+          <p role="status" aria-live="polite"><span class="status-dot" id="statusDot" data-state="ready"></span><span id="statusText">スタートを押して準備</span></p>
+          <p>Esc で一時停止</p>
+        </footer>
       </section>
-
-      <section class="controls" aria-label="ゲーム操作">
-        <button class="flipper-control" id="leftControl" type="button">
-          <span class="control-key">A / ←</span>
-          <span>左フリッパー</span>
-        </button>
-        <button class="launch-control" id="launchControl" type="button">
-          <span class="control-key">SPACE</span>
-          <span id="launchLabel">ボール発射</span>
-        </button>
-        <button class="flipper-control" id="rightControl" type="button">
-          <span class="control-key">D / →</span>
-          <span>右フリッパー</span>
-        </button>
-      </section>
-
-      <footer>
-        <p><span class="status-dot"></span><span id="statusText">スタートを押して準備</span></p>
-        <p>Esc で一時停止</p>
-      </footer>
     </main>
 
     <script src="script.js"></script>

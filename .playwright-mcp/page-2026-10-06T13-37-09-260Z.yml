@@ -1,0 +1,59 @@
+- generic [active] [ref=e1]:
+  - main [ref=e2]:
+    - generic [ref=e3]:
+      - link "ねこスロット トップ" [ref=e4] [cursor=pointer]:
+        - /url: ./
+        - generic [ref=e5]: asobi
+        - generic [aria-hidden] [ref=e6]: ●
+      - paragraph [ref=e7]: ASOBI WORKS / 10
+    - region [ref=e8]:
+      - paragraph [ref=e9]: まわして、そろえて、おやつを集める
+      - heading "ねこスロット" [level=1] [ref=e10]
+      - paragraph [ref=e11]: おなじ猫が2匹で小当たり、3匹そろえば大当たり。
+    - region "ねこスロットのゲーム盤" [ref=e12]:
+      - generic [ref=e20]:
+        - paragraph [ref=e21]: WELCOME TO
+        - heading "NEKO SLOT" [level=2] [ref=e22]
+        - text: 毎日ねこ日和
+      - generic [ref=e23]:
+        - generic [ref=e24]:
+          - generic [ref=e25]: おやつ
+          - strong [ref=e26]: "0000"
+        - generic [ref=e27]:
+          - generic [ref=e28]: ベスト
+          - strong [ref=e29]: "1160"
+      - generic [ref=e30]:
+        - generic [aria-hidden]:
+          - generic: ★
+          - generic: ★
+        - generic "3つのリール" [ref=e31]:
+          - img "むすっとした灰色の猫" [ref=e33]
+          - img "むすっとした灰色の猫" [ref=e65]
+          - img "どっしりした黒猫" [ref=e66]
+      - generic [ref=e38]:
+        - paragraph [ref=e39]: SPINNING
+        - paragraph [ref=e40]: どのねこが来るかな…
+      - generic [ref=e41]:
+        - button "音あり" [pressed] [ref=e42] [cursor=pointer]:
+          - generic [aria-hidden] [ref=e43]: ♪
+          - text: 音あり
+        - button "まわす SPIN" [disabled] [ref=e44]:
+          - generic [ref=e45]: まわす
+          - generic [ref=e46]: SPIN
+        - button "スコアを リセット" [ref=e47] [cursor=pointer]: スコアをリセット
+      - paragraph [ref=e48]: スペースキーでも回せます
+    - region "当たりの説明" [ref=e52]:
+      - generic [ref=e53]:
+        - generic [ref=e54]: ねこ × 3
+        - generic [ref=e55]: "+120"
+      - generic [ref=e56]:
+        - generic [ref=e57]: くろねこ × 3
+        - generic [ref=e58]: "+500"
+      - generic [ref=e59]:
+        - generic [ref=e60]: ねこ × 2
+        - generic [ref=e61]: "+30"
+    - paragraph [ref=e63]: 無料で何度でも遊べます。ねこにお金は使いません。
+  - generic:
+    - paragraph: リーチ!!!
+    - strong: くるぞ、くるぞ、くるぞ…！
+  - paragraph [ref=e64]: リーチ！あと1匹で大当たりです。

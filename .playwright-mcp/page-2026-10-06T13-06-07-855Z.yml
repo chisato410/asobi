@@ -1,0 +1,59 @@
+- generic [active] [ref=f2e1]:
+  - main [ref=f2e2]:
+    - generic [ref=f2e3]:
+      - link "ねこスロット トップ" [ref=f2e4] [cursor=pointer]:
+        - /url: ./
+        - generic [ref=f2e5]: asobi
+        - generic [aria-hidden] [ref=f2e6]: ●
+      - paragraph [ref=f2e7]: ASOBI WORKS / 10
+    - region [ref=f2e8]:
+      - paragraph [ref=f2e9]: まわして、そろえて、おやつを集める
+      - heading "ねこスロット" [level=1] [ref=f2e10]
+      - paragraph [ref=f2e11]: おなじ猫が2匹で小当たり、3匹そろえば大当たり。
+    - region "ねこスロットのゲーム盤" [ref=f2e12]:
+      - generic [ref=f2e20]:
+        - paragraph [ref=f2e21]: WELCOME TO
+        - heading "NEKO SLOT" [level=2] [ref=f2e22]
+        - text: 毎日ねこ日和
+      - generic [ref=f2e23]:
+        - generic [ref=f2e24]:
+          - generic [ref=f2e25]: おやつ
+          - strong [ref=f2e26]: "0000"
+        - generic [ref=f2e27]:
+          - generic [ref=f2e28]: ベスト
+          - strong [ref=f2e29]: "1160"
+      - generic [ref=f2e30]:
+        - generic [aria-hidden]:
+          - generic: ★
+          - generic: ★
+        - generic "3つのリール" [ref=f2e31]:
+          - img "むすっとした灰色の猫" [ref=f2e33]
+          - img "丸くなった茶トラ猫" [ref=f2e35]
+          - img "ふわふわの白猫" [ref=f2e37]
+      - generic [ref=f2e38]:
+        - paragraph [ref=f2e39]: READY
+        - paragraph [ref=f2e40]: ボタンを押してね
+      - generic [ref=f2e41]:
+        - button "音あり" [pressed] [ref=f2e42] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f2e43]: ♪
+          - text: 音あり
+        - button "まわす SPIN" [ref=f2e44] [cursor=pointer]:
+          - generic [ref=f2e45]: まわす
+          - generic [ref=f2e46]: SPIN
+        - button "スコアを リセット" [ref=f2e47] [cursor=pointer]: スコアをリセット
+      - paragraph [ref=f2e48]: スペースキーでも回せます
+    - region "当たりの説明" [ref=f2e52]:
+      - generic [ref=f2e53]:
+        - generic [ref=f2e54]: ねこ × 3
+        - generic [ref=f2e55]: "+120"
+      - generic [ref=f2e56]:
+        - generic [ref=f2e57]: くろねこ × 3
+        - generic [ref=f2e58]: "+500"
+      - generic [ref=f2e59]:
+        - generic [ref=f2e60]: ねこ × 2
+        - generic [ref=f2e61]: "+30"
+    - paragraph [ref=f2e63]: 無料で何度でも遊べます。ねこにお金は使いません。
+  - generic [aria-hidden]:
+    - paragraph: REACH
+    - strong: くるぞ…！
+  - paragraph [ref=f2e64]

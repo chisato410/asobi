@@ -1,0 +1,58 @@
+- generic [active] [ref=e1]:
+  - main [ref=e2]:
+    - generic [ref=e3]:
+      - link "ねこスロット トップ" [ref=e4] [cursor=pointer]:
+        - /url: ./
+        - generic [ref=e5]: asobi
+        - generic [aria-hidden] [ref=e6]: ●
+      - paragraph [ref=e7]: ASOBI WORKS / 10
+    - region [ref=e8]:
+      - heading "ねこスロット" [level=1] [ref=e9]
+      - paragraph [ref=e10]: おなじ猫が2匹で小当たり、3匹そろえば大当たり。
+    - region "ねこスロットのゲーム盤" [ref=e11]:
+      - generic [ref=e19]:
+        - paragraph [ref=e20]: WELCOME TO
+        - heading "NEKO SLOT" [level=2] [ref=e21]
+        - text: 毎日ねこ日和
+      - generic [ref=e22]:
+        - generic [ref=e23]:
+          - generic [ref=e24]: おやつ
+          - strong [ref=e25]: "0000"
+        - generic [ref=e26]:
+          - generic [ref=e27]: ベスト
+          - strong [ref=e28]: "0120"
+      - generic [ref=e29]:
+        - generic [aria-hidden]:
+          - generic: ★
+          - generic: ★
+        - generic "3つのリール" [ref=e30]:
+          - img "むすっとした灰色の猫" [ref=e32]
+          - img "丸くなった茶トラ猫" [ref=e34]
+          - img "ふわふわの白猫" [ref=e36]
+      - generic [ref=e37]:
+        - paragraph [ref=e38]: READY
+        - paragraph [ref=e39]: ボタンを押してね
+      - generic [ref=e40]:
+        - button "音あり" [pressed] [ref=e41] [cursor=pointer]:
+          - generic [aria-hidden] [ref=e42]: ♪
+          - text: 音あり
+        - button "まわす SPIN" [ref=e43] [cursor=pointer]:
+          - generic [ref=e44]: まわす
+          - generic [ref=e45]: SPIN
+        - button "スコアを リセット" [ref=e46] [cursor=pointer]: スコアをリセット
+      - paragraph [ref=e47]: スペースキーでも回せます
+    - region "当たりの説明" [ref=e51]:
+      - generic [ref=e52]:
+        - generic [ref=e53]: ねこ × 3
+        - generic [ref=e54]: "+120"
+      - generic [ref=e55]:
+        - generic [ref=e56]: くろねこ × 3
+        - generic [ref=e57]: "+500"
+      - generic [ref=e58]:
+        - generic [ref=e59]: ねこ × 2
+        - generic [ref=e60]: "+30"
+    - paragraph [ref=e62]: 無料で何度でも遊べます。ねこにお金は使いません。
+  - generic [aria-hidden]:
+    - paragraph: REACH
+    - strong: くるぞ…！
+  - paragraph [ref=e63]

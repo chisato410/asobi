@@ -1,0 +1,18 @@
+---
+// サムネイル画像が無いゲーム用の、肉球アイコンのプレースホルダー。
+// デザイン相談のときに使ったラフのアイコンをそのまま流用している。
+interface Props {
+  color?: string;
+}
+const { color = '#fff8ea' } = Astro.props;
+---
+
+<svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+  <path
+    d="M12 14.2c-3.2 0-6 2.4-6 5.1 0 1.3 1 2.2 2.3 2 1.1-.2 2-.8 3.7-.8s2.6.6 3.7.8c1.3.2 2.3-.7 2.3-2 0-2.7-2.8-5.1-6-5.1Z"
+    fill={color}
+  />
+  <ellipse cx="7.2" cy="9.4" rx="2" ry="2.5" fill={color} />
+  <ellipse cx="16.8" cy="9.4" rx="2" ry="2.5" fill={color} />
+  <ellipse cx="12" cy="7" rx="2.2" ry="2.7" fill={color} />
+</svg>
