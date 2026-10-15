@@ -10,18 +10,29 @@ const IS_SMALL = window.innerWidth < 640;
 
 const CAT_COUNT = IS_SMALL ? 8 : 14;
 const CAT_SCALE = 1.5;
-const BOUNDARY_RADIUS = IS_SMALL ? 3.1 : 4.3;
-const SPAWN_RADIUS = BOUNDARY_RADIUS * 0.78;
 const AMBIENT_ACCEL = (REDUCED_MOTION ? 0.05 : 0.16) * 0.6;
 const MAX_DRIFT_SPEED = (REDUCED_MOTION ? 0.18 : 0.42);
 const DAMPING = 0.35;
 // 弾いた/放り投げた「勢い」の減衰速度(1/秒)。小さいほど長く滑る。
 const INERTIA_DECAY = REDUCED_MOTION ? 1.4 : 0.6;
 const SPIN_DAMPING = 0.3;
-const BOUNDARY_STRENGTH = 1.1;
-const BOUNDARY_DRAG = 1.8;
 const SEPARATION_DIST = 1.15;
 const SEPARATION_STRENGTH = 1.6;
+
+// ウィンドウ端(=カメラの見える範囲)と奥行きの壁、猫同士の衝突。
+// 半径は猫の見た目サイズ(baseScale)に対する倍率。壁用は、体や尻尾が
+// 画面からはみ出さないよう衝突用より少し大きめにしてある。
+const Z_MIN = -2.6;
+const Z_MAX = 2.2;
+const WALL_RESTITUTION = 0.85;
+const CAT_RESTITUTION = 0.85;
+const WALL_RADIUS = 0.5;
+const BODY_RADIUS = 0.4;
+// これ未満のそっと触れる程度の衝突では、演出(火花・ぷるん)は出さない
+const HIT_FX_MIN_SPEED = 0.35;
+const HIT_FX_COOLDOWN = 0.3;
+const HALO_BASE = 0xfff2df;
+const HALO_FLASH = 0xffd08a;
 
 const TAP_MIN_SPEED = 1.1;
 const TAP_MAX_SPEED = 2.0;
@@ -71,9 +82,19 @@ scene.fog = new THREE.FogExp2(0x05060f, 0.055);
 const camera = new THREE.PerspectiveCamera(48, 1, 0.1, 100);
 camera.position.set(0, 0, 7.2);
 
+// 最後に反映したウィンドウサイズ。resize イベントが来なくても、
+// サイズが変わったことをアニメーションループ側で検知して追従するために持つ。
+const appliedSize = { w: 0, h: 0 };
+
 function resize() {
   const w = window.innerWidth;
   const h = window.innerHeight;
+  // 背景タブなどで読み込み直後にウィンドウサイズが 0 のことがある。そのまま
+  // w / h を計算すると aspect が NaN/Infinity になり、見える範囲に基づく
+  // 猫の配置・壁の計算が壊れるので、実サイズが分かるまで更新しない。
+  if (!w || !h) return;
+  appliedSize.w = w;
+  appliedSize.h = h;
   renderer.setSize(w, h);
   camera.aspect = w / h;
   camera.updateProjectionMatrix();
@@ -424,13 +445,85 @@ const haloTexture = makeSoftDotTexture();
 const cats = [];
 const clusterCenter = new THREE.Vector3(0, 0, 0);
 
+// 奥行き z での、画面(ウィンドウ)に映る範囲の半分の幅・高さ。
+// カメラは z 軸方向を向いたままなので、視野角とアスペクト比だけで決まる。
+const viewHalf = { x: 0, y: 0 };
+function updateViewHalf(z) {
+  const dz = Math.max(camera.position.z - z, 0.5);
+  viewHalf.y = dz * Math.tan(THREE.MathUtils.degToRad(camera.fov) / 2);
+  const aspect = Number.isFinite(camera.aspect) && camera.aspect > 0 ? camera.aspect : 1;
+  viewHalf.x = viewHalf.y * aspect;
+}
+
+// 猫がウィンドウ(と奥行きの範囲)から出ないようにする。bounce なら壁で跳ね返し、
+// 掴んで動かしている間は位置だけ止める。戻り値は壁にぶつかった速さ(演出用)。
+function confineToView(cat, bounce) {
+  const p = cat.root.position;
+  const v = cat.velocity;
+  let impact = 0;
+
+  // 万一 NaN などが混ざっても、猫が見えなくなったままにならないよう中央へ戻す
+  if (!Number.isFinite(p.x + p.y + p.z + v.x + v.y + v.z)) {
+    p.set(0, 0, 0);
+    v.set(0, 0, 0);
+  }
+
+  if (p.z > Z_MAX) {
+    p.z = Z_MAX;
+    if (bounce && v.z > 0) {
+      impact = Math.max(impact, v.z);
+      v.z = -v.z * WALL_RESTITUTION;
+    }
+  } else if (p.z < Z_MIN) {
+    p.z = Z_MIN;
+    if (bounce && v.z < 0) {
+      impact = Math.max(impact, -v.z);
+      v.z = -v.z * WALL_RESTITUTION;
+    }
+  }
+
+  updateViewHalf(p.z);
+  const limitX = Math.max(viewHalf.x - cat.wallRadius, 0);
+  const limitY = Math.max(viewHalf.y - cat.wallRadius, 0);
+
+  if (p.x > limitX) {
+    p.x = limitX;
+    if (bounce && v.x > 0) {
+      impact = Math.max(impact, v.x);
+      v.x = -v.x * WALL_RESTITUTION;
+    }
+  } else if (p.x < -limitX) {
+    p.x = -limitX;
+    if (bounce && v.x < 0) {
+      impact = Math.max(impact, -v.x);
+      v.x = -v.x * WALL_RESTITUTION;
+    }
+  }
+
+  if (p.y > limitY) {
+    p.y = limitY;
+    if (bounce && v.y > 0) {
+      impact = Math.max(impact, v.y);
+      v.y = -v.y * WALL_RESTITUTION;
+    }
+  } else if (p.y < -limitY) {
+    p.y = -limitY;
+    if (bounce && v.y < 0) {
+      impact = Math.max(impact, -v.y);
+      v.y = -v.y * WALL_RESTITUTION;
+    }
+  }
+
+  return impact;
+}
+
 function instantiateCat(template, index) {
   const root = template.clone(true);
   root.scale.setScalar(CAT_SCALE * THREE.MathUtils.lerp(0.82, 1.12, Math.random()));
 
   const haloMat = new THREE.SpriteMaterial({
     map: haloTexture,
-    color: 0xfff2df,
+    color: HALO_BASE,
     transparent: true,
     opacity: 0,
     depthWrite: false,
@@ -441,18 +534,12 @@ function instantiateCat(template, index) {
   halo.position.set(0, 0.08, 0.05);
   root.add(halo);
 
-  const spawnDir = new THREE.Vector3(
-    Math.random() * 2 - 1,
-    Math.random() * 2 - 1,
-    Math.random() * 2 - 1
-  ).normalize();
-  const spawnDist = SPAWN_RADIUS * (0.3 + Math.random() * 0.7);
-  root.position.copy(spawnDir.multiplyScalar(spawnDist));
+  root.position.set(0, 0, THREE.MathUtils.lerp(Z_MIN + 0.3, Z_MAX - 0.3, Math.random()));
   root.rotation.set(Math.random() * Math.PI, Math.random() * Math.PI, Math.random() * Math.PI);
 
   scene.add(root);
 
-  return {
+  const cat = {
     root,
     tail: root.getObjectByName("Tail"),
     earL: root.getObjectByName("EarL"),
@@ -473,12 +560,27 @@ function instantiateCat(template, index) {
     baseScale: root.scale.x,
     currentScale: 1,
     hitRadius: 0.62,
+    radius: BODY_RADIUS * root.scale.x,
+    wallRadius: WALL_RADIUS * root.scale.x,
+    prevPos: new THREE.Vector3(),
     hovered: false,
     pulseTimer: 0,
+    flashTimer: 0,
+    fxCooldown: 0,
     longPressed: false,
     state: "drift",
     grabDepth: 0,
   };
+
+  // ウィンドウの見える範囲の中へ、ばらけて配置する
+  updateViewHalf(root.position.z);
+  const limitX = Math.max(viewHalf.x - cat.wallRadius, 0) * 0.9;
+  const limitY = Math.max(viewHalf.y - cat.wallRadius, 0) * 0.9;
+  root.position.x = (Math.random() * 2 - 1) * limitX;
+  root.position.y = (Math.random() * 2 - 1) * limitY;
+  cat.prevPos.copy(root.position);
+
+  return cat;
 }
 
 async function spawnCats() {
@@ -707,32 +809,163 @@ rulesDialog.addEventListener("click", (event) => {
 // アニメーションループ
 // ---------------------------------------------------------------------------
 
-const tmpOffset = new THREE.Vector3();
 const tmpSeparation = new THREE.Vector3();
+const tmpNormal = new THREE.Vector3();
+const tmpContact = new THREE.Vector3();
+const tmpHeldVel = new THREE.Vector3();
 let lastTime = performance.now();
 
-// 猫同士がひとかたまりに重ならないよう、近すぎるペアをそっと押し離す。
-function applySeparation(dt) {
+// ---- 衝突の火花 ----------------------------------------------------------
+// 使い回しのスプライトを円環バッファで再利用する(古いものから上書き)。
+
+const SPARK_POOL = 48;
+const sparks = [];
+for (let i = 0; i < SPARK_POOL; i++) {
+  const material = new THREE.SpriteMaterial({
+    map: dotTexture,
+    color: HALO_FLASH,
+    transparent: true,
+    opacity: 0,
+    depthWrite: false,
+    blending: THREE.AdditiveBlending,
+    fog: false,
+  });
+  const sprite = new THREE.Sprite(material);
+  sprite.visible = false;
+  scene.add(sprite);
+  sparks.push({ sprite, vel: new THREE.Vector3(), life: 0, maxLife: 1, size: 0.2 });
+}
+let sparkCursor = 0;
+
+function emitSparks(origin, count, strength) {
+  for (let n = 0; n < count; n++) {
+    const s = sparks[sparkCursor];
+    sparkCursor = (sparkCursor + 1) % SPARK_POOL;
+    s.sprite.position.copy(origin);
+    s.vel
+      .set(Math.random() - 0.5, Math.random() - 0.5, Math.random() - 0.5)
+      .normalize()
+      .multiplyScalar((0.6 + Math.random() * 1.2) * (0.5 + strength * 0.4));
+    s.maxLife = s.life = 0.35 + Math.random() * 0.35;
+    s.size = 0.14 + Math.random() * 0.16;
+    s.sprite.visible = true;
+  }
+}
+
+function updateSparks(dt) {
+  for (const s of sparks) {
+    if (s.life <= 0) continue;
+    s.life -= dt;
+    if (s.life <= 0) {
+      s.sprite.visible = false;
+      continue;
+    }
+    s.sprite.position.addScaledVector(s.vel, dt);
+    s.vel.multiplyScalar(Math.exp(-2.5 * dt));
+    const k = s.life / s.maxLife;
+    s.sprite.material.opacity = k;
+    s.sprite.scale.setScalar(s.size * (0.4 + 0.6 * k));
+  }
+}
+
+// ---- 衝突 ----------------------------------------------------------------
+
+function kickSpin(cat, strength) {
+  const s = Math.min(strength, 3) * 0.9;
+  cat.angularVelocity.x += (Math.random() - 0.5) * s * 2;
+  cat.angularVelocity.y += (Math.random() - 0.5) * s * 2;
+  cat.angularVelocity.z += (Math.random() - 0.5) * s * 2;
+  if (cat.angularVelocity.length() > 6) cat.angularVelocity.setLength(6);
+}
+
+// ぶつかった2匹へのリアクション: ぷるんと膨らんで光り、くるっと回り、火花が散る。
+function hitEffect(a, b, impact) {
+  let fired = false;
+  for (const cat of [a, b]) {
+    if (cat.fxCooldown > 0) continue;
+    cat.fxCooldown = HIT_FX_COOLDOWN;
+    cat.flashTimer = 0.4;
+    if (cat.state !== "held") cat.pulseTimer = Math.max(cat.pulseTimer, 0.3);
+    kickSpin(cat, impact);
+    fired = true;
+  }
+  if (!fired) return;
+  tmpContact.copy(a.root.position).add(b.root.position).multiplyScalar(0.5);
+  emitSparks(tmpContact, Math.min(6 + Math.floor(impact * 3), 12), Math.min(impact, 3));
+}
+
+function capSpeed(cat) {
+  if (cat.velocity.length() > MAX_FLING_SPEED) cat.velocity.setLength(MAX_FLING_SPEED);
+}
+
+// 猫同士の相互作用。近づきすぎにはそっと反発し(密集予防)、実際に重なったら
+// 位置を押し戻したうえで、質量が等しい弾性衝突として運動量をやり取りする。
+// 掴んでいる猫は動かさない(無限の質量扱い)ので、掴んでぶつけて弾き飛ばせる。
+function resolveCatInteractions(dt) {
   for (let i = 0; i < cats.length; i++) {
     const a = cats[i];
-    if (a.state === "held") continue;
+    const aHeld = a.state === "held";
     for (let j = i + 1; j < cats.length; j++) {
       const b = cats[j];
-      if (b.state === "held") continue;
+      const bHeld = b.state === "held";
+      if (aHeld && bHeld) continue;
+
       tmpSeparation.copy(a.root.position).sub(b.root.position);
-      const dist = tmpSeparation.length();
-      if (dist > 0.0001 && dist < SEPARATION_DIST) {
-        const push = (1 - dist / SEPARATION_DIST) * SEPARATION_STRENGTH * dt;
-        tmpSeparation.normalize();
-        a.velocity.addScaledVector(tmpSeparation, push);
-        b.velocity.addScaledVector(tmpSeparation, -push);
+      let dist = tmpSeparation.length();
+      if (dist < 0.0001) {
+        tmpSeparation.set(Math.random() - 0.5, Math.random() - 0.5, Math.random() - 0.5);
+        dist = tmpSeparation.length() || 1;
       }
+      tmpNormal.copy(tmpSeparation).divideScalar(dist); // b から a へ向かう向き
+
+      if (!aHeld && !bHeld && dist < SEPARATION_DIST) {
+        const push = (1 - dist / SEPARATION_DIST) * SEPARATION_STRENGTH * dt;
+        a.velocity.addScaledVector(tmpNormal, push);
+        b.velocity.addScaledVector(tmpNormal, -push);
+      }
+
+      const minDist = a.radius + b.radius;
+      if (dist >= minDist) continue;
+
+      // 重なりを解消(掴んでいる側は動かさず、もう片方だけ押し戻す)
+      const overlap = minDist - dist;
+      const moveA = aHeld ? 0 : bHeld ? 1 : 0.5;
+      const moveB = bHeld ? 0 : aHeld ? 1 : 0.5;
+      a.root.position.addScaledVector(tmpNormal, overlap * moveA);
+      b.root.position.addScaledVector(tmpNormal, -overlap * moveB);
+
+      // 近づいている場合だけ、法線方向の速度を弾性衝突として交換する
+      const approach =
+        (a.velocity.x - b.velocity.x) * tmpNormal.x +
+        (a.velocity.y - b.velocity.y) * tmpNormal.y +
+        (a.velocity.z - b.velocity.z) * tmpNormal.z;
+      if (approach >= 0) continue;
+
+      const invA = aHeld ? 0 : 1;
+      const invB = bHeld ? 0 : 1;
+      const impulse = (-(1 + CAT_RESTITUTION) * approach) / (invA + invB);
+      a.velocity.addScaledVector(tmpNormal, impulse * invA);
+      b.velocity.addScaledVector(tmpNormal, -impulse * invB);
+      capSpeed(a);
+      capSpeed(b);
+
+      if (-approach > HIT_FX_MIN_SPEED) hitEffect(a, b, -approach);
     }
   }
 }
 
 function updateCat(cat, dt, t) {
+  if (cat.fxCooldown > 0) cat.fxCooldown -= dt;
+  if (cat.flashTimer > 0) cat.flashTimer -= dt;
+
   if (cat.state === "held") {
+    // 掴んでいる間も、ウィンドウの外へは出さない
+    confineToView(cat, false);
+    // 動かしている速さを推定しておく(他の猫にぶつけたとき、勢いが伝わるように)
+    tmpHeldVel.copy(cat.root.position).sub(cat.prevPos).divideScalar(Math.max(dt, 0.0001));
+    if (tmpHeldVel.length() > MAX_FLING_SPEED) tmpHeldVel.setLength(MAX_FLING_SPEED);
+    cat.velocity.lerp(tmpHeldVel, Math.min(1, dt * 12));
+
     cat.root.rotation.y += dt * 0.8;
     if (cat.tail) cat.tail.rotation.x = Math.sin(t * 5 + cat.phase) * 0.4 - 0.2;
     cat.haloOpacity = THREE.MathUtils.lerp(cat.haloOpacity, 0.85, Math.min(1, dt * 8));
@@ -743,16 +976,6 @@ function updateCat(cat, dt, t) {
     cat.velocity.x += nx * AMBIENT_ACCEL * dt;
     cat.velocity.y += ny * AMBIENT_ACCEL * dt;
     cat.velocity.z += nz * AMBIENT_ACCEL * dt;
-
-    tmpOffset.copy(cat.root.position).sub(clusterCenter);
-    const dist = tmpOffset.length();
-    if (dist > BOUNDARY_RADIUS) {
-      const pull = (dist - BOUNDARY_RADIUS) * BOUNDARY_STRENGTH;
-      tmpOffset.normalize();
-      cat.velocity.addScaledVector(tmpOffset, -pull * dt);
-      // 勢いのある猫が境界を大きく突き抜けないよう、外側では抵抗をかけて柔らかい壁にする
-      cat.velocity.multiplyScalar(Math.exp(-BOUNDARY_DRAG * dt));
-    }
 
     // 慣性: ふだんの漂い速度(MAX_DRIFT_SPEED)を超えた「勢い」の分だけを
     // ゆっくり減衰させる。以前は毎フレーム MAX_DRIFT_SPEED へ強制クランプしていて、
@@ -767,6 +990,10 @@ function updateCat(cat, dt, t) {
 
     cat.root.position.addScaledVector(cat.velocity, dt);
 
+    // ウィンドウの端(と奥行きの壁)で跳ね返す。勢いよくぶつかったらくるっと回る。
+    const wallImpact = confineToView(cat, true);
+    if (wallImpact > HIT_FX_MIN_SPEED) kickSpin(cat, wallImpact * 0.5);
+
     cat.root.rotation.x += cat.angularVelocity.x * dt;
     cat.root.rotation.y += cat.angularVelocity.y * dt;
     cat.root.rotation.z += cat.angularVelocity.z * dt;
@@ -777,7 +1004,7 @@ function updateCat(cat, dt, t) {
     if (cat.earR) cat.earR.rotation.z = -Math.sin(t * 2.1 + cat.phase * 1.1) * 0.08;
 
     if (cat.pulseTimer > 0) cat.pulseTimer -= dt;
-    const haloTarget = cat.hovered || cat.pulseTimer > 0 ? 0.7 : 0;
+    const haloTarget = cat.flashTimer > 0 ? 1 : cat.hovered || cat.pulseTimer > 0 ? 0.7 : 0;
     cat.haloOpacity = THREE.MathUtils.lerp(cat.haloOpacity, haloTarget, Math.min(1, dt * 6));
   }
 
@@ -785,6 +1012,9 @@ function updateCat(cat, dt, t) {
   cat.currentScale = THREE.MathUtils.lerp(cat.currentScale, targetScale, Math.min(1, dt * 8));
   cat.root.scale.setScalar(cat.baseScale * cat.currentScale);
   cat.halo.material.opacity = cat.haloOpacity;
+  cat.halo.material.color.setHex(cat.flashTimer > 0 ? HALO_FLASH : HALO_BASE);
+
+  cat.prevPos.copy(cat.root.position);
 }
 
 function animate() {
@@ -794,8 +1024,11 @@ function animate() {
   lastTime = now;
   const t = now / 1000;
 
-  applySeparation(dt);
+  if (window.innerWidth !== appliedSize.w || window.innerHeight !== appliedSize.h) resize();
+
+  resolveCatInteractions(dt);
   for (const cat of cats) updateCat(cat, dt, t);
+  updateSparks(dt);
 
   starsFar.rotation.y += dt * 0.004;
   starsNear.rotation.y -= dt * 0.006;
