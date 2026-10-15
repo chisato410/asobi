@@ -15,8 +15,11 @@ const SPAWN_RADIUS = BOUNDARY_RADIUS * 0.78;
 const AMBIENT_ACCEL = (REDUCED_MOTION ? 0.05 : 0.16) * 0.6;
 const MAX_DRIFT_SPEED = (REDUCED_MOTION ? 0.18 : 0.42);
 const DAMPING = 0.35;
-const SPIN_DAMPING = 0.5;
+// 弾いた/放り投げた「勢い」の減衰速度(1/秒)。小さいほど長く滑る。
+const INERTIA_DECAY = REDUCED_MOTION ? 1.4 : 0.6;
+const SPIN_DAMPING = 0.3;
 const BOUNDARY_STRENGTH = 1.1;
+const BOUNDARY_DRAG = 1.8;
 const SEPARATION_DIST = 1.15;
 const SEPARATION_STRENGTH = 1.6;
 
@@ -747,12 +750,20 @@ function updateCat(cat, dt, t) {
       const pull = (dist - BOUNDARY_RADIUS) * BOUNDARY_STRENGTH;
       tmpOffset.normalize();
       cat.velocity.addScaledVector(tmpOffset, -pull * dt);
+      // 勢いのある猫が境界を大きく突き抜けないよう、外側では抵抗をかけて柔らかい壁にする
+      cat.velocity.multiplyScalar(Math.exp(-BOUNDARY_DRAG * dt));
     }
 
+    // 慣性: ふだんの漂い速度(MAX_DRIFT_SPEED)を超えた「勢い」の分だけを
+    // ゆっくり減衰させる。以前は毎フレーム MAX_DRIFT_SPEED へ強制クランプしていて、
+    // タップや放り投げの勢いが一瞬で消えていた。
     const speed = cat.velocity.length();
-    const speedCap = cat.longPressed ? MAX_DRIFT_SPEED * 1.6 : MAX_DRIFT_SPEED;
-    if (speed > speedCap) cat.velocity.multiplyScalar(speedCap / speed);
-    cat.velocity.multiplyScalar(Math.max(0, 1 - DAMPING * dt));
+    if (speed > MAX_DRIFT_SPEED) {
+      const excess = (speed - MAX_DRIFT_SPEED) * Math.exp(-INERTIA_DECAY * dt);
+      cat.velocity.setLength(MAX_DRIFT_SPEED + excess);
+    } else {
+      cat.velocity.multiplyScalar(Math.max(0, 1 - DAMPING * dt));
+    }
 
     cat.root.position.addScaledVector(cat.velocity, dt);
 
