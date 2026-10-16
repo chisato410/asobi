@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="猫のサインを読んで、ぷいっの手前でなでる手を離す。30秒のなでなでチキンレース。" />
+    <link rel="canonical" href="https://asobi-gorogoro.vercel.app/" />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://asobi-gorogoro.vercel.app/" />
+    <meta property="og:site_name" content="asobi" />
+    <meta property="og:locale" content="ja_JP" />
+    <meta property="og:title" content="ごろごろ限界｜ぷいっの手前まで、なでてみよう。" />
+    <meta property="og:description" content="長押しでなでて、ぴくぴくしたら手を離す。10/16グローバルキャットデーにあそぶ、30秒のなでなでチキンレース。" />
+    <meta property="og:image" content="https://asobi-gorogoro.vercel.app/og-image.png" />
+    <meta property="og:image:secure_url" content="https://asobi-gorogoro.vercel.app/og-image.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:type" content="image/png" />
+    <meta property="og:image:alt" content="ごろごろゲージを前に、灰色のしまねこ、オレンジのまるねこ、白いふわふわの猫が並ぶイラスト" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="ごろごろ限界｜ぷいっの手前まで、なでてみよう。" />
+    <meta name="twitter:description" content="長押しでなでて、ぴくぴくしたら手を離す。30秒のなでなでチキンレース。" />
+    <meta name="twitter:image" content="https://asobi-gorogoro.vercel.app/og-image.png" />
+    <meta name="twitter:image:alt" content="ごろごろゲージを前に、灰色のしまねこ、オレンジのまるねこ、白いふわふわの猫が並ぶイラスト" />
+    <meta name="theme-color" content="#f7ebd4" />
+    <link rel="icon" type="image/svg+xml" href="./assets/paw.svg" />
+    <title>ごろごろ限界｜なでなでチキンレース</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@500;700;800&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="page-shell">
+      <header class="site-header">
+        <a class="brand" href="./" aria-label="ごろごろ限界 トップ">
+          <span>
+            <strong class="asobi-logo">asobi<i aria-hidden="true">●</i></strong>
+            <small>ごろごろ限界</small>
+          </span>
+        </a>
+        <div class="sound-tools">
+          <button class="sound-button" id="soundButton" type="button" aria-pressed="true">
+            <span aria-hidden="true">♪</span><span id="soundLabel">音あり</span>
+          </button>
+          <label class="volume-control" for="volumeControl">
+            <span>音量</span>
+            <input id="volumeControl" type="range" min="0" max="100" value="70" step="1" aria-label="音量" />
+            <output id="volumeValue" for="volumeControl">70%</output>
+          </label>
+        </div>
+      </header>
+
+      <main>
+        <section class="game-stage" aria-labelledby="pageTitle">
+          <div class="intro">
+            <p class="category-label"><span aria-hidden="true">✦</span> <span id="dayText">10/16はグローバルキャットデー</span></p>
+            <h1 id="pageTitle"><span>ごろごろ、</span><span>ぷいっの手前まで。</span></h1>
+            <p>猫を長押しでなでて、ごろごろゲージをためよう。<br />ぴくぴくしたら「ぷいっ」の合図。その前に、そっと手を離して。</p>
+
+            <div class="mini-guide" aria-label="遊び方">
+              <span><b>1</b> 長押しでなでる</span>
+              <span><b>2</b> ぴくぴくで離す</span>
+              <span><b>3</b> 30秒で点をためる</span>
+            </div>
+            <p class="best-line" id="bestLine" hidden>ベストスコア <strong id="bestValue">0</strong> 点</p>
+          </div>
+
+          <div class="pet-machine" id="petMachine" data-phase="idle">
+            <div class="score-row">
+              <div><span>のこり</span><strong id="timeValue">30.0</strong><small>秒</small></div>
+              <div><span aria-hidden="true">★</span><strong id="scoreValue">0</strong><small>点</small></div>
+              <div><span class="hud-paw" aria-hidden="true"><img src="./assets/paw.svg" alt="" /></span><strong id="happyValue">0</strong><small>ごきげん</small></div>
+            </div>
+
+            <div
+              class="pet-pad"
+              id="petPad"
+              tabindex="0"
+              role="button"
+              aria-label="猫をなでる。長押しでなでて、ぴくぴくしたら離します。キーボードはスペースキー。"
+            >
+              <div class="pad-rug" aria-hidden="true"></div>
+              <div class="cat-tag" id="catTag" aria-hidden="true"><b id="catName">しまねこ</b><small id="catTrait">ツンデレ</small></div>
+              <div class="cat-wrap">
+                <div class="cat-figure" id="catFigure">
+                  <img class="cat-sprite" id="catSprite" src="./assets/cat-shimaneko.png" alt="" draggable="false" />
+                  <span class="tell-mark" aria-hidden="true">!</span>
+                  <span class="twitch-lines" aria-hidden="true"><i></i><i></i><i></i></span>
+                </div>
+                <span class="huff-stamp" aria-hidden="true">ぷいっ!</span>
+              </div>
+              <div class="floaters" id="floaters" aria-hidden="true"></div>
+              <img class="hand" id="hand" src="./assets/paw.svg" alt="" aria-hidden="true" draggable="false" />
+              <p class="pad-hint" id="padHint" aria-hidden="true">はじめるを押してね</p>
+            </div>
+
+            <div class="gauge-row" aria-hidden="true">
+              <span class="gauge-label">ごろごろ</span>
+              <div class="gauge" id="gauge">
+                <span class="gauge-fill" id="gaugeFill"></span>
+                <span class="gauge-mark"><small>ごきげん</small></span>
+              </div>
+              <strong class="gauge-value" id="gaugeValue">0</strong>
+            </div>
+            <p class="status-line" id="statusLine" role="status" aria-live="polite">猫を長押しでなでます。ぴくぴくしたら、手を離して。</p>
+
+            <button class="start-button" id="startButton" type="button">
+              <img class="button-paw" src="./assets/paw.svg" alt="" aria-hidden="true" />
+              <span>30秒ではじめる</span>
+            </button>
+          </div>
+        </section>
+
+        <section class="cat-note" aria-labelledby="noteTitle">
+          <header class="note-heading">
+            <span class="note-mark" aria-hidden="true">猫</span>
+            <div><small>それぞれ、なでられ方がちがう</small><h2 id="noteTitle">あそびにくるねこ</h2></div>
+            <strong class="memo-count">5匹</strong>
+          </header>
+          <ul class="note-list" id="noteList"></ul>
+        </section>
+      </main>
+
+      <footer>
+        <p>猫のきもちは、猫だけが知っています。ほんとうの猫も、嫌がるサインが出たら、そっとやめてあげてください。</p>
+        <p class="fine-print">10/16は、世界中の猫のためのグローバルキャットデーです。</p>
+      </footer>
+    </div>
+
+    <dialog class="result-dialog" id="resultDialog" aria-labelledby="resultTitle">
+      <div class="result-cat" aria-hidden="true"><span>˶ᵔ ᵕ ᵔ˶</span></div>
+      <p class="result-kicker" id="resultKicker">30秒、おつかれさまでした</p>
+      <p class="result-rank" id="resultRank">ねこ見習い</p>
+      <h2 id="resultTitle"><strong id="resultHappy">0</strong>匹を<br />ごきげんにしました。</h2>
+      <dl>
+        <div><dt>スコア</dt><dd id="resultScore">0</dd></div>
+        <div><dt>ぷいっ</dt><dd id="resultHuff">0</dd></div>
+        <div><dt>ギリギリ</dt><dd id="resultClose">0</dd></div>
+      </dl>
+      <p class="result-best" id="resultBest" hidden></p>
+      <div class="share-panel">
+        <p>結果をシェア</p>
+        <div class="share-buttons">
+          <button id="shareImageButton" type="button" disabled><span aria-hidden="true">▧</span>画像付きでXへ共有</button>
+          <button id="shareLinkButton" type="button"><span aria-hidden="true">𝕏</span>リンクだけXに投稿</button>
+        </div>
+        <p class="share-status" id="shareStatus" role="status">共有画像を準備しています…</p>
+      </div>
+      <div class="result-actions">
+        <button id="retryButton" type="button">もう一度あそぶ</button>
+        <button id="closeButton" type="button">閉じる</button>
+      </div>
+    </dialog>
+
+    <script src="./script.js"></script>
+  </body>
+</html>
