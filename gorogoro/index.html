@@ -3,14 +3,14 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="猫のサインを読んで、ぷいっの手前でなでる手を離す。30秒のなでなでチキンレース。" />
+    <meta name="description" content="「!」が出たら、ぷいっの手前でなでる手を離す。ギリギリほど高得点の、30秒のなでなでチキンレース。" />
     <link rel="canonical" href="https://asobi-gorogoro.vercel.app/" />
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://asobi-gorogoro.vercel.app/" />
     <meta property="og:site_name" content="asobi" />
     <meta property="og:locale" content="ja_JP" />
     <meta property="og:title" content="ごろごろ限界｜ぷいっの手前まで、なでてみよう。" />
-    <meta property="og:description" content="長押しでなでて、ぴくぴくしたら手を離す。10/16グローバルキャットデーにあそぶ、30秒のなでなでチキンレース。" />
+    <meta property="og:description" content="長押しでなでて、「!」が出たらぷいっの前に離す。10/16グローバルキャットデーにあそぶ、30秒のなでなでチキンレース。" />
     <meta property="og:image" content="https://asobi-gorogoro.vercel.app/og-image.png" />
     <meta property="og:image:secure_url" content="https://asobi-gorogoro.vercel.app/og-image.png" />
     <meta property="og:image:width" content="1200" />
@@ -19,7 +19,7 @@
     <meta property="og:image:alt" content="ごろごろゲージを前に、灰色のしまねこ、オレンジのまるねこ、白いふわふわの猫が並ぶイラスト" />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="ごろごろ限界｜ぷいっの手前まで、なでてみよう。" />
-    <meta name="twitter:description" content="長押しでなでて、ぴくぴくしたら手を離す。30秒のなでなでチキンレース。" />
+    <meta name="twitter:description" content="長押しでなでて、「!」が出たらぷいっの前に離す。30秒のなでなでチキンレース。" />
     <meta name="twitter:image" content="https://asobi-gorogoro.vercel.app/og-image.png" />
     <meta name="twitter:image:alt" content="ごろごろゲージを前に、灰色のしまねこ、オレンジのまるねこ、白いふわふわの猫が並ぶイラスト" />
     <meta name="theme-color" content="#f7ebd4" />
@@ -56,21 +56,21 @@
           <div class="intro">
             <p class="category-label"><span aria-hidden="true">✦</span> <span id="dayText">10/16はグローバルキャットデー</span></p>
             <h1 id="pageTitle"><span>ごろごろ、</span><span>ぷいっの手前まで。</span></h1>
-            <p>猫を長押しでなでて、ごろごろゲージをためよう。<br />ぴくぴくしたら「ぷいっ」の合図。その前に、そっと手を離して。</p>
+            <p>猫を長押しでなでて、ごろごろゲージをためよう。<br />「!」はぷいっの合図。遅く離すほど高得点、でも遅すぎると0点。</p>
 
             <div class="mini-guide" aria-label="遊び方">
               <span><b>1</b> 長押しでなでる</span>
-              <span><b>2</b> ぴくぴくで離す</span>
-              <span><b>3</b> 30秒で点をためる</span>
+              <span><b>2</b> 「!」が出たら、ギリギリで離す</span>
+              <span><b>3</b> コンボで点をのばす</span>
             </div>
             <p class="best-line" id="bestLine" hidden>ベストスコア <strong id="bestValue">0</strong> 点</p>
           </div>
 
           <div class="pet-machine" id="petMachine" data-phase="idle">
             <div class="score-row">
-              <div><span>のこり</span><strong id="timeValue">30.0</strong><small>秒</small></div>
+              <div id="timeTile"><span>のこり</span><strong id="timeValue">30.0</strong><small>秒</small></div>
               <div><span aria-hidden="true">★</span><strong id="scoreValue">0</strong><small>点</small></div>
-              <div><span class="hud-paw" aria-hidden="true"><img src="./assets/paw.svg" alt="" /></span><strong id="happyValue">0</strong><small>ごきげん</small></div>
+              <div id="comboTile"><span id="comboLabel">コンボ</span><strong id="comboValue">×1</strong></div>
             </div>
 
             <div
@@ -78,7 +78,7 @@
               id="petPad"
               tabindex="0"
               role="button"
-              aria-label="猫をなでる。長押しでなでて、ぴくぴくしたら離します。キーボードはスペースキー。"
+              aria-label="猫をなでる。長押しでなでて、「!」が出たらぷいっの前に離します。キーボードはスペースキー。"
             >
               <div class="pad-rug" aria-hidden="true"></div>
               <div class="cat-tag" id="catTag" aria-hidden="true"><b id="catName">しまねこ</b><small id="catTrait">ツンデレ</small></div>
@@ -99,11 +99,10 @@
               <span class="gauge-label">ごろごろ</span>
               <div class="gauge" id="gauge">
                 <span class="gauge-fill" id="gaugeFill"></span>
-                <span class="gauge-mark"><small>ごきげん</small></span>
               </div>
               <strong class="gauge-value" id="gaugeValue">0</strong>
             </div>
-            <p class="status-line" id="statusLine" role="status" aria-live="polite">猫を長押しでなでます。ぴくぴくしたら、手を離して。</p>
+            <p class="status-line" id="statusLine" role="status" aria-live="polite">猫を長押しでなでます。「!」が出たら、ぷいっの前に離して。</p>
 
             <button class="start-button" id="startButton" type="button">
               <img class="button-paw" src="./assets/paw.svg" alt="" aria-hidden="true" />
@@ -132,11 +131,12 @@
       <div class="result-cat" aria-hidden="true"><span>˶ᵔ ᵕ ᵔ˶</span></div>
       <p class="result-kicker" id="resultKicker">30秒、おつかれさまでした</p>
       <p class="result-rank" id="resultRank">ねこ見習い</p>
-      <h2 id="resultTitle"><strong id="resultHappy">0</strong>匹を<br />ごきげんにしました。</h2>
+      <h2 id="resultTitle"><strong id="resultPetted">0</strong>匹を<br />なでました。</h2>
       <dl>
         <div><dt>スコア</dt><dd id="resultScore">0</dd></div>
+        <div><dt>最大コンボ</dt><dd id="resultCombo">0</dd></div>
+        <div><dt>パーフェクト</dt><dd id="resultPerfect">0</dd></div>
         <div><dt>ぷいっ</dt><dd id="resultHuff">0</dd></div>
-        <div><dt>ギリギリ</dt><dd id="resultClose">0</dd></div>
       </dl>
       <p class="result-best" id="resultBest" hidden></p>
       <div class="share-panel">

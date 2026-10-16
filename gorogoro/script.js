@@ -2,55 +2,72 @@
 
 const PUBLIC_URL = "https://asobi-gorogoro.vercel.app/";
 const GAME_SECONDS = 30;
-const HAPPY_MIN = 40;
 const POKE_MAX = 8;
-const CLOSE_BONUS = 35;
-const MAX_BONUS = 40;
+const BASE_WEIGHT = 0.6;
+const BONUS_MAX = 150;
+const MAX_BONUS = 80;
+const PERFECT_RATIO = 0.88;
+const HUFF_PENALTY = 1.5;
+const COMBO_STEP = 0.1;
+const COMBO_CAP = 5;
+const RUSH_AT = 8;
+const RUSH_MULT = 1.5;
+const SHINY_CHANCE = 0.16;
+const SHINY_FROM_VISIT = 3;
+const SHINY_MAX = 2;
+const SHINY_MULT = 2.5;
 const ARRIVE_SECONDS = 0.42;
 const WANDER_SECONDS = 4.5;
 const BEST_KEY = "asobi:gorogoro:best";
 
-// fill: ごろごろが100までたまる秒数 / limit: ぷいっとなるゲージ値の幅(100以上ならぷいっなし)
-// warn: ぷいっの何秒前から「ぴくぴく」するか / mult: 点数の倍率 / fake: フェイントの確率
+// 猫ごとのごろごろの進み方(ゲージ0〜1の位置での速さの倍率)
+const CURVES = {
+  steady: () => 1,
+  excited: (t) => 0.65 + 0.95 * t,
+  sleepy: (t) => 0.4 + 1.0 * t,
+};
+
+// fill: ごろごろが100までたまる秒数の目安 / limit: ぷいっとなるゲージ値の幅(100以上ならぷいっなし)
+// warn: 「!」が出てからぷいっまでの秒数 / mult: 点数の倍率 / fake: 「!」なしでぴくっとするフェイントの確率
 const CATS = [
   {
     id: "shimaneko", name: "しまねこ", trait: "ツンデレ",
-    note: "ごろごろは速いけど、ぷいっも早い。うまくいけば高得点。",
+    note: "ごろごろは速め、「!」は短め。決めれば高得点。",
     src: "./assets/cat-shimaneko.png", alt: "灰色のしま模様で、目つきのするどいおすわりの猫",
-    fill: 2.3, limit: [36, 80], warn: 0.52, mult: 1.4,
+    fill: 2.3, limit: [36, 80], warn: 0.72, mult: 1.4, curve: "steady",
   },
   {
     id: "maruneko", name: "まるねこ", trait: "おおらか",
-    note: "なでさせてくれる時間が長め。ゆっくりごろごろ。",
+    note: "ぷいっが遠くて、MAXまでなでられることも。",
     src: "./assets/cat-maruneko.png", alt: "前足をそろえて丸くなる、オレンジのしま猫",
-    fill: 3.3, limit: [62, 120], warn: 0.68, mult: 1,
+    fill: 3.3, limit: [60, 125], warn: 1.0, mult: 1, curve: "steady",
   },
   {
     id: "mikeneko", name: "みけねこ", trait: "きまぐれ",
-    note: "ぴくっとしても、ぷいっとは限らない。フェイントに注意。",
+    note: "ぴくっとしても、「!」が出なければセーフ。",
     src: "./assets/cat-mikeneko.png", alt: "ふせて前を見つめる三毛猫",
-    fill: 2.8, limit: [30, 105], warn: 0.56, mult: 1.2, fake: 0.45,
+    fill: 2.8, limit: [30, 108], warn: 0.85, mult: 1.2, fake: 0.5, curve: "steady",
   },
   {
     id: "shirofuwa", name: "しろふわ", trait: "あまえんぼ",
-    note: "ごろごろが一気にたまる。そのぶん、合図は短め。",
+    note: "なでるほど、どんどん速くなる。「!」から一気に来る。",
     src: "./assets/cat-shirofuwa.png", alt: "両手両足を広げてよろこぶ、白いふわふわの猫",
-    fill: 1.8, limit: [38, 95], warn: 0.44, mult: 1.3,
+    fill: 2.4, limit: [38, 98], warn: 0.66, mult: 1.3, curve: "excited",
   },
   {
     id: "nobineko", name: "のびねこ", trait: "ねぼすけ",
-    note: "ゆっくりごろごろ。長くなでるほど、MAXが近づく。",
+    note: "最初はゆっくり、あとから加速。起きる前がねらい目。",
     src: "./assets/cat-nobineko.png", alt: "長いしっぽをたらして眠る、茶しまの猫",
-    fill: 4.4, limit: [72, 125], warn: 0.8, mult: 0.9,
+    fill: 4, limit: [66, 125], warn: 1.0, mult: 1.1, curve: "sleepy",
   },
 ];
 
 const RANKS = [
   { min: 0, label: "ねこ見習い" },
-  { min: 300, label: "ひざの上の常連" },
-  { min: 500, label: "ごろごろ名人" },
-  { min: 700, label: "ねこの気持ちがわかる人" },
-  { min: 850, label: "ごろごろマスター" },
+  { min: 800, label: "ひざの上の常連" },
+  { min: 1300, label: "ごろごろ名人" },
+  { min: 1900, label: "ねこの気持ちがわかる人" },
+  { min: 2500, label: "ごろごろマスター" },
 ];
 
 const $ = (selector) => document.querySelector(selector);
@@ -59,14 +76,18 @@ const elements = {
   pad: $("#petPad"),
   figure: $("#catFigure"),
   sprite: $("#catSprite"),
+  tag: $("#catTag"),
   catName: $("#catName"),
   catTrait: $("#catTrait"),
   floaters: $("#floaters"),
   hand: $("#hand"),
   hint: $("#padHint"),
+  timeTile: $("#timeTile"),
   time: $("#timeValue"),
   score: $("#scoreValue"),
-  happy: $("#happyValue"),
+  comboTile: $("#comboTile"),
+  comboLabel: $("#comboLabel"),
+  combo: $("#comboValue"),
   gaugeFill: $("#gaugeFill"),
   gaugeValue: $("#gaugeValue"),
   status: $("#statusLine"),
@@ -82,10 +103,11 @@ const elements = {
   dialog: $("#resultDialog"),
   resultKicker: $("#resultKicker"),
   resultRank: $("#resultRank"),
-  resultHappy: $("#resultHappy"),
+  resultPetted: $("#resultPetted"),
   resultScore: $("#resultScore"),
+  resultCombo: $("#resultCombo"),
+  resultPerfect: $("#resultPerfect"),
   resultHuff: $("#resultHuff"),
-  resultClose: $("#resultClose"),
   resultBest: $("#resultBest"),
   shareImage: $("#shareImageButton"),
   shareLink: $("#shareLinkButton"),
@@ -100,10 +122,14 @@ const state = {
   phaseTime: 0,
   timeLeft: GAME_SECONDS,
   score: 0,
-  happy: 0,
+  petted: 0,
+  combo: 0,
+  bestCombo: 0,
+  perfect: 0,
   huff: 0,
-  close: 0,
   visits: 0,
+  shinies: 0,
+  rush: false,
   rank: RANKS[0].label,
   best: 0,
   visit: null,
@@ -118,6 +144,7 @@ let lastFrame = 0;
 let frameId = 0;
 let finishTimer = 0;
 let activePointer = null;
+let lastHint = "";
 const shareArt = new Image();
 const rand = (min, max) => min + Math.random() * (max - min);
 const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
@@ -128,7 +155,6 @@ const audio = (() => {
   let master = null;
   let noise = null;
   let purr = null;
-  let tickTimer = 0;
 
   function ensure() {
     if (!context) {
@@ -213,17 +239,6 @@ const audio = (() => {
     lfo.stop(now + 0.2);
   }
 
-  function tickStart() {
-    if (tickTimer) return;
-    tone(1040, 0, 0.05, 0.12, "triangle");
-    tickTimer = window.setInterval(() => tone(1040, 0, 0.05, 0.12, "triangle"), 140);
-  }
-
-  function tickStop() {
-    window.clearInterval(tickTimer);
-    tickTimer = 0;
-  }
-
   function huff() {
     const ctx = ensure();
     if (!ctx) return;
@@ -259,21 +274,20 @@ const audio = (() => {
     purrStart,
     purrUpdate,
     purrStop,
-    tickStart,
-    tickStop,
     huff,
+    // 「!」の間じゅう鳴る時計。ぷいっに近づくほど音が高く、間隔が短くなる
+    tick(ratio) { tone(820 + ratio * 760, 0, 0.05, 0.1 + ratio * 0.08, "triangle"); },
     start() { tone(523, 0, 0.14, 0.2); tone(659, 0.09, 0.2, 0.2); },
     poke() { tone(780, 0, 0.06, 0.12, "triangle"); },
-    release(gauge, close, max) {
-      if (gauge < HAPPY_MIN) {
-        tone(520, 0, 0.18, 0.18);
-      } else {
-        tone(620, 0, 0.18, 0.2);
-        tone(784, 0.08, 0.24, 0.2);
-      }
-      if (close) tone(1046, 0.18, 0.28, 0.16, "triangle");
+    release({ combo, perfect, max }) {
+      const lift = 1 + Math.min(combo, COMBO_CAP) * 0.06;
+      tone(620 * lift, 0, 0.18, 0.2);
+      tone(784 * lift, 0.08, 0.24, 0.2);
+      if (perfect) [1046, 1318, 1568].forEach((frequency, i) => tone(frequency, 0.16 + i * 0.07, 0.26, 0.15, "triangle"));
       if (max) [660, 830, 990, 1320].forEach((frequency, i) => tone(frequency, 0.1 + i * 0.09, 0.3, 0.18));
     },
+    sparkle() { [1175, 1480, 1760, 2349].forEach((frequency, i) => tone(frequency, i * 0.07, 0.3, 0.11, "triangle")); },
+    rush() { [392, 523, 659, 784].forEach((frequency, i) => tone(frequency, i * 0.08, 0.22, 0.17, "square")); },
     finish() { [523, 659, 784].forEach((frequency, i) => tone(frequency, i * 0.12, 0.3, 0.2)); },
   };
 })();
@@ -288,17 +302,23 @@ function setStatus(message) {
 }
 
 function setHint(message) {
+  if (message === lastHint) return;
+  lastHint = message;
   elements.hint.textContent = message;
 }
 
 function setPhase(phase) {
   state.phase = phase;
   state.phaseTime = 0;
-  const { machine, hand } = elements;
+  const { machine, hand, figure } = elements;
   machine.dataset.phase = phase;
   const petting = phase === "petting" || phase === "tell";
   machine.classList.toggle("is-petting", petting);
   hand.classList.toggle("is-stroking", petting);
+  if (!petting) {
+    machine.classList.remove("is-twitch");
+    figure.style.setProperty("--tell", "0");
+  }
   if (phase !== "happy") machine.classList.remove("is-max");
 }
 
@@ -315,7 +335,7 @@ function spawnFloater(content, className, x, y, sub = "") {
     node.append(small);
   }
   elements.floaters.append(node);
-  window.setTimeout(() => node.remove(), 1500);
+  window.setTimeout(() => node.remove(), 1600);
 }
 
 function padCenter() {
@@ -328,59 +348,156 @@ function spawnHeart() {
   spawnFloater(glyph, "is-heart", x + rand(-80, 80), y + rand(-50, 10));
 }
 
+function burst(glyph, count) {
+  const { x, y } = padCenter();
+  for (let i = 0; i < count; i += 1) spawnFloater(glyph, "is-heart is-star", x + rand(-120, 120), y + rand(-80, 30));
+}
+
+function comboMultiplier() {
+  return 1 + COMBO_STEP * Math.min(state.combo, COMBO_CAP);
+}
+
+function formatMultiplier(value) {
+  return `×${value.toFixed(2).replace(/0$/, "").replace(/\.0$/, "")}`;
+}
+
 function render() {
   const visit = state.visit;
   const gauge = visit ? clamp(visit.gauge, 0, 100) : 0;
   elements.time.textContent = state.timeLeft.toFixed(1);
   elements.score.textContent = state.score.toLocaleString("ja-JP");
-  elements.happy.textContent = state.happy;
+  elements.combo.textContent = formatMultiplier(comboMultiplier());
+  elements.comboLabel.textContent = state.combo > 0 ? `コンボ ${state.combo}` : "コンボ";
+  elements.comboTile.classList.toggle("is-hot", state.combo >= 3);
   elements.gaugeFill.style.width = `${gauge}%`;
   elements.gaugeValue.textContent = Math.floor(gauge);
 }
 
-/* ---------- ゲーム進行 ---------- */
+/* ---------- 猫と点数 ---------- */
+function rateAt(visit, gauge) {
+  return visit.rate * CURVES[visit.cat.curve](clamp(gauge / 100, 0, 1));
+}
+
+// ゲージを from から to まで進めるのにかかる秒数
+function timeBetween(visit, from, to) {
+  let seconds = 0;
+  let gauge = from;
+  while (gauge < to) {
+    const step = Math.min(0.5, to - gauge);
+    seconds += step / rateAt(visit, gauge + step / 2);
+    gauge += step;
+  }
+  return seconds;
+}
+
+// 難しさは、時間が進むほど少しずつ上がる(「!」の長さが最大22%短くなる)
+function warnRamp() {
+  return 1 - 0.22 * (1 - state.timeLeft / GAME_SECONDS);
+}
+
+function makeVisit(cat, { first = false, shiny = false } = {}) {
+  const rate = 100 / cat.fill;
+  let limit = rand(cat.limit[0], cat.limit[1]);
+  let warn = cat.warn * warnRamp();
+  let mult = cat.mult;
+  if (first) {
+    // 最初の1匹は、「!」がはっきり出る教える役
+    limit = rand(62, 82);
+    warn = 1.15;
+  }
+  if (shiny) {
+    limit = rand(46, 86);
+    warn *= 0.78;
+    mult *= SHINY_MULT;
+  }
+
+  const visit = {
+    cat, rate, mult, shiny,
+    gauge: 0,
+    limit: limit >= 100 ? Infinity : limit,
+    warnAt: Infinity,
+    warnTime: 0,
+    tellElapsed: 0,
+    tickIn: 0,
+    fake: null,
+    fakeLeft: 0,
+    patient: first,
+    holdTime: 0.6,
+  };
+
+  if (visit.limit !== Infinity) {
+    let gauge = visit.limit;
+    let seconds = 0;
+    while (gauge > 14 && seconds < warn) {
+      seconds += 0.5 / rateAt(visit, gauge - 0.25);
+      gauge -= 0.5;
+    }
+    visit.warnAt = gauge;
+    visit.warnTime = seconds;
+  }
+
+  if (cat.fake && !first && !shiny && Math.random() < cat.fake) {
+    const duration = rand(0.45, 0.65);
+    const last = Math.min(visit.warnAt, 96) - 8;
+    for (let attempt = 0; attempt < 6; attempt += 1) {
+      const at = rand(16, Math.max(17, last));
+      if (at < last && timeBetween(visit, at, Math.min(visit.warnAt, 100)) > duration + 0.35) {
+        visit.fake = { at, duration, done: false };
+        break;
+      }
+    }
+  }
+  return visit;
+}
+
+function tellRatio(visit) {
+  return visit.warnTime > 0 ? clamp(visit.tellElapsed / visit.warnTime, 0, 1) : 0;
+}
+
+// 「!」が出てから離すのが遅いほど、ボーナスが大きくなる
+function pointsFor(visit, gauge, ratio, max = false) {
+  const raw = gauge * BASE_WEIGHT + BONUS_MAX * ratio ** 2 + (max ? MAX_BONUS : 0);
+  return Math.round(raw * visit.mult * comboMultiplier() * (state.rush ? RUSH_MULT : 1));
+}
+
 function pickCat() {
   const pool = CATS.filter((cat) => cat.id !== state.lastCatId);
   return pool[Math.floor(Math.random() * pool.length)];
 }
 
-function makeVisit(cat) {
-  const rate = 100 / cat.fill;
-  const limit = rand(cat.limit[0], cat.limit[1]);
-  const protectedFromHuff = limit >= 100;
-  const warnAt = protectedFromHuff ? Infinity : Math.max(14, limit - rate * cat.warn * rand(0.8, 1.2));
-  let fake = null;
-  if (cat.fake && Math.random() < cat.fake) {
-    const latest = Math.min(warnAt, 96) - rate * 1.2;
-    if (latest > 24) fake = { at: rand(16, latest), duration: rand(0.45, 0.65), done: false };
-  }
-  return {
-    cat, rate, limit, warnAt, fake,
-    gauge: 0,
-    fakeLeft: 0,
-    realTell: false,
-    patient: state.visits === 0,
-    heartScale: 0,
-  };
-}
-
+/* ---------- ゲーム進行 ---------- */
 function startVisit() {
-  const cat = pickCat();
+  let visit;
+  if (state.visits === 0) {
+    visit = makeVisit(CATS.find((cat) => cat.id === "maruneko"), { first: true });
+  } else {
+    const shiny = state.visits >= SHINY_FROM_VISIT && state.shinies < SHINY_MAX && Math.random() < SHINY_CHANCE;
+    visit = makeVisit(pickCat(), { shiny });
+  }
+  const { cat } = visit;
+  if (visit.shiny) state.shinies += 1;
   state.lastCatId = cat.id;
-  state.visit = makeVisit(cat);
+  state.visit = visit;
   state.visits += 1;
   elements.sprite.src = cat.src;
   elements.sprite.classList.toggle("is-flip", Math.random() < 0.5);
-  elements.catName.textContent = cat.name;
-  elements.catTrait.textContent = cat.trait;
-  setHint(state.visits === 1 ? "長押しでなでる(ぴくぴくしたら離す)" : "長押しでなでる");
+  elements.sprite.classList.toggle("is-shiny", visit.shiny);
+  elements.tag.classList.toggle("is-shiny", visit.shiny);
+  elements.catName.textContent = visit.shiny ? `ひかる${cat.name}` : cat.name;
+  elements.catTrait.textContent = visit.shiny ? `ごほうび${formatMultiplier(SHINY_MULT)}` : cat.trait;
+  setHint(state.visits === 1 ? "長押しでなでる。「!」が出たら離す" : "長押しでなでる");
   setPhase("arriving");
+  if (visit.shiny) {
+    audio.sparkle();
+    burst("✦", 6);
+    setStatus(`ひかる${cat.name}があらわれた! 点数${formatMultiplier(SHINY_MULT)}。ぷいっも早いよ。`);
+  }
   render();
 }
 
 function beginPetting() {
   state.visit.gauge = 0;
-  state.visit.heartScale = 0;
+  state.visit.tellElapsed = 0;
   state.heartTimer = 0;
   setPhase("petting");
   setHint("そのまま、ごろごろ…");
@@ -388,48 +505,58 @@ function beginPetting() {
   audio.purrUpdate(0, false);
 }
 
-function reactionLabel(gauge, max) {
-  if (max) return "ごろごろMAX!";
-  if (gauge < HAPPY_MIN) return "まだ足りない";
-  if (gauge < 70) return "ごきげん";
-  return "ごろごろ♪";
+function marginText(visit, max) {
+  if (max) return "";
+  if (visit.limit === Infinity) return "この子は、まだまだ余裕だった。";
+  const seconds = timeBetween(visit, clamp(visit.gauge, 0, visit.limit), visit.limit);
+  return `あと${seconds.toFixed(2)}秒でぷいっ!だった。`;
 }
 
 function settle(max = false) {
   const visit = state.visit;
   const gauge = max ? 100 : clamp(Math.floor(visit.gauge), 0, 100);
-  const close = visit.realTell && !max;
-  let points = Math.round(gauge * visit.cat.mult);
-  if (close) { points += CLOSE_BONUS; state.close += 1; }
-  if (max) points += MAX_BONUS;
-  state.score += points;
-  if (gauge >= HAPPY_MIN) state.happy += 1;
+  const ratio = max ? 0 : tellRatio(visit);
+  const points = pointsFor(visit, gauge, ratio, max);
+  const perfect = ratio >= PERFECT_RATIO;
+  const margin = marginText(visit, max);
 
-  const label = reactionLabel(gauge, max);
-  const tag = max ? label : close ? "ギリギリ!" : label;
+  state.score += points;
+  state.petted += 1;
+  state.combo += perfect ? 2 : 1;
+  state.bestCombo = Math.max(state.bestCombo, state.combo);
+  if (perfect) state.perfect += 1;
+
+  let tag = "そっと";
+  if (max) tag = "ごろごろMAX!";
+  else if (perfect) tag = "パーフェクト!";
+  else if (ratio >= 0.5) tag = "ギリギリ!";
+  else if (ratio > 0) tag = "ひやっ";
+
   const { x, y } = padCenter();
-  spawnFloater(`+${points}`, "is-score", x, y - 36, tag);
-  setStatus(`${visit.cat.name}は「${label}」。+${points}点${close ? "(ギリギリ!)" : ""}`);
-  setHint(label);
-  visit.holdTime = max ? 0.95 : 0.75;
-  elements.machine.classList.toggle("is-max", max);
+  spawnFloater(`+${points}`, `is-score${perfect || max ? " is-big" : ""}`, x, y - 36, tag);
+  setStatus(`${visit.cat.name}をなでた。+${points}点。${margin}`);
+  setHint(tag);
+  visit.holdTime = max || perfect ? 0.8 : 0.6;
+  elements.machine.classList.toggle("is-max", max || perfect);
   setPhase("happy");
-  audio.tickStop();
   audio.purrStop();
-  audio.release(gauge, close, max);
-  vibrate(max ? [20, 40, 20, 40, 30] : 18);
-  if (max) for (let i = 0; i < 6; i += 1) spawnFloater("✦", "is-heart", x + rand(-110, 110), y + rand(-70, 20));
+  audio.release({ combo: state.combo, perfect, max });
+  vibrate(max || perfect ? [20, 40, 20, 40, 30] : 18);
+  if (max || perfect) burst("✦", 6);
 }
 
 function huffNow() {
   const visit = state.visit;
   state.huff += 1;
-  setStatus(`${visit.cat.name}に、ぷいっ!とされた…。0点`);
+  state.combo = 0;
+  state.timeLeft = Math.max(0, state.timeLeft - HUFF_PENALTY);
+  setStatus(`${visit.cat.name}に、ぷいっ!とされた…。0点、${HUFF_PENALTY}秒ロス。`);
   setHint("ぷいっ!");
   const { x, y } = padCenter();
-  spawnFloater("+0", "is-score is-miss", x, y - 36);
+  spawnFloater("+0", "is-score is-miss", x, y - 36, `-${HUFF_PENALTY}秒`);
+  elements.timeTile.classList.add("is-hit");
+  window.setTimeout(() => elements.timeTile.classList.remove("is-hit"), 600);
   setPhase("huff");
-  audio.tickStop();
   audio.purrStop();
   audio.huff();
   vibrate([40, 30, 40]);
@@ -437,12 +564,11 @@ function huffNow() {
 
 function endPetting() {
   const visit = state.visit;
-  audio.tickStop();
   if (visit.gauge < POKE_MAX) {
     audio.purrStop();
     audio.poke();
     visit.gauge = 0;
-    visit.realTell = false;
+    visit.tellElapsed = 0;
     visit.fakeLeft = 0;
     setPhase("waiting");
     setHint("長押しでなでる");
@@ -455,47 +581,58 @@ function endPetting() {
 
 function updatePetting(dt) {
   const visit = state.visit;
-  visit.gauge += visit.rate * dt;
+  visit.gauge = Math.min(100, visit.gauge + rateAt(visit, visit.gauge) * dt);
 
   if (visit.fake && !visit.fake.done && visit.gauge >= visit.fake.at) {
     visit.fake.done = true;
     visit.fakeLeft = visit.fake.duration;
   }
-  const faking = visit.fakeLeft > 0;
-  if (faking) visit.fakeLeft -= dt;
-  visit.realTell = visit.gauge >= visit.warnAt;
-  const tell = visit.realTell || faking;
+  const twitching = visit.fakeLeft > 0;
+  if (twitching) visit.fakeLeft -= dt;
 
-  if (tell && state.phase === "petting") {
+  const realTell = visit.gauge >= visit.warnAt;
+  if (realTell) visit.tellElapsed += dt;
+  const ratio = tellRatio(visit);
+
+  if (realTell && state.phase === "petting") {
     setPhase("tell");
-    setHint("いま離して!");
-    setStatus("ぴくぴく…! 離して!");
-    audio.tickStart();
+    setStatus("「!」が出た! 遅く離すほど高得点。でも、ぷいっの前に。");
     vibrate(12);
-  } else if (!tell && state.phase === "tell") {
-    setPhase("petting");
-    setHint("そのまま、ごろごろ…");
-    audio.tickStop();
-    if (faking === false && visit.fake?.done) setStatus("いまのはフェイント。まだ大丈夫。");
   }
+  elements.machine.classList.toggle("is-twitch", twitching && !realTell);
+  elements.figure.style.setProperty("--tell", (realTell ? 0.4 + 0.6 * ratio : twitching ? 0.3 : 0).toFixed(2));
 
-  audio.purrUpdate(visit.gauge, tell);
+  if (realTell) {
+    setHint(`いま離すと +${pointsFor(visit, Math.floor(visit.gauge), ratio)}`);
+    visit.tickIn -= dt;
+    if (visit.tickIn <= 0) {
+      audio.tick(ratio);
+      visit.tickIn = 0.22 - 0.16 * ratio;
+    }
+  }
+  audio.purrUpdate(visit.gauge, realTell);
 
-  if (visit.realTell && visit.gauge >= visit.limit) {
+  if (realTell && visit.gauge >= visit.limit) {
     huffNow();
     return;
   }
   if (visit.gauge >= 100) {
-    visit.gauge = 100;
     settle(true);
     return;
   }
 
   state.heartTimer -= dt;
-  if (!tell && state.heartTimer <= 0) {
+  if (!realTell && state.heartTimer <= 0) {
     spawnHeart();
     state.heartTimer = 0.55 - 0.4 * clamp(visit.gauge / 100, 0, 1);
   }
+}
+
+function enterRush() {
+  state.rush = true;
+  elements.machine.classList.add("is-rush");
+  audio.rush();
+  spawnFloater(`ラストスパート! ${formatMultiplier(RUSH_MULT)}`, "is-banner", elements.pad.clientWidth / 2, 62);
 }
 
 function tick(dt) {
@@ -534,6 +671,7 @@ function tick(dt) {
       break;
   }
 
+  if (!state.rush && state.timeLeft <= RUSH_AT && state.timeLeft > 0) enterRush();
   if (state.timeLeft <= 0) {
     finishGame();
     return;
@@ -582,12 +720,15 @@ function startGame() {
   Object.assign(state, {
     running: true,
     timeLeft: GAME_SECONDS,
-    score: 0, happy: 0, huff: 0, close: 0, visits: 0,
+    score: 0, petted: 0, combo: 0, bestCombo: 0, perfect: 0, huff: 0,
+    visits: 0, shinies: 0, rush: false,
     visit: null, lastCatId: "",
   });
+  lastHint = "";
   elements.floaters.replaceChildren();
+  elements.machine.classList.remove("is-rush");
   elements.machine.classList.add("is-playing");
-  setStatus("猫を長押しでなでます。ぴくぴくしたら、手を離して。");
+  setStatus("猫を長押しでなでます。「!」が出たら、ぷいっの前に離して。");
   audio.start();
   startVisit();
   elements.pad.focus({ preventScroll: true });
@@ -599,14 +740,10 @@ function finishGame() {
   state.running = false;
   cancelAnimationFrame(frameId);
   holds.clear();
-  if (state.phase === "petting" || state.phase === "tell") {
-    if (state.visit.gauge >= POKE_MAX) settle(false);
-    else { audio.tickStop(); audio.purrStop(); }
-  }
-  audio.tickStop();
+  if ((state.phase === "petting" || state.phase === "tell") && state.visit.gauge >= POKE_MAX) settle(false);
   audio.purrStop();
   render();
-  elements.machine.classList.remove("is-playing");
+  elements.machine.classList.remove("is-playing", "is-rush");
   elements.hand.classList.remove("is-on");
   setPhase("over");
   setHint("おつかれさま");
@@ -623,10 +760,11 @@ function showResult() {
   showBest();
   elements.resultKicker.textContent = `${GAME_SECONDS}秒、おつかれさまでした`;
   elements.resultRank.textContent = state.rank;
-  elements.resultHappy.textContent = state.happy;
+  elements.resultPetted.textContent = state.petted;
   elements.resultScore.textContent = state.score.toLocaleString("ja-JP");
+  elements.resultCombo.textContent = state.bestCombo;
+  elements.resultPerfect.textContent = state.perfect;
   elements.resultHuff.textContent = state.huff;
-  elements.resultClose.textContent = state.close;
   elements.resultBest.hidden = state.score <= 0;
   elements.resultBest.replaceChildren();
   if (isNewBest && state.score > 0) {
@@ -849,10 +987,10 @@ async function createShareCard() {
 
   context.fillStyle = "#e88724";
   context.font = '800 76px "M PLUS Rounded 1c", "Hiragino Sans", sans-serif';
-  context.fillText(`${state.happy}匹`, 98, 283);
+  context.fillText(`${state.petted}匹`, 98, 283);
   context.fillStyle = "#30281f";
   context.font = '800 34px "M PLUS Rounded 1c", "Hiragino Sans", sans-serif';
-  context.fillText("をごきげんにしました。", 104, 338);
+  context.fillText("をなでました。", 104, 338);
 
   context.fillStyle = "#f2bd32";
   drawRoundedRect(context, 96, 379, 414, 68, 18);
@@ -866,18 +1004,19 @@ async function createShareCard() {
 
   context.fillStyle = "#65594e";
   context.font = '700 20px "Zen Kaku Gothic New", "Hiragino Sans", sans-serif';
-  context.fillText(`ぷいっ ${state.huff}回　ギリギリ ${state.close}回`, 104, 493);
+  context.fillText(`最大コンボ ${state.bestCombo}　パーフェクト ${state.perfect}回`, 104, 484);
+  context.fillText(`ぷいっ ${state.huff}回`, 104, 512);
   context.fillStyle = "#a86c49";
   context.font = '700 18px "Zen Kaku Gothic New", "Hiragino Sans", sans-serif';
-  context.fillText("#ごろごろ限界 #グローバルキャットデー", 104, 536);
+  context.fillText("#ごろごろ限界 #グローバルキャットデー", 104, 550);
 
   return canvasToFile(canvas, "gorogoro-result.png");
 }
 
 function resultShareText(includeUrl = false) {
   let text =
-    `ごろごろ限界で${state.happy}匹をごきげんにして、${state.score.toLocaleString("ja-JP")}点。「${state.rank}」\n` +
-    `ぷいっ ${state.huff}回 / ギリギリ ${state.close}回`;
+    `ごろごろ限界で${state.petted}匹をなでて、${state.score.toLocaleString("ja-JP")}点。「${state.rank}」\n` +
+    `最大コンボ ${state.bestCombo} / パーフェクト ${state.perfect}回 / ぷいっ ${state.huff}回`;
   if (includeUrl) text += `\n\n${PUBLIC_URL}`;
   text += "\n\n#ごろごろ限界 #グローバルキャットデー";
   return text;
