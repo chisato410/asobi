@@ -8,6 +8,11 @@ import { GLTFLoader } from "./assets/vendor/GLTFLoader.js";
 const REDUCED_MOTION = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 const IS_SMALL = window.innerWidth < 640;
 
+// ?saver: スクリーンセーバー用の表示モード。UIを隠して操作は受け付けず、
+// 猫が自分でぶつかり合いながら漂い続ける。バッテリー節約のため描画は約30fps。
+const SAVER_MODE = new URLSearchParams(location.search).has("saver");
+const SAVER_FRAME_MS = 32;
+
 const CAT_COUNT = IS_SMALL ? 8 : 14;
 const CAT_SCALE = 1.5;
 const AMBIENT_ACCEL = (REDUCED_MOTION ? 0.05 : 0.16) * 0.6;
@@ -28,8 +33,9 @@ const WALL_RESTITUTION = 0.85;
 const CAT_RESTITUTION = 0.85;
 const WALL_RADIUS = 0.5;
 const BODY_RADIUS = 0.4;
-// これ未満のそっと触れる程度の衝突では、演出(火花・ぷるん)は出さない
-const HIT_FX_MIN_SPEED = 0.35;
+// これ未満のそっと触れる程度の衝突では、演出(火花・ぷるん)は出さない。
+// セーバーモードは偶然の軽い接触では光らせず、勢いのある衝突だけを見せて落ち着いた画面にする。
+const HIT_FX_MIN_SPEED = SAVER_MODE ? 0.9 : 0.35;
 const HIT_FX_COOLDOWN = 0.3;
 const HALO_BASE = 0xfff2df;
 const HALO_FLASH = 0xffd08a;
@@ -784,13 +790,16 @@ function onPointerCancel(event) {
 
 const canvasEl = renderer.domElement;
 canvasEl.style.touchAction = "none";
-canvasEl.addEventListener("pointerdown", onPointerDown);
-window.addEventListener("pointermove", onPointerMove, { passive: false });
-window.addEventListener("pointerup", onPointerUp);
-window.addEventListener("pointercancel", onPointerCancel);
-window.addEventListener("blur", () => {
-  if (heldCat) releaseCat(0, 0, true);
-});
+// セーバーモードでは操作を受け付けない(入力があればセーバー側が終了する)
+if (!SAVER_MODE) {
+  canvasEl.addEventListener("pointerdown", onPointerDown);
+  window.addEventListener("pointermove", onPointerMove, { passive: false });
+  window.addEventListener("pointerup", onPointerUp);
+  window.addEventListener("pointercancel", onPointerCancel);
+  window.addEventListener("blur", () => {
+    if (heldCat) releaseCat(0, 0, true);
+  });
+}
 
 // ---------------------------------------------------------------------------
 // あそびかたダイアログ
@@ -1017,14 +1026,56 @@ function updateCat(cat, dt, t) {
   cat.prevPos.copy(cat.root.position);
 }
 
+// ---- セーバーモード: 勝手に猫を弾く ----------------------------------------
+// 触れない代わりに、ときどき猫を「いちばん近い別の猫」へ向けて弾き、
+// 衝突の火花が見られるようにする(漂うだけだと、ぶつかる場面がほとんど出ない)。
+// 漂うのが主役なので、「ぽん」と起きるのは数秒〜十数秒に1回くらいに抑える
+const NUDGE_INTERVAL_MIN = 7;
+const NUDGE_INTERVAL_RANGE = 7;
+let nextNudgeAt = 3;
+
+function nudgeTowardNearestCat() {
+  const free = cats.filter((c) => c.state !== "held");
+  if (free.length < 2) return;
+  const a = free[Math.floor(Math.random() * free.length)];
+  let b = null;
+  let bestDist = Infinity;
+  for (const c of free) {
+    if (c === a) continue;
+    const d = c.root.position.distanceTo(a.root.position);
+    if (d < bestDist) {
+      bestDist = d;
+      b = c;
+    }
+  }
+  if (!b) return;
+  tmpNormal.copy(b.root.position).sub(a.root.position).normalize();
+  tmpNormal.x += (Math.random() - 0.5) * 0.2;
+  tmpNormal.y += (Math.random() - 0.5) * 0.2;
+  tmpNormal.normalize();
+  // 慣性で滑る距離が、相手までの距離にだいたい届く速さにする
+  const gap = Math.max(bestDist - (a.radius + b.radius), 0);
+  const speed = Math.min(MAX_FLING_SPEED, Math.max(1.0, MAX_DRIFT_SPEED + gap * INERTIA_DECAY * 1.3));
+  a.velocity.copy(tmpNormal).multiplyScalar(speed);
+  a.pulseTimer = 0.35;
+  kickSpin(a, 1.2);
+}
+
 function animate() {
   requestAnimationFrame(animate);
   const now = performance.now();
+  if (SAVER_MODE && now - lastTime < SAVER_FRAME_MS) return;
+  if (SAVER_MODE) window.__frames = (window.__frames || 0) + 1; // セーバーの診断用(実際に描画が回っているか)
   const dt = Math.min((now - lastTime) / 1000, 0.05);
   lastTime = now;
   const t = now / 1000;
 
   if (window.innerWidth !== appliedSize.w || window.innerHeight !== appliedSize.h) resize();
+
+  if (SAVER_MODE && t > nextNudgeAt) {
+    nudgeTowardNearestCat();
+    nextNudgeAt = t + NUDGE_INTERVAL_MIN + Math.random() * NUDGE_INTERVAL_RANGE;
+  }
 
   resolveCatInteractions(dt);
   for (const cat of cats) updateCat(cat, dt, t);

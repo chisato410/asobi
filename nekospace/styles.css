@@ -306,3 +306,12 @@ body {
     padding: 0 18px;
   }
 }
+
+/* ?saver: スクリーンセーバー用。UIを全部隠して、猫だけを見せる */
+html[data-mode="saver"] .app-shell {
+  display: none;
+}
+
+html[data-mode="saver"] body {
+  cursor: none;
+}
